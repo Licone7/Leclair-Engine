@@ -6,7 +6,7 @@ L'éclair Engine is a WIP game engine focused on providing an easy to use, yet p
 As the engine isn't finished, contributing is much wanted! 
 
 ## Contributing
-Contributing to the engine is much appreciated, no matter how small or large the contribution. Interested? Then see our contribution guide here.
+Contributing to the engine is much appreciated, no matter how small or large the contribution. Interested? Then see our [contribution guide here](https://github.com/Licone7/Leclair-Engine/blob/main/CONTRIBUTING.md).
 
 ## Technologies
 Java 17
