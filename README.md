@@ -11,3 +11,4 @@ LWJGL 3.3.1
 Gradle 7.2
 
 ## License
+[MIT License](https://github.com/Licone7/Leclair-Engine/blob/main/LICENSE)
