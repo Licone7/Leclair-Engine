@@ -5,6 +5,9 @@ Welcome!
 L'éclair Engine is a WIP game engine focused on providing an easy to use, yet powerful method of creating beautiful games. 
 As the engine isn't finished, contributing is much wanted! 
 
+## Contributing
+Contributing to the engine is much appreciated, no matter how small or large the contribution. Interested? Then see our contribution guide here.
+
 ## Technologies
 Java 17
 LWJGL 3.3.1
