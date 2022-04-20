@@ -25,7 +25,7 @@ public class ApplicationInfo {
      */
     public static final byte RUN_BEST_GRAPHICS = 102;
 
-    static byte graphicsApi = GraphicsInfo.OPENGL;
+    static byte graphicsApi = GraphicsInfo.VULKAN;
 
     static byte audioApi = AudioInfo.OPENAL;
 
@@ -47,7 +47,7 @@ public class ApplicationInfo {
     public static void useDefaults(final byte defaultInfo) {
         switch (defaultInfo) {
         case RUN_BALANCED_PERFORMANCE:
-            graphicsApi = GraphicsInfo.OPENGL;
+            
             break;
         case RUN_BEST_GRAPHICS:
 

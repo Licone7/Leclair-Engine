@@ -1,6 +1,5 @@
 package Leclair.graphics;
 
-import Leclair.graphics.renderer.GLRenderer;
 import Leclair.graphics.renderer.Renderer;
 import Leclair.graphics.renderer.VKRenderer;
 import Leclair.graphics.scene.Mesh;
@@ -14,16 +13,10 @@ public class GraphicsInfo {
     public static final byte DISABLED = 0;
 
     /**
-     * Commands the renderer to use the OpenGL API for all graphics and compute
-     * operations
-     */
-    public static final byte OPENGL = 1;
-
-    /**
      * Commands the renderer to use the Vulkan API for all graphics and compute
      * operations
      */
-    public static final byte VULKAN = 2;
+    public static final byte VULKAN = 1;
 
     /**
      * Handle to a vertex shader <br>
@@ -80,7 +73,7 @@ public class GraphicsInfo {
 
     public static final byte SPOT_LIGHT = 32;
 
-    static byte rendererApi = OPENGL;
+    static byte rendererApi = VULKAN;
     static Renderer renderer;
     static ViewPort viewPort;
     static boolean useVsync = false;
@@ -88,7 +81,7 @@ public class GraphicsInfo {
     /**
      * Commands the engine to use the specified renderer <br>
      * <br>
-     * Can be either {@link #OPENGL} or {@link #VULKAN}, any other value will result
+     * Can be either {@link #DISABLED} or {@link #VULKAN}, any other value will result
      * in an IllegalArgumentException
      */
     public static void setRenderer(final byte api) {
@@ -118,9 +111,6 @@ public class GraphicsInfo {
         viewPort = vp;
         switch (rendererApi) {
             case DISABLED:
-                break;
-            case OPENGL:
-                renderer = new GLRenderer(viewPort);
                 break;
             case VULKAN:
                 renderer = new VKRenderer(viewPort);
