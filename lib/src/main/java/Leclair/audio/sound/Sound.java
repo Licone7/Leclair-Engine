@@ -17,13 +17,14 @@ import org.lwjgl.system.MemoryStack;
  */
 public class Sound {
 
-    public static List<Sound> sounds = new ArrayList<Sound>();
+    static List<Sound> sounds = new ArrayList<Sound>();
 
     public String path = null;
     public ShortBuffer pcm;
     public int channels = 0;
     public int sampleRate = 0;
     public int index;
+    float volume = 1;
     public boolean destroy = false;
     public boolean UPDATED_STATE = false;
     public boolean initialized = false;
@@ -35,10 +36,10 @@ public class Sound {
         this.path = path;
         sounds.add(this);
         this.index = sounds.indexOf(this);
-        Compile();
+        compile();
     }
 
-    public void Compile() {
+    public void compile() {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             final STBVorbisInfo info = STBVorbisInfo.malloc(stack);
             ByteBuffer vorbis;
@@ -61,28 +62,28 @@ public class Sound {
 
     }
 
-    public void Play() {
+    public void play() {
         this.stopped = false;
         this.paused = false;
         this.playing = true;
         this.UPDATED_STATE = true;
     }
 
-    public void Pause() {
+    public void pause() {
         this.stopped = false;
         this.paused = true;
         this.playing = false;
         this.UPDATED_STATE = true;
     }
 
-    public void Stop() {
+    public void stop() {
         this.stopped = true;
         this.paused = false;
         this.playing = false;
         this.UPDATED_STATE = true;
     }
 
-    public void Destroy() {
+    public void destroy() {
         this.stopped = false;
         this.paused = false;
         this.playing = false;

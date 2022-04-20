@@ -1,6 +1,8 @@
 package Leclair.window;
 
 import Leclair.window.glfw.GlfwWindow;
+import Leclair.window.win32.Win32Window;
+
 import org.lwjgl.system.Platform;
 
 public class WindowInfo {
@@ -86,6 +88,7 @@ public class WindowInfo {
     public static void setup() {
         switch (Platform.get()) {
             case WINDOWS:
+                window = new Win32Window();
                 break;
             case MACOSX:
                 break;
@@ -94,7 +97,7 @@ public class WindowInfo {
             default:
                 break;
         }
-        window = new GlfwWindow();
+        // window = new GlfwWindow();
         window.init();
     }
 

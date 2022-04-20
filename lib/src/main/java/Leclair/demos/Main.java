@@ -24,7 +24,7 @@ public class Main extends ApplicationStructure {
   public static void main(String[] args) {
     Configuration.DEBUG_MEMORY_ALLOCATOR.set(true);
     testSpeed();
-    GraphicsInfo.setRenderer(GraphicsInfo.OPENGL);
+    GraphicsInfo.setRenderer(GraphicsInfo.VULKAN);
     WindowInfo.setWidth(640);
     WindowInfo.setHeight(480);
     WindowInfo.setTitle("Leclair Engine Demo");
@@ -84,12 +84,12 @@ public class Main extends ApplicationStructure {
     if (InputData.isKeyPressed(Input.KEY_A)) {
       viewPort.setBackgroundColor(Color.BLACK);
     } else if (InputData.isKeyPressed(Input.KEY_B)) {
-      theme.Play();
+      theme.play();
       viewPort.setBackgroundColor(255f, 255f, 0f, 1f);
     } else if (InputData.isKeyPressed(Input.KEY_Q)) {
-      // theme.Stop();
+      // theme.stop();
     } else if (InputData.isKeyPressed(Input.KEY_C)) {
-      theme.Destroy();
+      theme.destroy();
     }
   }
 
