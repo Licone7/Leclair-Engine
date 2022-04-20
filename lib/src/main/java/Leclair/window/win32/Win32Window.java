@@ -9,7 +9,6 @@ import org.lwjgl.system.windows.WNDCLASSEX;
 import org.lwjgl.system.windows.WindowProc;
 import org.lwjgl.system.windows.WindowsLibrary;
 
-import Leclair.application.ApplicationInfo;
 import Leclair.application.ApplicationStructure;
 import Leclair.window.Window;
 
@@ -61,20 +60,17 @@ public class Win32Window implements Window {
 
     @Override
     public void show() {
-        // TODO Auto-generated method stub
 
     }
 
     @Override
     public long getWHandle() {
-        // TODO Auto-generated method stub
-        return 0;
+        return hwnd;
     }
 
     @Override
     public void destroy() {
-        // TODO Auto-generated method stub
-
+        
     }
 
 }

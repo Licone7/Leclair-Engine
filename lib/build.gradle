@@ -42,7 +42,6 @@ dependencies {
 	implementation "org.lwjgl:lwjgl"
 	implementation "org.lwjgl:lwjgl-assimp"
 	implementation "org.lwjgl:lwjgl-openal"
-	implementation "org.lwjgl:lwjgl-glfw"
 	implementation "org.lwjgl:lwjgl-opengl"
 	implementation "org.lwjgl:lwjgl-shaderc"
 	implementation "org.lwjgl:lwjgl-stb"
@@ -50,7 +49,6 @@ dependencies {
 	// LINUX X64
 	runtimeOnly "org.lwjgl:lwjgl::natives-linux"
 	runtimeOnly "org.lwjgl:lwjgl-assimp::natives-linux"
-	runtimeOnly "org.lwjgl:lwjgl-glfw::natives-linux"
 	runtimeOnly "org.lwjgl:lwjgl-openal::natives-linux"
 	runtimeOnly "org.lwjgl:lwjgl-opengl::natives-linux"
 	runtimeOnly "org.lwjgl:lwjgl-shaderc::natives-linux"
@@ -58,7 +56,6 @@ dependencies {
 	// LINUX ARM64
 	runtimeOnly "org.lwjgl:lwjgl::natives-linux-arm64"
 	runtimeOnly "org.lwjgl:lwjgl-assimp::natives-linux-arm64"
-	runtimeOnly "org.lwjgl:lwjgl-glfw::natives-linux-arm64"
 	runtimeOnly "org.lwjgl:lwjgl-openal::natives-linux-arm64"
 	runtimeOnly "org.lwjgl:lwjgl-opengl::natives-linux-arm64"
 	runtimeOnly "org.lwjgl:lwjgl-shaderc::natives-linux-arm64"
@@ -66,7 +63,6 @@ dependencies {
 	// LINUX ARM32
 	runtimeOnly "org.lwjgl:lwjgl::natives-linux-arm32"
 	runtimeOnly "org.lwjgl:lwjgl-assimp::natives-linux-arm32"
-	runtimeOnly "org.lwjgl:lwjgl-glfw::natives-linux-arm32"
 	runtimeOnly "org.lwjgl:lwjgl-openal::natives-linux-arm32"
 	runtimeOnly "org.lwjgl:lwjgl-opengl::natives-linux-arm32"
 	runtimeOnly "org.lwjgl:lwjgl-shaderc::natives-linux-arm32"
@@ -74,7 +70,6 @@ dependencies {
 	// MACOS X64
 	runtimeOnly "org.lwjgl:lwjgl::natives-macos"
 	runtimeOnly "org.lwjgl:lwjgl-assimp::natives-macos"
-	runtimeOnly "org.lwjgl:lwjgl-glfw::natives-macos"
 	runtimeOnly "org.lwjgl:lwjgl-openal::natives-macos"
 	runtimeOnly "org.lwjgl:lwjgl-opengl::natives-macos"
 	runtimeOnly "org.lwjgl:lwjgl-shaderc::natives-macos"
@@ -83,7 +78,6 @@ dependencies {
 	// MACOS ARM64
 	runtimeOnly "org.lwjgl:lwjgl::natives-macos-arm64"
 	runtimeOnly "org.lwjgl:lwjgl-assimp::natives-macos-arm64"
-	runtimeOnly "org.lwjgl:lwjgl-glfw::natives-macos-arm64"
 	runtimeOnly "org.lwjgl:lwjgl-openal::natives-macos-arm64"
 	runtimeOnly "org.lwjgl:lwjgl-opengl::natives-macos-arm64"
 	runtimeOnly "org.lwjgl:lwjgl-shaderc::natives-macos-arm64"
@@ -92,7 +86,6 @@ dependencies {
 	// WINDOWS X64
 	runtimeOnly "org.lwjgl:lwjgl::natives-windows"
 	runtimeOnly "org.lwjgl:lwjgl-assimp::natives-windows"
-	runtimeOnly "org.lwjgl:lwjgl-glfw::natives-windows"
 	runtimeOnly "org.lwjgl:lwjgl-openal::natives-windows"
 	runtimeOnly "org.lwjgl:lwjgl-opengl::natives-windows"
 	runtimeOnly "org.lwjgl:lwjgl-shaderc::natives-windows"
@@ -100,7 +93,6 @@ dependencies {
     // WINDOWS X86
 	runtimeOnly "org.lwjgl:lwjgl::natives-windows-x86"
 	runtimeOnly "org.lwjgl:lwjgl-assimp::natives-windows-x86"
-	runtimeOnly "org.lwjgl:lwjgl-glfw::natives-windows-x86"
 	runtimeOnly "org.lwjgl:lwjgl-openal::natives-windows-x86"
 	runtimeOnly "org.lwjgl:lwjgl-opengl::natives-windows-x86"
 	runtimeOnly "org.lwjgl:lwjgl-shaderc::natives-windows-x86"
@@ -108,7 +100,6 @@ dependencies {
 	// WINDOWS ARM64
 	runtimeOnly "org.lwjgl:lwjgl::natives-windows-arm64"
 	runtimeOnly "org.lwjgl:lwjgl-assimp::natives-windows-arm64"
-	runtimeOnly "org.lwjgl:lwjgl-glfw::natives-windows-arm64"
 	runtimeOnly "org.lwjgl:lwjgl-openal::natives-windows-arm64"
 	runtimeOnly "org.lwjgl:lwjgl-opengl::natives-windows-arm64"
 	runtimeOnly "org.lwjgl:lwjgl-shaderc::natives-windows-arm64"

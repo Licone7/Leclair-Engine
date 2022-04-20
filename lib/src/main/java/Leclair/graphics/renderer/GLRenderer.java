@@ -23,7 +23,6 @@ import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.PointerBuffer;
-import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GLCapabilities;
 
@@ -56,31 +55,31 @@ public class GLRenderer implements Renderer {
     @Override
     public void init() {
         position.negate();
-        GLFW.glfwMakeContextCurrent(WindowInfo.getNativeWindow());
+       // GLFW.glfwMakeContextCurrent(WindowInfo.getNativeWindow());
         capabilities = GL.createCapabilities(true);
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_STENCIL_TEST);
         glEnable(GL_CULL_FACE);
         glCullFace(GL_BACK);
-        GLFW.glfwSetCursorPosCallback(WindowInfo.getNativeWindow(),
-                (final long window2, final double xpos, final double ypos) -> {
-                    if (viewing) {
-                        final float deltaX = (float) xpos - mouseX;
-                        final float deltaY = (float) ypos - mouseY;
-                        orientation.rotateLocalX(deltaY * 0.01f).rotateLocalY(deltaX * 0.01f);
-                    }
-                    mouseX = (int) xpos;
-                    mouseY = (int) ypos;
-                });
-        GLFW.glfwSetMouseButtonCallback(WindowInfo.getNativeWindow(),
-                (final long window4, final int button, final int action, final int mods) -> {
-                    if (button == GLFW.GLFW_MOUSE_BUTTON_1 && action == GLFW.GLFW_PRESS) {
-                        viewing = true;
-                    } else {
-                        viewing = false;
-                    }
-                });
-    }
+    //     GLFW.glfwSetCursorPosCallback(WindowInfo.getNativeWindow(),
+    //             (final long window2, final double xpos, final double ypos) -> {
+    //                 if (viewing) {
+    //                     final float deltaX = (float) xpos - mouseX;
+    //                     final float deltaY = (float) ypos - mouseY;
+    //                     orientation.rotateLocalX(deltaY * 0.01f).rotateLocalY(deltaX * 0.01f);
+    //                 }
+    //                 mouseX = (int) xpos;
+    //                 mouseY = (int) ypos;
+    //             });
+    //     GLFW.glfwSetMouseButtonCallback(WindowInfo.getNativeWindow(),
+    //             (final long window4, final int button, final int action, final int mods) -> {
+    //                 if (button == GLFW.GLFW_MOUSE_BUTTON_1 && action == GLFW.GLFW_PRESS) {
+    //                     viewing = true;
+    //                 } else {
+    //                     viewing = false;
+    //                 }
+    //             });
+     }
 
     @Override
     public void ReadInfoFromGPU() {
@@ -138,7 +137,7 @@ public class GLRenderer implements Renderer {
             }
         }
         glViewport(0, 0, WindowInfo.getWidth(), WindowInfo.getHeight());
-        GLFW.glfwSwapBuffers(WindowInfo.getNativeWindow());
+       // GLFW.glfwSwapBuffers(WindowInfo.getNativeWindow());
         // }
         long end = System.currentTimeMillis();
         System.out.println((end - start) + "HUGE ms");

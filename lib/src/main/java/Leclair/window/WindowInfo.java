@@ -1,6 +1,5 @@
 package Leclair.window;
 
-import Leclair.window.glfw.GlfwWindow;
 import Leclair.window.win32.Win32Window;
 
 import org.lwjgl.system.Platform;
