@@ -25,3 +25,12 @@ When writing code, please follow these rules for styling.
 - Make sure to list your name as an author when creating new files.
 - Write JavaDoc that is explanatory and easy to read.
 - Use comments; these make understanding the code easier for others.
+
+## Bug Reports and Feature Requests
+
+Creating new issues is essential to the engine's development. If something isn't working as you'd expect, open a new bug report. 
+- Explain what you were expecting and what happened instead.
+- Give the steps in order to recreate the problem.
+- Include details about what OS you are using and what API versions you're using.
+
+Any extra information that may be useful is always helpful when writing a bug report. When creating a new feature request, describe in detail what the feature is you'd like the engine to have and why it'll contribute to the improvement of the engine. Issue templates are given for your assistance.
