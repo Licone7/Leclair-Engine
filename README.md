@@ -9,9 +9,9 @@ As the engine isn't finished, contributing is much wanted!
 Contributing to the engine is much appreciated, no matter how small or large the contribution. Interested? Then see our [contribution guide here](https://github.com/Licone7/Leclair-Engine/blob/main/CONTRIBUTING.md).
 
 ## Technologies
-Java 17
-LWJGL 3.3.1
-Gradle 7.2
+- Java 17
+- LWJGL 3.3.1
+- Gradle 7.2
 
 ## License
 [MIT License](https://github.com/Licone7/Leclair-Engine/blob/main/LICENSE)
