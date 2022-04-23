@@ -11,7 +11,7 @@ Contributing to the engine is much appreciated, no matter how small or large the
 ## Technologies
 - Java 17
 - LWJGL 3.3.1
-- Gradle 7.2
+- Gradle 7.3
 
 ## License
 [MIT License](https://github.com/Licone7/Leclair-Engine/blob/main/LICENSE)
