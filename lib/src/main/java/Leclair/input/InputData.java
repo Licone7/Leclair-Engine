@@ -15,15 +15,18 @@ public class InputData {
                     break;
                 case 'B':
                     if (key == Input.KEY_B) {
+                        KEY_DOWN = false;
                         return true;
                     }
                     break;
                 case 'C':
                     if (key == Input.KEY_C) {
+                        KEY_DOWN = false;
                         return true;
                     }
                 case 'D':
                     if (key == Input.KEY_D) {
+                        KEY_DOWN = false;
                         return true;
                     }
                     break;

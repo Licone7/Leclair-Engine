@@ -86,7 +86,8 @@ public class Main extends ApplicationStructure {
     } else if (InputData.isKeyPressed(Input.KEY_B)) {
       theme.play();
       viewPort.setBackgroundColor(255f, 255f, 0f, 1f);
-    } else if (InputData.isKeyPressed(Input.KEY_Q)) {
+    } else if (InputData.isKeyPressed(Input.KEY_D)) {
+      
       // theme.stop();
     } else if (InputData.isKeyPressed(Input.KEY_C)) {
       theme.destroy();

@@ -10,6 +10,7 @@ import org.lwjgl.system.windows.WindowProc;
 import org.lwjgl.system.windows.WindowsLibrary;
 
 import Leclair.application.ApplicationStructure;
+import Leclair.input.InputData;
 import Leclair.window.Window;
 import Leclair.window.WindowInfo;
 
@@ -30,9 +31,15 @@ public class Win32Window implements Window {
     public void init() {
         windowProc = new WindowProc() {
             public long invoke(long hwnd, int uMsg, long wParam, long lParam) {
-                if (uMsg == User32.WM_CLOSE) {
-                    User32.DestroyWindow(hwnd);
-                    ApplicationStructure.stop();
+                switch (uMsg) {
+                    case User32.WM_CLOSE:
+                        User32.DestroyWindow(hwnd);
+                        ApplicationStructure.stop();
+                        break;
+                    case User32.WM_KEYDOWN:
+                        InputData.KEY_DOWN = true;
+                        InputData.CHAR = (char) wParam;
+                        break;
                 }
                 return User32.DefWindowProc(hwnd, uMsg, wParam, lParam);
             }

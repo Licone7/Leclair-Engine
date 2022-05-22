@@ -24,6 +24,6 @@ public interface Input {
 
     public void loop();
 
-    public void clenaup();
+    public void cleanup();
     
 }
