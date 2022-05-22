@@ -1,5 +1,11 @@
 package Leclair.math;
 
+/**
+ * This class represents a standard four-by-four matrix using floats
+ * 
+ * @since v1
+ * @author Brett Burnett
+ */
 public class Matrix4x4 {
 
     float r0c0 = 0f;

@@ -1,5 +1,11 @@
 package Leclair.math;
 
+/**
+ * This class represents a standard three-by-three matrix using floats
+ * 
+ * @since v1
+ * @author Brett Burnett
+ */
 public class Matrix3x3 {
 
     float r0c0 = 0f; // Row 0 Column 0

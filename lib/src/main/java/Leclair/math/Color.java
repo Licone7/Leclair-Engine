@@ -1,5 +1,11 @@
 package Leclair.math;
 
+/**
+ * This class represents a color with a four component vector
+ * 
+ * @since v1
+ * @author Brett Burnett
+ */
 public class Color {
 
     public static final Color RED = new Color(1f, 0f, 0f, 0f);

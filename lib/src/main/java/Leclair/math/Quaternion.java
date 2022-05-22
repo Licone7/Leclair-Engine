@@ -1,5 +1,11 @@
 package Leclair.math;
 
+/**
+ * This class represents a standard quaternion using floats
+ * 
+ * @since v1
+ * @author Brett Burnett
+ */
 public class Quaternion {
 
     float x = 0;
