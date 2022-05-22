@@ -109,7 +109,7 @@ public class VKRenderer implements Renderer {
     }
 
     @Override
-    public void ReadInfoFromGPU() {
+    public void printCapabilities() {
 
     }
 

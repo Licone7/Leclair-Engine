@@ -8,7 +8,7 @@ public interface Renderer {
 
     public void init();
 
-    public void ReadInfoFromGPU();
+    public void printCapabilities();
 
     public void loop();
 

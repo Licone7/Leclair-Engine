@@ -119,7 +119,7 @@ public class GraphicsInfo {
                 throw new IllegalArgumentException("The requested renderer is invalid");
         }
         renderer.init();
-        renderer.ReadInfoFromGPU();
+        renderer.printCapabilities();
     }
 
     /**

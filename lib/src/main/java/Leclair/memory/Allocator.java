@@ -1,7 +1,6 @@
 package Leclair.memory;
 
 import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 
@@ -25,14 +24,14 @@ public class Allocator {
     public static final ByteBuffer bb1 = BufferUtils.createByteBuffer(1);
 
     /**
+     * A utility ByteBuffer with a capacity of 64
+     */
+    public static final ByteBuffer bb64 = BufferUtils.createByteBuffer(64);
+
+    /**
      * A utility ByteBuffer with a capacity of 128
      */
     public static final ByteBuffer bb128 = BufferUtils.createByteBuffer(128);
-
-    /**
-     * A utility ByteBuffer with a capacity of 256
-     */
-    public static final ByteBuffer bb256 = BufferUtils.createByteBuffer(256);
 
     /**
      * A utility IntBuffer with a capacity of 1
@@ -45,17 +44,13 @@ public class Allocator {
     public static final IntBuffer ib128 = BufferUtils.createIntBuffer(128);
 
     /**
-     * A utility FloatBuffer with a capacity of 1
+     * A utility LongBuffer with a capacity of 1
      */
-    public static final FloatBuffer fb1 = BufferUtils.createFloatBuffer(1);
-
-    /**
-     * A utility FloatBuffer with a capacity of 128
-     */
-    public static final FloatBuffer fb128 = BufferUtils.createFloatBuffer(128);
-
     public static final LongBuffer lb1 = BufferUtils.createLongBuffer(1);
 
+    /**
+     * A utility LongBuffer with a capacity of 128
+     */
     public static final LongBuffer lb128 = BufferUtils.createLongBuffer(128);
 
     /**
