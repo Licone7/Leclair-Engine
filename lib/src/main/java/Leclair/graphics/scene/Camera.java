@@ -9,6 +9,9 @@ import Leclair.window.WindowInfo;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 
+/**
+ * 
+ */
 public class Camera {
 
     Matrix4f projectionMatrix = new Matrix4f();
@@ -23,7 +26,7 @@ public class Camera {
     float deltaX;
     float deltaY;
     boolean viewing;
-    public static final float FOV = MathUtilities.AsRadians(70);
+    public static final float FOV = MathUtilities.asRadians(70);
     public static final float Z_NEAR = 0.01f;
     public static final float Z_FAR = 1000f;
 

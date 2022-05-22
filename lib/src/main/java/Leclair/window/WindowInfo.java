@@ -15,6 +15,10 @@ public class WindowInfo {
 
     static Window window;
 
+    public static Window window() {
+        return window;
+    }
+
     public static int getWidth() {
         return width;
     }
@@ -96,7 +100,6 @@ public class WindowInfo {
             default:
                 break;
         }
-        // window = new GlfwWindow();
         window.init();
     }
 

@@ -10,7 +10,7 @@ import org.lwjgl.PointerBuffer;
 /**
  * The buffers in this class are for convenience and are used throughout the
  * engine to avoid expensive buffer allocations for trivially small data. The
- * Garbage Collector automatically cleans up these buffers up so they never have
+ * Garbage Collector automatically cleans up these buffers so they never have
  * to be manually de-allocated.
  * 
  * @since v1.0

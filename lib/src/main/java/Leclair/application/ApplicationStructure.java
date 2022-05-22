@@ -53,7 +53,7 @@ public abstract class ApplicationStructure {
         cleanup();
     }
 
-    public static void Stop() {
+    public static void stop() {
         RUNNING = false;
     }
 

@@ -36,7 +36,7 @@ public class Main extends ApplicationStructure {
   @Override
   public void appSetup() {
     viewPort.setBackgroundColor(Color.RED);
-    System.out.println(MathUtilities.GenerateRandom());
+    System.out.println(MathUtilities.generateRandom());
     FloatBuffer fb = BufferUtils.createFloatBuffer(4 * 6);
     fb.put(-3.0f).put(-2.0f).put(0f).put(1f);
     fb.put(3.0f).put(-2.0f).put(0f).put(1f);

@@ -1,5 +1,11 @@
 package Leclair.math;
 
+/**
+ * This class represents a standard three component vector using floats
+ * 
+ * @since v1
+ * @author Brett Burnett
+ */
 public class Vector3 {
 
     float x = 0f;
