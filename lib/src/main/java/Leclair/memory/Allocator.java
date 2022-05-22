@@ -64,6 +64,11 @@ public class Allocator {
     public static final PointerBuffer pb1 = BufferUtils.createPointerBuffer(1);
 
     /**
+     * A utility PointerBuffer with a capacity of 64
+     */
+    public static final PointerBuffer pb64 = BufferUtils.createPointerBuffer(2); 
+
+    /**
      * A utility PointerBuffer with a capacity of 128
      */
     public static final PointerBuffer pb128 = BufferUtils.createPointerBuffer(1); 
