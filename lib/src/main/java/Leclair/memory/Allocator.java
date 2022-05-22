@@ -66,12 +66,12 @@ public class Allocator {
     /**
      * A utility PointerBuffer with a capacity of 64
      */
-    public static final PointerBuffer pb64 = BufferUtils.createPointerBuffer(2); 
+    public static final PointerBuffer pb64 = BufferUtils.createPointerBuffer(64); 
 
     /**
      * A utility PointerBuffer with a capacity of 128
      */
-    public static final PointerBuffer pb128 = BufferUtils.createPointerBuffer(1); 
+    public static final PointerBuffer pb128 = BufferUtils.createPointerBuffer(128); 
 
     public static void deallocate() {
 
