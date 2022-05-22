@@ -3,6 +3,7 @@ package Leclair.memory;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.nio.LongBuffer;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.PointerBuffer;
@@ -21,47 +22,51 @@ public class Allocator {
     /**
      * A utility ByteBuffer with a capacity of 1
      */
-    public static final ByteBuffer UtilityBB1 = BufferUtils.createByteBuffer(1);
+    public static final ByteBuffer bb1 = BufferUtils.createByteBuffer(1);
 
     /**
      * A utility ByteBuffer with a capacity of 128
      */
-    public static final ByteBuffer UtilityBB2 = BufferUtils.createByteBuffer(128);
+    public static final ByteBuffer bb128 = BufferUtils.createByteBuffer(128);
 
     /**
      * A utility ByteBuffer with a capacity of 256
      */
-    public static final ByteBuffer UtilityBB3 = BufferUtils.createByteBuffer(256);
+    public static final ByteBuffer bb256 = BufferUtils.createByteBuffer(256);
 
     /**
      * A utility IntBuffer with a capacity of 1
      */
-    public static final IntBuffer UtilityIB1 = BufferUtils.createIntBuffer(1);
+    public static final IntBuffer ib1 = BufferUtils.createIntBuffer(1);
 
     /**
      * A utility IntBuffer with a capacity of 128
      */
-    public static final IntBuffer UtilityIB2 = BufferUtils.createIntBuffer(128);
+    public static final IntBuffer ib128 = BufferUtils.createIntBuffer(128);
 
     /**
      * A utility FloatBuffer with a capacity of 1
      */
-    public static final FloatBuffer UtilityFB1 = BufferUtils.createFloatBuffer(1);
+    public static final FloatBuffer fb1 = BufferUtils.createFloatBuffer(1);
 
     /**
      * A utility FloatBuffer with a capacity of 128
      */
-    public static final FloatBuffer UtilityFB2 = BufferUtils.createFloatBuffer(128);
+    public static final FloatBuffer fb128 = BufferUtils.createFloatBuffer(128);
+
+    public static final LongBuffer lb1 = BufferUtils.createLongBuffer(1);
+
+    public static final LongBuffer lb128 = BufferUtils.createLongBuffer(128);
 
     /**
      * A utility PointerBuffer with a capacity of 1
      */
-    public static final PointerBuffer UtilityPB1 = BufferUtils.createPointerBuffer(1);
+    public static final PointerBuffer pb1 = BufferUtils.createPointerBuffer(1);
 
     /**
      * A utility PointerBuffer with a capacity of 128
      */
-    public static final PointerBuffer UtilityPB2 = BufferUtils.createPointerBuffer(128); 
+    public static final PointerBuffer pb128 = BufferUtils.createPointerBuffer(1); 
 
     public static void deallocate() {
 

@@ -32,7 +32,7 @@ import org.lwjgl.openal.ALCCapabilities;
 import org.lwjgl.openal.ALCapabilities;
 import org.lwjgl.openal.EXTThreadLocalContext;
 
-import static Leclair.memory.Allocator.UtilityIB1;
+import static Leclair.memory.Allocator.ib1;
 
 /**
  * @since v1
@@ -121,10 +121,10 @@ public class ALRenderer implements AudioRenderer {
     @Override
     public void addSound(final Sound sound) {
         // try (MemoryStack stack = MemoryStack.stackPush()) {
-        alGenBuffers(UtilityIB1);
-        final int buffer = UtilityIB1.get(0);
-        alGenSources(UtilityIB1);
-        final int source = UtilityIB1.get(0);
+        alGenBuffers(ib1);
+        final int buffer = ib1.get(0);
+        alGenSources(ib1);
+        final int source = ib1.get(0);
         alBufferData(buffer, sound.channels == 1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16, sound.pcm, sound.sampleRate);
         alSourcei(source, AL_LOOPING, 1);
         alSourcei(source, AL_BUFFER, buffer);
