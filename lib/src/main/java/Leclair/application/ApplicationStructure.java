@@ -22,8 +22,6 @@ public abstract class ApplicationStructure {
     float actualFps = 1000000000 / targetFps;
 
     public void start() {
-        // long start = System.currentTimeMillis();
-        // long end = System.currentTimeMillis();
         Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
         Configuration.DISABLE_CHECKS.set(false);
         AssetLoader.setup();
@@ -32,8 +30,11 @@ public abstract class ApplicationStructure {
         viewPort = new ViewPort();
         GraphicsInfo.setup(viewPort);
         appSetup();
-        // System.out.println((end - start) + "ms");
-        WindowInfo.showWindow();
+        WindowInfo.showWindow(); // This perhaps should be made optional.
+        // The reason we don't show the window immediately is because the window freezes
+        // while the graphics renderer is setting up. This doesn't happen if we wait
+        // until afterwards to show the window. There might be a better way of doing
+        // this though.
         loop();
     }
 

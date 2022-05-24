@@ -24,7 +24,7 @@ import Leclair.window.WindowInfo;
 public class Win32Window implements Window {
 
     long hwnd;
-    MSG msg;
+    MSG msg = MSG.malloc();
     WindowProc windowProc;
 
     @Override
@@ -61,9 +61,6 @@ public class Win32Window implements Window {
             if (hwnd == 0) {
                 throw new IllegalStateException("Cannot create a window");
             }
-            // in.free();
-            User32.ShowWindow(hwnd, User32.SW_SHOW);
-            msg = MSG.calloc();
         }
     }
 
@@ -80,7 +77,7 @@ public class Win32Window implements Window {
 
     @Override
     public void show() {
-
+        User32.ShowWindow(hwnd, User32.SW_SHOW);
     }
 
     @Override

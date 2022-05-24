@@ -4,6 +4,10 @@ import Leclair.window.win32.Win32Window;
 
 import org.lwjgl.system.Platform;
 
+/**
+ * @since v1
+ * @author Brett Burnett
+ */
 public class WindowInfo {
 
     static int width = 640;
