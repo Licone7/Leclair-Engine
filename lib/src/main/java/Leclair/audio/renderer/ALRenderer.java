@@ -31,8 +31,7 @@ import org.lwjgl.openal.ALC10;
 import org.lwjgl.openal.ALCCapabilities;
 import org.lwjgl.openal.ALCapabilities;
 import org.lwjgl.openal.EXTThreadLocalContext;
-
-import static Leclair.memory.Allocator.ib1;
+import org.lwjgl.system.MemoryStack;
 
 /**
  * @since v1
@@ -120,17 +119,20 @@ public class ALRenderer implements AudioRenderer {
 
     @Override
     public void addSound(final Sound sound) {
-        // try (MemoryStack stack = MemoryStack.stackPush()) {
-        alGenBuffers(ib1);
-        final int buffer = ib1.get(0);
-        alGenSources(ib1);
-        final int source = ib1.get(0);
-        alBufferData(buffer, sound.channels == 1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16, sound.pcm, sound.sampleRate);
-        alSourcei(source, AL_LOOPING, 1);
-        alSourcei(source, AL_BUFFER, buffer);
-        buffers.add(sound.index, buffer);
-        sources.add(sound.index, source);
-        // }
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            IntBuffer bufferNames = stack.mallocInt(1);
+            alGenBuffers(bufferNames);
+            final int buffer = bufferNames.get(0);
+            IntBuffer srcNames = stack.mallocInt(1);
+            alGenSources(srcNames);
+            final int source = srcNames.get(0);
+            alBufferData(buffer, sound.channels == 1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16, sound.pcm,
+                    sound.sampleRate);
+            alSourcei(source, AL_LOOPING, 1);
+            alSourcei(source, AL_BUFFER, buffer);
+            buffers.add(sound.index, buffer);
+            sources.add(sound.index, source);
+        }
     }
 
     @Override
