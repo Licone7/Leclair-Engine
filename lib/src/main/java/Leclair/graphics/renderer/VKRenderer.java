@@ -17,11 +17,16 @@ import org.lwjgl.vulkan.KHRSurface;
 import org.lwjgl.vulkan.KHRWin32Surface;
 import org.lwjgl.vulkan.VK;
 import org.lwjgl.vulkan.VkApplicationInfo;
+import org.lwjgl.vulkan.VkDevice;
+import org.lwjgl.vulkan.VkDeviceCreateInfo;
+import org.lwjgl.vulkan.VkDeviceQueueCreateInfo;
+import org.lwjgl.vulkan.VkExtensionProperties;
 import org.lwjgl.vulkan.VkInstance;
 import org.lwjgl.vulkan.VkInstanceCreateInfo;
 import org.lwjgl.vulkan.VkPhysicalDevice;
 import org.lwjgl.vulkan.VkPhysicalDeviceFeatures;
 import org.lwjgl.vulkan.VkPhysicalDeviceProperties;
+import org.lwjgl.vulkan.VkQueue;
 import org.lwjgl.vulkan.VkQueueFamilyProperties;
 import org.lwjgl.vulkan.VkWin32SurfaceCreateInfoKHR;
 
@@ -33,7 +38,6 @@ import Leclair.window.WindowInfo;
 
 public class VKRenderer implements Renderer {
 
-    static int vkResult = VK_SUCCESS;
     static boolean multiDrawIndirectSupported = false;
     static PointerBuffer extensionList = MemoryUtil.memAllocPointer(64);
     static final ByteBuffer KHR_Surface = MemoryUtil.memASCII(KHRSurface.VK_KHR_SURFACE_EXTENSION_NAME);
@@ -43,6 +47,10 @@ public class VKRenderer implements Renderer {
     static VkInstance instance;
     static long surface;
     static VkPhysicalDevice physicalDevice;
+    static VkDevice device;
+    static VkQueue queue;
+
+    static int queueFamilyIndex;
 
     public VKRenderer(final ViewPort viewPort) {
 
@@ -75,13 +83,9 @@ public class VKRenderer implements Renderer {
             vkInstanceCreateInfo.ppEnabledLayerNames(layerList);
             vkInstanceCreateInfo.ppEnabledExtensionNames(extensionList);
             PointerBuffer pInstance = stack.mallocPointer(1);
-            vkResult = vkCreateInstance(vkInstanceCreateInfo, null, pInstance);
-            switch (vkResult) {
-                case VK_SUCCESS:
-                    // Continue
-                    break;
-                case VK_ERROR_INCOMPATIBLE_DRIVER:
-                    throw new IllegalStateException("A compatible Vulkan ICD was not found!");
+            if (vkCreateInstance(vkInstanceCreateInfo, null, pInstance) != VK_SUCCESS) {
+                throw new IllegalStateException(
+                        "Vulkan instance creation failed; ensure you have a Vulkan ICD installed!");
             }
             instance = new VkInstance(pInstance.get(0), vkInstanceCreateInfo);
 
@@ -93,25 +97,23 @@ public class VKRenderer implements Renderer {
                 vkWin32SurfaceCreateInfoKHR.hinstance(WindowsLibrary.HINSTANCE);
                 vkWin32SurfaceCreateInfoKHR.hwnd(WindowInfo.window().getWHandle());
                 LongBuffer pSurface = stack.mallocLong(1);
-                vkResult = KHRWin32Surface.vkCreateWin32SurfaceKHR(instance, vkWin32SurfaceCreateInfoKHR, null,
-                        pSurface);
-                switch (vkResult) {
-                    case VK_SUCCESS:
-                        break;
-                    default:
-                        throw new IllegalStateException();
+                if (KHRWin32Surface.vkCreateWin32SurfaceKHR(instance, vkWin32SurfaceCreateInfoKHR, null,
+                        pSurface) != VK_SUCCESS) {
+                    throw new IllegalStateException("Window surface creation failed!");
                 }
+
                 surface = pSurface.get(0);
             }
 
             // FIND VULKANS GPUS
 
+            // TODO: We need a better way of finding suitable physical devices
             IntBuffer pPhysicalDeviceCount = stack.mallocInt(1);
             vkEnumeratePhysicalDevices(instance, pPhysicalDeviceCount, null);
             PointerBuffer pPhysicalDevices = stack.mallocPointer(pPhysicalDeviceCount.get(0));
             vkEnumeratePhysicalDevices(instance, pPhysicalDeviceCount, pPhysicalDevices);
             if (pPhysicalDeviceCount.get(0) > 0) {
-                int selectedQueueFamilyIndex = Integer.MAX_VALUE;
+                // int selectedQueueFamilyIndex = Integer.MAX_VALUE;
                 for (int i = 0; i < pPhysicalDeviceCount.get(0); ++i) {
                     long handle = pPhysicalDevices.get(i);
                     VkPhysicalDevice checkPhysicalDevice = new VkPhysicalDevice(handle, instance);
@@ -126,6 +128,7 @@ public class VKRenderer implements Renderer {
                         // If multiple draw indirect is supported...AWESOME
                         multiDrawIndirectSupported = true;
                     }
+
                     IntBuffer pQueueFamilyPropertyCount = stack.mallocInt(1);
                     vkGetPhysicalDeviceQueueFamilyProperties(checkPhysicalDevice, pQueueFamilyPropertyCount, null);
                     if (pQueueFamilyPropertyCount.get(0) == 0) {
@@ -137,11 +140,8 @@ public class VKRenderer implements Renderer {
                             pQueueFamilyProperties);
                     for (int j = 0; j < pQueueFamilyPropertyCount.get(0); ++j) {
                         if ((pQueueFamilyProperties.get(j).queueCount() > 0)
-                                && (pQueueFamilyProperties.get(j).queueFlags() & VK_QUEUE_GRAPHICS_BIT) != 0
-                                && (pQueueFamilyProperties.get(j).queueFlags() & VK_QUEUE_COMPUTE_BIT) != 0) {
-                            // int checkQueueFamilyIndex = j;
-                            // Throw error if queue family index not found, change transfer bit to compute
-                            // bit
+                                && (pQueueFamilyProperties.get(j).queueFlags() & VK_QUEUE_GRAPHICS_BIT) != 0) {
+                            queueFamilyIndex = j;
                             break;
                         }
                     }
@@ -149,30 +149,49 @@ public class VKRenderer implements Renderer {
                 }
             }
             if (physicalDevice == null) {
-                throw new IllegalStateException("No GPUs compatible with Vulkan were found");
+                throw new IllegalStateException("No GPUs compatible with Vulkan were found!");
             }
+            VkDeviceQueueCreateInfo.Buffer vkDeviceQueueCreateInfo = VkDeviceQueueCreateInfo.malloc(1, stack);
+            vkDeviceQueueCreateInfo.sType$Default();
+            vkDeviceQueueCreateInfo.pNext(0);
+            vkDeviceQueueCreateInfo.flags(0);
+            vkDeviceQueueCreateInfo.queueFamilyIndex(queueFamilyIndex);
+            vkDeviceQueueCreateInfo.pQueuePriorities(stack.floats(1.0f));
+            VkDeviceCreateInfo pCreateInfo = VkDeviceCreateInfo.malloc(stack);
+            pCreateInfo.sType$Default();
+            pCreateInfo.pNext(0);
+            pCreateInfo.flags(0);
+            pCreateInfo.pQueueCreateInfos(vkDeviceQueueCreateInfo);
+            pCreateInfo.ppEnabledLayerNames(null);
+            pCreateInfo.ppEnabledExtensionNames(null);
+            PointerBuffer pDevice = stack.mallocPointer(1);
+            if (vkCreateDevice(physicalDevice, pCreateInfo, null, pDevice) != VK_SUCCESS) {
+                throw new IllegalStateException();
+            }
+            device = new VkDevice(pDevice.get(0), physicalDevice, pCreateInfo);
+            PointerBuffer pQueue = stack.mallocPointer(1);
+            vkGetDeviceQueue(device, queueFamilyIndex, 0, pQueue);
+            queue = new VkQueue(pQueue.get(0), device);
+            
             // boolean foundSwapchainExtension = false;
             // IntBuffer pPropertyCount = stack.mallocInt(1);
             // vkEnumerateDeviceExtensionProperties(physicalDevice, (String) null,
-            // pPropertyCount, null);
+            //         pPropertyCount, null);
             // if (pPropertyCount.get(0) > 0) {
-            // VkExtensionProperties.Buffer deviceExtensions =
-            // VkExtensionProperties.malloc(pPropertyCount.get(0), stack);
-            // vkEnumerateDeviceExtensionProperties(physicalDevice, (String) null,
-            // pPropertyCount, deviceExtensions);
-            // for (int i = 0; i < pPropertyCount.get(0); i++) {
-            // deviceExtensions.position(i);
-            // if
-            // (VK_KHR_SWAPCHAIN_EXTENSION_NAME.equals(deviceExtensions.extensionNameString()))
-            // {
-            // foundSwapchainExtension = true;
-            // extensionList.put(KHR_swapchain);
-            // }
-            // }
+            //     VkExtensionProperties.Buffer deviceExtensions = VkExtensionProperties.malloc(pPropertyCount.get(0),
+            //             stack);
+            //     vkEnumerateDeviceExtensionProperties(physicalDevice, (String) null,
+            //             pPropertyCount, deviceExtensions);
+            //     for (int i = 0; i < pPropertyCount.get(0); i++) {
+            //         deviceExtensions.position(i);
+            //         if (VK_KHR_SWAPCHAIN_EXTENSION_NAME.equals(deviceExtensions.extensionNameString())) {
+            //             foundSwapchainExtension = true;
+            //             extensionList.put(KHR_swapchain);
+            //         }
+            //     }
             // }
             // if (foundSwapchainExtension == false) {
-            // throw new IllegalStateException("The VK_KHR_swapchain extension could not be
-            // found");
+            //     throw new IllegalStateException("The VK_KHR_swapchain extension could not be found");
             // }
 
         }
@@ -231,6 +250,8 @@ public class VKRenderer implements Renderer {
     @Override
     public void cleanup() {
         KHRSurface.vkDestroySurfaceKHR(instance, surface, null);
+        vkDeviceWaitIdle(device);
+        vkDestroyDevice(device, null);
         vkDestroyInstance(instance, null);
         MemoryUtil.memFree(KHR_Surface);
         MemoryUtil.memFree(KHR_Win32_Surface);
