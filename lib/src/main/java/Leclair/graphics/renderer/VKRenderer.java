@@ -21,6 +21,9 @@ import org.lwjgl.vulkan.VkExtensionProperties;
 import org.lwjgl.vulkan.VkInstance;
 import org.lwjgl.vulkan.VkInstanceCreateInfo;
 import org.lwjgl.vulkan.VkPhysicalDevice;
+import org.lwjgl.vulkan.VkPhysicalDeviceFeatures;
+import org.lwjgl.vulkan.VkPhysicalDeviceProperties;
+import org.lwjgl.vulkan.VkQueueFamilyProperties;
 import org.lwjgl.vulkan.VkWin32SurfaceCreateInfoKHR;
 
 import Leclair.graphics.scene.Mesh;
@@ -105,31 +108,70 @@ public class VKRenderer implements Renderer {
 
             IntBuffer pPhysicalDeviceCount = stack.mallocInt(1);
             vkEnumeratePhysicalDevices(instance, pPhysicalDeviceCount, null);
+            PointerBuffer pPhysicalDevices = stack.mallocPointer(pPhysicalDeviceCount.get(0));
+            vkEnumeratePhysicalDevices(instance, pPhysicalDeviceCount, pPhysicalDevices);
             if (pPhysicalDeviceCount.get(0) > 0) {
-                PointerBuffer pPhysicalDevices = stack.mallocPointer(pPhysicalDeviceCount.get(0));
-                vkEnumeratePhysicalDevices(instance, pPhysicalDeviceCount, pPhysicalDevices);
-                physicalDevice = new VkPhysicalDevice(pPhysicalDevices.get(0), instance);
-            } else {
-                throw new IllegalStateException("No Vulkan compatible GPUs were found for use");
-            }
-            boolean foundSwapchainExtension = false;
-            IntBuffer pPropertyCount = stack.mallocInt(1);
-            vkEnumerateDeviceExtensionProperties(physicalDevice, (String) null, pPropertyCount, null);
-            if (pPropertyCount.get(0) > 0) {
-                VkExtensionProperties.Buffer deviceExtensions = VkExtensionProperties.malloc(pPropertyCount.get(0), stack);
-                vkEnumerateDeviceExtensionProperties(physicalDevice, (String) null, pPropertyCount, deviceExtensions);
-                for (int i = 0; i < pPropertyCount.get(0); i++) {
-                    deviceExtensions.position(i);
-                    if (VK_KHR_SWAPCHAIN_EXTENSION_NAME.equals(deviceExtensions.extensionNameString())) {
-                        foundSwapchainExtension = true;
-                        extensionList.put(KHR_swapchain);
+                int selectedQueueFamilyIndex = Integer.MAX_VALUE;
+                for (int i = 0; i < pPhysicalDeviceCount.get(0); ++i) {
+                    long handle = pPhysicalDevices.get(i);
+                    VkPhysicalDevice checkPhysicalDevice = new VkPhysicalDevice(handle, instance);
+                    // VkPhysicalDeviceProperties pProperties =
+                    // VkPhysicalDeviceProperties.malloc(stack);
+                    // VkPhysicalDeviceFeatures pFeatures = VkPhysicalDeviceFeatures.malloc(stack);
+                    // vkGetPhysicalDeviceProperties(checkPhysicalDevice, pProperties);
+                    // vkGetPhysicalDeviceFeatures(checkPhysicalDevice, pFeatures);
+                    // if (pFeatures.fullDrawIndexUint32() == true) {
+                    // // throw new IllegalStateException("Testing");
+                    // } else {
+                    // break;
+                    // }
+                    IntBuffer pQueueFamilyPropertyCount = stack.mallocInt(1);
+                    vkGetPhysicalDeviceQueueFamilyProperties(checkPhysicalDevice, pQueueFamilyPropertyCount, null);
+                    if (pQueueFamilyPropertyCount.get(0) == 0) {
+                        continue;
                     }
+                    VkQueueFamilyProperties.Buffer pQueueFamilyProperties = VkQueueFamilyProperties
+                            .calloc(pQueueFamilyPropertyCount.get(0), stack);
+                    vkGetPhysicalDeviceQueueFamilyProperties(checkPhysicalDevice, pQueueFamilyPropertyCount,
+                            pQueueFamilyProperties);
+                    for (int j = 0; j < pQueueFamilyPropertyCount.get(0); ++j) {
+                        if ((pQueueFamilyProperties.get(j).queueCount() > 0)
+                                && (pQueueFamilyProperties.get(j).queueFlags() & VK_QUEUE_GRAPHICS_BIT) != 0
+                                && (pQueueFamilyProperties.get(j).queueFlags() & VK_QUEUE_TRANSFER_BIT) != 0) {
+                            //int checkQueueFamilyIndex = j;
+                            break;
+                        }
+                    }
+                    physicalDevice = checkPhysicalDevice;
                 }
             }
-            if (foundSwapchainExtension == false) {
-                throw new IllegalStateException("The VK_KHR_swapchain extension could not be found");
+            if (physicalDevice == null) {
+                throw new IllegalStateException("No GPUs compatible with Vulkan were found");
             }
-            
+            // boolean foundSwapchainExtension = false;
+            // IntBuffer pPropertyCount = stack.mallocInt(1);
+            // vkEnumerateDeviceExtensionProperties(physicalDevice, (String) null,
+            // pPropertyCount, null);
+            // if (pPropertyCount.get(0) > 0) {
+            // VkExtensionProperties.Buffer deviceExtensions =
+            // VkExtensionProperties.malloc(pPropertyCount.get(0), stack);
+            // vkEnumerateDeviceExtensionProperties(physicalDevice, (String) null,
+            // pPropertyCount, deviceExtensions);
+            // for (int i = 0; i < pPropertyCount.get(0); i++) {
+            // deviceExtensions.position(i);
+            // if
+            // (VK_KHR_SWAPCHAIN_EXTENSION_NAME.equals(deviceExtensions.extensionNameString()))
+            // {
+            // foundSwapchainExtension = true;
+            // extensionList.put(KHR_swapchain);
+            // }
+            // }
+            // }
+            // if (foundSwapchainExtension == false) {
+            // throw new IllegalStateException("The VK_KHR_swapchain extension could not be
+            // found");
+            // }
+
         }
     }
 
