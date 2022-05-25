@@ -17,7 +17,6 @@ import org.lwjgl.vulkan.KHRSurface;
 import org.lwjgl.vulkan.KHRWin32Surface;
 import org.lwjgl.vulkan.VK;
 import org.lwjgl.vulkan.VkApplicationInfo;
-import org.lwjgl.vulkan.VkExtensionProperties;
 import org.lwjgl.vulkan.VkInstance;
 import org.lwjgl.vulkan.VkInstanceCreateInfo;
 import org.lwjgl.vulkan.VkPhysicalDevice;
@@ -35,6 +34,7 @@ import Leclair.window.WindowInfo;
 public class VKRenderer implements Renderer {
 
     static int vkResult = VK_SUCCESS;
+    static boolean multiDrawIndirectSupported = false;
     static PointerBuffer extensionList = MemoryUtil.memAllocPointer(64);
     static final ByteBuffer KHR_Surface = MemoryUtil.memASCII(KHRSurface.VK_KHR_SURFACE_EXTENSION_NAME);
     static final ByteBuffer KHR_Win32_Surface = MemoryUtil
@@ -115,16 +115,17 @@ public class VKRenderer implements Renderer {
                 for (int i = 0; i < pPhysicalDeviceCount.get(0); ++i) {
                     long handle = pPhysicalDevices.get(i);
                     VkPhysicalDevice checkPhysicalDevice = new VkPhysicalDevice(handle, instance);
-                    // VkPhysicalDeviceProperties pProperties =
-                    // VkPhysicalDeviceProperties.malloc(stack);
-                    // VkPhysicalDeviceFeatures pFeatures = VkPhysicalDeviceFeatures.malloc(stack);
-                    // vkGetPhysicalDeviceProperties(checkPhysicalDevice, pProperties);
-                    // vkGetPhysicalDeviceFeatures(checkPhysicalDevice, pFeatures);
-                    // if (pFeatures.fullDrawIndexUint32() == true) {
-                    // // throw new IllegalStateException("Testing");
-                    // } else {
-                    // break;
-                    // }
+                    VkPhysicalDeviceProperties pProperties = VkPhysicalDeviceProperties.malloc(stack);
+                    VkPhysicalDeviceFeatures pFeatures = VkPhysicalDeviceFeatures.malloc(stack);
+                    vkGetPhysicalDeviceProperties(checkPhysicalDevice, pProperties);
+                    vkGetPhysicalDeviceFeatures(checkPhysicalDevice, pFeatures);
+                    if (VK_API_VERSION_MINOR(pProperties.apiVersion()) < 1) { // Vulkan 1.1 needs to be minimum
+                        continue; // Keeping 1.1 minimum might not be needed, needs research
+                    }
+                    if (pFeatures.multiDrawIndirect() == true) {
+                        // If multiple draw indirect is supported...AWESOME
+                        multiDrawIndirectSupported = true;
+                    }
                     IntBuffer pQueueFamilyPropertyCount = stack.mallocInt(1);
                     vkGetPhysicalDeviceQueueFamilyProperties(checkPhysicalDevice, pQueueFamilyPropertyCount, null);
                     if (pQueueFamilyPropertyCount.get(0) == 0) {
@@ -137,8 +138,10 @@ public class VKRenderer implements Renderer {
                     for (int j = 0; j < pQueueFamilyPropertyCount.get(0); ++j) {
                         if ((pQueueFamilyProperties.get(j).queueCount() > 0)
                                 && (pQueueFamilyProperties.get(j).queueFlags() & VK_QUEUE_GRAPHICS_BIT) != 0
-                                && (pQueueFamilyProperties.get(j).queueFlags() & VK_QUEUE_TRANSFER_BIT) != 0) {
-                            //int checkQueueFamilyIndex = j;
+                                && (pQueueFamilyProperties.get(j).queueFlags() & VK_QUEUE_COMPUTE_BIT) != 0) {
+                            // int checkQueueFamilyIndex = j;
+                            // Throw error if queue family index not found, change transfer bit to compute
+                            // bit
                             break;
                         }
                     }
@@ -177,7 +180,17 @@ public class VKRenderer implements Renderer {
 
     @Override
     public void printCapabilities() {
-
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            VkPhysicalDeviceProperties pProperties = VkPhysicalDeviceProperties.malloc(stack);
+            vkGetPhysicalDeviceProperties(physicalDevice, pProperties);
+            final String api = "API: Vulkan " + VK_API_VERSION_MAJOR(pProperties.apiVersion()) + "."
+                    + VK_API_VERSION_MINOR(pProperties.apiVersion());
+            final String renderer = "Renderer: " + pProperties.deviceNameString();
+            System.out.println("Graphics Info:");
+            System.out.println(api);
+            System.out.println(renderer);
+            System.out.println("_____");
+        }
     }
 
     @Override
