@@ -56,7 +56,7 @@ public class VKRenderer implements Renderer {
     static long imageAcquiredSemaphore;
     static long renderingFinishedSemaphore;
     static long swapchain;
-    static long oldSwapchain = VK_NULL_HANDLE;
+    static long oldSwapchain;
 
     public VKRenderer(final ViewPort viewPort) {
 
@@ -109,7 +109,6 @@ public class VKRenderer implements Renderer {
                         pSurface) != VK_SUCCESS) {
                     throw new IllegalStateException("Window surface creation failed!");
                 }
-
                 surface = pSurface.get(0);
             }
 
@@ -186,26 +185,20 @@ public class VKRenderer implements Renderer {
             graphicsQueueFamilyIndex = checkGraphicsQueueFamilyIndex;
             presentQueueFamilyIndex = checkGraphicsQueueFamilyIndex;
             VkDeviceQueueCreateInfo.Buffer vkDeviceQueueCreateInfo = VkDeviceQueueCreateInfo.malloc(1, stack);
-            vkDeviceQueueCreateInfo.sType$Default();
-            vkDeviceQueueCreateInfo.pNext(0);
-            vkDeviceQueueCreateInfo.flags(0);
-            vkDeviceQueueCreateInfo.queueFamilyIndex(graphicsQueueFamilyIndex);
-            vkDeviceQueueCreateInfo.pQueuePriorities(stack.floats(1f));
-            // vkDeviceQueueCreateInfo.get(0).sType$Default();
-            // vkDeviceQueueCreateInfo.get(0).pNext(0);
-            // vkDeviceQueueCreateInfo.get(0).flags(0);
-            // vkDeviceQueueCreateInfo.get(0).queueFamilyIndex(graphicsQueueFamilyIndex);
-            // vkDeviceQueueCreateInfo.get(0).pQueuePriorities(stack.floats(1.0f));
-            // if (graphicsQueueFamilyIndex != presentQueueFamilyIndex) {
-            // vkDeviceQueueCreateInfo.get(1).sType$Default();
-            // vkDeviceQueueCreateInfo.get(1).pNext(0);
-            // vkDeviceQueueCreateInfo.get(1).flags(0);
-            // vkDeviceQueueCreateInfo.get(1).queueFamilyIndex(presentQueueFamilyIndex);
-            // vkDeviceQueueCreateInfo.get(1).pQueuePriorities(stack.floats(1.0f));
-            // }
-            // vkDeviceQueueCreateInfo.flip(); // TODO: Is it needed to call flip here?
+            vkDeviceQueueCreateInfo.get(0).sType$Default();
+            vkDeviceQueueCreateInfo.get(0).pNext(0);
+            vkDeviceQueueCreateInfo.get(0).flags(0);
+            vkDeviceQueueCreateInfo.get(0).queueFamilyIndex(graphicsQueueFamilyIndex);
+            vkDeviceQueueCreateInfo.get(0).pQueuePriorities(stack.floats(1.0f));
+            if (graphicsQueueFamilyIndex != presentQueueFamilyIndex) {
+                vkDeviceQueueCreateInfo.get(1).sType$Default();
+                vkDeviceQueueCreateInfo.get(1).pNext(0);
+                vkDeviceQueueCreateInfo.get(1).flags(0);
+                vkDeviceQueueCreateInfo.get(1).queueFamilyIndex(presentQueueFamilyIndex);
+                vkDeviceQueueCreateInfo.get(1).pQueuePriorities(stack.floats(1.0f));
+            }
 
-            // CREATE A NEW VULKAN DEVICE
+            // CREATE NEW DEVICE
 
             ppEnabledExtensionNames.put(KHR_swapchain); // Here we're assuming the extension is available
             ppEnabledExtensionNames.flip(); // and although it probably is, it'd be good to check
@@ -222,7 +215,7 @@ public class VKRenderer implements Renderer {
             }
             device = new VkDevice(pDevice.get(0), physicalDevice, pCreateInfo);
 
-            // CREATE VULKAN QUEUES
+            // CREATE QUEUES
 
             PointerBuffer pGraphicsQueue = stack.mallocPointer(1);
             vkGetDeviceQueue(device, graphicsQueueFamilyIndex, 0, pGraphicsQueue);
@@ -231,7 +224,7 @@ public class VKRenderer implements Renderer {
             vkGetDeviceQueue(device, presentQueueFamilyIndex, 0, pPresentQueue);
             presentQueue = new VkQueue(pPresentQueue.get(0), device);
 
-            // CREATE TWO SEMAPHORES
+            // CREATE SEMAPHORES
 
             VkSemaphoreCreateInfo semaphoreCreateInfo = VkSemaphoreCreateInfo.malloc(stack);
             semaphoreCreateInfo.sType$Default();
@@ -244,11 +237,11 @@ public class VKRenderer implements Renderer {
             vkCreateSemaphore(device, semaphoreCreateInfo, null, pRenderingFinishedSemaphore);
             renderingFinishedSemaphore = pRenderingFinishedSemaphore.get(0);
 
-            // CREATE SWAPCHAIN
+            // FIND SURFACE CAPABILITIES
 
             VkSurfaceCapabilitiesKHR pSurfaceCapabilities = VkSurfaceCapabilitiesKHR.malloc(stack);
             vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, pSurfaceCapabilities);
-            IntBuffer pSurfaceFormatCount = stack.mallocInt(1);
+            IntBuffer pSurfaceFormatCount = stack.mallocInt(1); // Surface Formats
             vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, pSurfaceFormatCount, null);
             int imageFormat;
             VkSurfaceFormatKHR.Buffer pSurfaceFormats = VkSurfaceFormatKHR.malloc(pSurfaceFormatCount.get(0), stack);
@@ -260,12 +253,12 @@ public class VKRenderer implements Renderer {
                 assert pSurfaceFormatCount.get(0) >= 1;
                 imageFormat = pSurfaceFormats.get(0).format();
             }
-            IntBuffer pPresentModeCount = stack.mallocInt(1);
+            IntBuffer pPresentModeCount = stack.mallocInt(1); // Present Mode
             vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, pPresentModeCount, null);
             IntBuffer pPresentModes = stack.mallocInt(pPresentModeCount.get(0));
             vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, pPresentModeCount,
                     pPresentModes);
-                    int presentMode = VK_PRESENT_MODE_FIFO_KHR; // FIFO is always supported
+            int presentMode = VK_PRESENT_MODE_FIFO_KHR; // FIFO is always supported
             for (int i = 0; i < pPresentModeCount.get(0); i++) {
                 int checkPresentMode = pPresentModes.get(i);
                 if (checkPresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
@@ -278,7 +271,7 @@ public class VKRenderer implements Renderer {
                     (minImageCount > pSurfaceCapabilities.maxImageCount())) {
                 minImageCount = pSurfaceCapabilities.maxImageCount();
             }
-            VkExtent2D imageExtent = VkExtent2D.malloc(stack);
+            VkExtent2D imageExtent = VkExtent2D.malloc(stack); // Swapchain Extents
             if (pSurfaceCapabilities.currentExtent().width() == 0xFFFFFFFF) {
                 imageExtent.width(WindowInfo.getWidth());
                 imageExtent.height(WindowInfo.getHeight());
@@ -297,7 +290,7 @@ public class VKRenderer implements Renderer {
                 WindowInfo.setWidth(pSurfaceCapabilities.currentExtent().width());
                 WindowInfo.setHeight(pSurfaceCapabilities.currentExtent().height());
             }
-            int preTransform;
+            int preTransform; // Pretransform
             if ((pSurfaceCapabilities.supportedTransforms() & VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR) != 0) {
                 preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
             } else {
@@ -330,6 +323,7 @@ public class VKRenderer implements Renderer {
             if (oldSwapchain != VK_NULL_HANDLE) {
                 vkDestroySwapchainKHR(device, oldSwapchain, null);
             }
+            
         }
     }
 
