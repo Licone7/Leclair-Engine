@@ -15,12 +15,10 @@ import org.lwjgl.system.Platform;
 import org.lwjgl.system.windows.WindowsLibrary;
 import org.lwjgl.vulkan.KHRSurface;
 import org.lwjgl.vulkan.KHRWin32Surface;
-import org.lwjgl.vulkan.VK;
 import org.lwjgl.vulkan.VkApplicationInfo;
 import org.lwjgl.vulkan.VkDevice;
 import org.lwjgl.vulkan.VkDeviceCreateInfo;
 import org.lwjgl.vulkan.VkDeviceQueueCreateInfo;
-import org.lwjgl.vulkan.VkExtensionProperties;
 import org.lwjgl.vulkan.VkInstance;
 import org.lwjgl.vulkan.VkInstanceCreateInfo;
 import org.lwjgl.vulkan.VkPhysicalDevice;
@@ -28,6 +26,7 @@ import org.lwjgl.vulkan.VkPhysicalDeviceFeatures;
 import org.lwjgl.vulkan.VkPhysicalDeviceProperties;
 import org.lwjgl.vulkan.VkQueue;
 import org.lwjgl.vulkan.VkQueueFamilyProperties;
+import org.lwjgl.vulkan.VkSemaphoreCreateInfo;
 import org.lwjgl.vulkan.VkWin32SurfaceCreateInfoKHR;
 
 import Leclair.graphics.scene.Mesh;
@@ -39,7 +38,6 @@ import Leclair.window.WindowInfo;
 public class VKRenderer implements Renderer {
 
     static boolean multiDrawIndirectSupported = false;
-    static PointerBuffer extensionList = MemoryUtil.memAllocPointer(64);
     static final ByteBuffer KHR_Surface = MemoryUtil.memASCII(KHRSurface.VK_KHR_SURFACE_EXTENSION_NAME);
     static final ByteBuffer KHR_Win32_Surface = MemoryUtil
             .memASCII(KHRWin32Surface.VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
@@ -48,9 +46,12 @@ public class VKRenderer implements Renderer {
     static long surface;
     static VkPhysicalDevice physicalDevice;
     static VkDevice device;
-    static VkQueue queue;
-
-    static int queueFamilyIndex;
+    static int graphicsQueueFamilyIndex;
+    static int presentQueueFamilyIndex;
+    static VkQueue graphicsQueue;
+    static VkQueue presentQueue;
+    static long imageAcquiredSemaphore;
+    static long renderingFinishedSemaphore;
 
     public VKRenderer(final ViewPort viewPort) {
 
@@ -63,31 +64,33 @@ public class VKRenderer implements Renderer {
             // EXTENSIONS
 
             PointerBuffer layerList = null;
-            extensionList.put(KHR_Surface);
+            PointerBuffer ppEnabledExtensionNames = stack.mallocPointer(5); // Shouldn't be many required
+            ppEnabledExtensionNames.put(KHR_Surface);
             if (Platform.get() == Platform.WINDOWS) {
-                extensionList.put(KHR_Win32_Surface);
+                ppEnabledExtensionNames.put(KHR_Win32_Surface);
             }
-            extensionList.flip();
+            ppEnabledExtensionNames.flip();
 
             // CREATE VULKAN INSTANCE
 
             VkApplicationInfo vkApplicationInfo = VkApplicationInfo.calloc(stack); // Convert to malloc later
             vkApplicationInfo.sType$Default();
             vkApplicationInfo.pNext(0);
-            vkApplicationInfo.apiVersion(VK.getInstanceVersionSupported());
+            vkApplicationInfo.apiVersion(VK_MAKE_VERSION(1, 1, 0)); // Patch?
             VkInstanceCreateInfo vkInstanceCreateInfo = VkInstanceCreateInfo.malloc(stack);
             vkInstanceCreateInfo.sType$Default();
             vkInstanceCreateInfo.pNext(0);
             vkInstanceCreateInfo.flags(0);
             vkInstanceCreateInfo.pApplicationInfo(vkApplicationInfo);
             vkInstanceCreateInfo.ppEnabledLayerNames(layerList);
-            vkInstanceCreateInfo.ppEnabledExtensionNames(extensionList);
+            vkInstanceCreateInfo.ppEnabledExtensionNames(ppEnabledExtensionNames);
             PointerBuffer pInstance = stack.mallocPointer(1);
             if (vkCreateInstance(vkInstanceCreateInfo, null, pInstance) != VK_SUCCESS) {
                 throw new IllegalStateException(
                         "Vulkan instance creation failed; ensure you have a Vulkan ICD installed!");
             }
             instance = new VkInstance(pInstance.get(0), vkInstanceCreateInfo);
+            ppEnabledExtensionNames.clear();
 
             // CREATE WINDOW SURFACE
 
@@ -112,88 +115,114 @@ public class VKRenderer implements Renderer {
             vkEnumeratePhysicalDevices(instance, pPhysicalDeviceCount, null);
             PointerBuffer pPhysicalDevices = stack.mallocPointer(pPhysicalDeviceCount.get(0));
             vkEnumeratePhysicalDevices(instance, pPhysicalDeviceCount, pPhysicalDevices);
-            if (pPhysicalDeviceCount.get(0) > 0) {
-                // int selectedQueueFamilyIndex = Integer.MAX_VALUE;
-                for (int i = 0; i < pPhysicalDeviceCount.get(0); ++i) {
-                    long handle = pPhysicalDevices.get(i);
-                    VkPhysicalDevice checkPhysicalDevice = new VkPhysicalDevice(handle, instance);
-                    VkPhysicalDeviceProperties pProperties = VkPhysicalDeviceProperties.malloc(stack);
-                    VkPhysicalDeviceFeatures pFeatures = VkPhysicalDeviceFeatures.malloc(stack);
-                    vkGetPhysicalDeviceProperties(checkPhysicalDevice, pProperties);
-                    vkGetPhysicalDeviceFeatures(checkPhysicalDevice, pFeatures);
-                    if (VK_API_VERSION_MINOR(pProperties.apiVersion()) < 1) { // Vulkan 1.1 needs to be minimum
-                        continue; // Keeping 1.1 minimum might not be needed, needs research
-                    }
-                    if (pFeatures.multiDrawIndirect() == true) {
-                        // If multiple draw indirect is supported...AWESOME
-                        multiDrawIndirectSupported = true;
-                    }
-
-                    IntBuffer pQueueFamilyPropertyCount = stack.mallocInt(1);
-                    vkGetPhysicalDeviceQueueFamilyProperties(checkPhysicalDevice, pQueueFamilyPropertyCount, null);
-                    if (pQueueFamilyPropertyCount.get(0) == 0) {
-                        continue;
-                    }
-                    VkQueueFamilyProperties.Buffer pQueueFamilyProperties = VkQueueFamilyProperties
-                            .calloc(pQueueFamilyPropertyCount.get(0), stack);
-                    vkGetPhysicalDeviceQueueFamilyProperties(checkPhysicalDevice, pQueueFamilyPropertyCount,
-                            pQueueFamilyProperties);
-                    for (int j = 0; j < pQueueFamilyPropertyCount.get(0); ++j) {
-                        if ((pQueueFamilyProperties.get(j).queueCount() > 0)
-                                && (pQueueFamilyProperties.get(j).queueFlags() & VK_QUEUE_GRAPHICS_BIT) != 0) {
-                            queueFamilyIndex = j;
-                            break;
-                        }
-                    }
-                    physicalDevice = checkPhysicalDevice;
+            for (int i = 0; i < pPhysicalDeviceCount.get(0); ++i) {
+                long handle = pPhysicalDevices.get(i);
+                VkPhysicalDevice checkPhysicalDevice = new VkPhysicalDevice(handle, instance);
+                VkPhysicalDeviceProperties pProperties = VkPhysicalDeviceProperties.malloc(stack);
+                vkGetPhysicalDeviceProperties(checkPhysicalDevice, pProperties);
+                if (VK_API_VERSION_MINOR(pProperties.apiVersion()) < 1) { // Vulkan 1.1 needs to be minimum
+                    continue; // Keeping 1.1 minimum might not be needed, needs research
                 }
+                physicalDevice = checkPhysicalDevice;
             }
             if (physicalDevice == null) {
                 throw new IllegalStateException("No GPUs compatible with Vulkan were found!");
             }
+            VkPhysicalDeviceFeatures pFeatures = VkPhysicalDeviceFeatures.malloc(stack);
+            vkGetPhysicalDeviceFeatures(physicalDevice, pFeatures);
+            if (pFeatures.multiDrawIndirect() == true) {
+                // If multiple draw indirect is supported...AWESOME
+                multiDrawIndirectSupported = true;
+            }
+            IntBuffer pQueueFamilyPropertyCount = stack.mallocInt(1);
+            vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, pQueueFamilyPropertyCount, null);
+            VkQueueFamilyProperties.Buffer pQueueFamilyProperties = VkQueueFamilyProperties
+                    .malloc(pQueueFamilyPropertyCount.get(0));
+            vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, pQueueFamilyPropertyCount, pQueueFamilyProperties);
+            int checkGraphicsQueueFamilyIndex = Integer.MAX_VALUE;
+            int checkPresentQueueFamilyIndex = Integer.MAX_VALUE;
+            IntBuffer supportsPresent = stack.mallocInt(pQueueFamilyProperties.capacity());
+            for (int i = 0; i < supportsPresent.capacity(); i++) {
+                supportsPresent.position(i);
+                KHRSurface.vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, i, surface, supportsPresent);
+            }
+            for (int i = 0; i < supportsPresent.capacity(); i++) {
+                if ((pQueueFamilyProperties.get(i).queueFlags() & VK_QUEUE_GRAPHICS_BIT) != 0) {
+                    if (checkGraphicsQueueFamilyIndex == Integer.MAX_VALUE) {
+                        checkGraphicsQueueFamilyIndex = i;
+                    }
+                    // Try to find a queue supporting both graphics and present operations
+                    if (supportsPresent.get(i) == VK_TRUE) {
+                        checkGraphicsQueueFamilyIndex = i;
+                        checkPresentQueueFamilyIndex = i;
+                        break;
+                    }
+                }
+            }
+            // If we didn't find a queue supporting both graphics and present operations
+            if (checkPresentQueueFamilyIndex == Integer.MAX_VALUE) {
+                for (int i = 0; i < supportsPresent.capacity(); ++i) {
+                    if (supportsPresent.get(i) == VK_TRUE) {
+                        checkPresentQueueFamilyIndex = i;
+                        break;
+                    }
+                }
+            }
+            if (checkGraphicsQueueFamilyIndex == Integer.MAX_VALUE
+                    || checkPresentQueueFamilyIndex == Integer.MAX_VALUE) {
+                throw new IllegalStateException("Could not find a graphics and a present queue");
+            }
+            graphicsQueueFamilyIndex = checkGraphicsQueueFamilyIndex;
+            presentQueueFamilyIndex = checkGraphicsQueueFamilyIndex;
             VkDeviceQueueCreateInfo.Buffer vkDeviceQueueCreateInfo = VkDeviceQueueCreateInfo.malloc(1, stack);
             vkDeviceQueueCreateInfo.sType$Default();
             vkDeviceQueueCreateInfo.pNext(0);
             vkDeviceQueueCreateInfo.flags(0);
-            vkDeviceQueueCreateInfo.queueFamilyIndex(queueFamilyIndex);
-            vkDeviceQueueCreateInfo.pQueuePriorities(stack.floats(1.0f));
+            vkDeviceQueueCreateInfo.queueFamilyIndex(graphicsQueueFamilyIndex);
+            vkDeviceQueueCreateInfo.pQueuePriorities(stack.floats(1f));
+            // vkDeviceQueueCreateInfo.get(0).sType$Default();
+            // vkDeviceQueueCreateInfo.get(0).pNext(0);
+            // vkDeviceQueueCreateInfo.get(0).flags(0);
+            // vkDeviceQueueCreateInfo.get(0).queueFamilyIndex(graphicsQueueFamilyIndex);
+            // vkDeviceQueueCreateInfo.get(0).pQueuePriorities(stack.floats(1.0f));
+            // if (graphicsQueueFamilyIndex != presentQueueFamilyIndex) {
+            //     vkDeviceQueueCreateInfo.get(1).sType$Default();
+            //     vkDeviceQueueCreateInfo.get(1).pNext(0);
+            //     vkDeviceQueueCreateInfo.get(1).flags(0);
+            //     vkDeviceQueueCreateInfo.get(1).queueFamilyIndex(presentQueueFamilyIndex);
+            //     vkDeviceQueueCreateInfo.get(1).pQueuePriorities(stack.floats(1.0f));
+            // }
+            //vkDeviceQueueCreateInfo.flip(); // TODO: Is it needed to call flip here?
+            ppEnabledExtensionNames.put(KHR_swapchain); // Here we're assuming the extension is available
+            ppEnabledExtensionNames.flip(); // and although it probably is, it'd be good to check
             VkDeviceCreateInfo pCreateInfo = VkDeviceCreateInfo.malloc(stack);
             pCreateInfo.sType$Default();
             pCreateInfo.pNext(0);
             pCreateInfo.flags(0);
             pCreateInfo.pQueueCreateInfos(vkDeviceQueueCreateInfo);
             pCreateInfo.ppEnabledLayerNames(null);
-            pCreateInfo.ppEnabledExtensionNames(null);
+            pCreateInfo.ppEnabledExtensionNames(ppEnabledExtensionNames);
             PointerBuffer pDevice = stack.mallocPointer(1);
             if (vkCreateDevice(physicalDevice, pCreateInfo, null, pDevice) != VK_SUCCESS) {
                 throw new IllegalStateException();
             }
             device = new VkDevice(pDevice.get(0), physicalDevice, pCreateInfo);
-            PointerBuffer pQueue = stack.mallocPointer(1);
-            vkGetDeviceQueue(device, queueFamilyIndex, 0, pQueue);
-            queue = new VkQueue(pQueue.get(0), device);
-            
-            // boolean foundSwapchainExtension = false;
-            // IntBuffer pPropertyCount = stack.mallocInt(1);
-            // vkEnumerateDeviceExtensionProperties(physicalDevice, (String) null,
-            //         pPropertyCount, null);
-            // if (pPropertyCount.get(0) > 0) {
-            //     VkExtensionProperties.Buffer deviceExtensions = VkExtensionProperties.malloc(pPropertyCount.get(0),
-            //             stack);
-            //     vkEnumerateDeviceExtensionProperties(physicalDevice, (String) null,
-            //             pPropertyCount, deviceExtensions);
-            //     for (int i = 0; i < pPropertyCount.get(0); i++) {
-            //         deviceExtensions.position(i);
-            //         if (VK_KHR_SWAPCHAIN_EXTENSION_NAME.equals(deviceExtensions.extensionNameString())) {
-            //             foundSwapchainExtension = true;
-            //             extensionList.put(KHR_swapchain);
-            //         }
-            //     }
-            // }
-            // if (foundSwapchainExtension == false) {
-            //     throw new IllegalStateException("The VK_KHR_swapchain extension could not be found");
-            // }
-
+            PointerBuffer pGraphicsQueue = stack.mallocPointer(1);
+            vkGetDeviceQueue(device, graphicsQueueFamilyIndex, 0, pGraphicsQueue);
+            graphicsQueue = new VkQueue(pGraphicsQueue.get(0), device);
+            PointerBuffer pPresentQueue = stack.mallocPointer(1);
+            vkGetDeviceQueue(device, presentQueueFamilyIndex, 0, pPresentQueue);
+            presentQueue = new VkQueue(pPresentQueue.get(0), device);
+            VkSemaphoreCreateInfo semaphoreCreateInfo = VkSemaphoreCreateInfo.malloc(stack);
+            semaphoreCreateInfo.sType$Default();
+            semaphoreCreateInfo.pNext(0);
+            semaphoreCreateInfo.flags(0);
+            LongBuffer pImageAcquiredSemaphore = stack.mallocLong(1);
+            vkCreateSemaphore(device, semaphoreCreateInfo, null, pImageAcquiredSemaphore);
+            imageAcquiredSemaphore = pImageAcquiredSemaphore.get(0);
+            LongBuffer pRenderingFinishedSemaphore = stack.mallocLong(1);
+            vkCreateSemaphore(device, semaphoreCreateInfo, null, pRenderingFinishedSemaphore);
+            renderingFinishedSemaphore = pRenderingFinishedSemaphore.get(0);
         }
     }
 
