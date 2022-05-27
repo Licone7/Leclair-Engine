@@ -16,19 +16,33 @@ import org.lwjgl.system.Platform;
 import org.lwjgl.system.windows.WindowsLibrary;
 import org.lwjgl.vulkan.KHRWin32Surface;
 import org.lwjgl.vulkan.VkApplicationInfo;
+import org.lwjgl.vulkan.VkAttachmentDescription;
+import org.lwjgl.vulkan.VkAttachmentReference;
+import org.lwjgl.vulkan.VkClearValue;
 import org.lwjgl.vulkan.VkCommandBuffer;
+import org.lwjgl.vulkan.VkCommandBufferAllocateInfo;
+import org.lwjgl.vulkan.VkCommandBufferBeginInfo;
+import org.lwjgl.vulkan.VkCommandPoolCreateInfo;
 import org.lwjgl.vulkan.VkDevice;
 import org.lwjgl.vulkan.VkDeviceCreateInfo;
 import org.lwjgl.vulkan.VkDeviceQueueCreateInfo;
 import org.lwjgl.vulkan.VkExtent2D;
+import org.lwjgl.vulkan.VkFramebufferCreateInfo;
+import org.lwjgl.vulkan.VkImageSubresourceRange;
+import org.lwjgl.vulkan.VkImageViewCreateInfo;
 import org.lwjgl.vulkan.VkInstance;
 import org.lwjgl.vulkan.VkInstanceCreateInfo;
 import org.lwjgl.vulkan.VkPhysicalDevice;
 import org.lwjgl.vulkan.VkPhysicalDeviceFeatures;
 import org.lwjgl.vulkan.VkPhysicalDeviceProperties;
+import org.lwjgl.vulkan.VkPresentInfoKHR;
 import org.lwjgl.vulkan.VkQueue;
 import org.lwjgl.vulkan.VkQueueFamilyProperties;
+import org.lwjgl.vulkan.VkRenderPassBeginInfo;
+import org.lwjgl.vulkan.VkRenderPassCreateInfo;
 import org.lwjgl.vulkan.VkSemaphoreCreateInfo;
+import org.lwjgl.vulkan.VkSubmitInfo;
+import org.lwjgl.vulkan.VkSubpassDescription;
 import org.lwjgl.vulkan.VkSurfaceCapabilitiesKHR;
 import org.lwjgl.vulkan.VkSurfaceFormatKHR;
 import org.lwjgl.vulkan.VkSwapchainCreateInfoKHR;
@@ -58,9 +72,14 @@ public class VKRenderer implements Renderer {
     static long imageAcquiredSemaphore;
     static long renderingFinishedSemaphore;
     static long swapchain;
-    static long oldSwapchain;
+    static int imageFormat;
+    static long images[];
+    static long imageViews[];
+    static long renderPass;
+    static long framebuffers[];
     static long commandPool;
-    static VkCommandBuffer drawCommandBuffer;
+    static VkCommandBuffer[] commandBuffers;
+    static long[] fences;
 
     public VKRenderer(final ViewPort viewPort) {
 
@@ -240,6 +259,20 @@ public class VKRenderer implements Renderer {
             LongBuffer pRenderingFinishedSemaphore = stack.mallocLong(1);
             vkCreateSemaphore(device, semaphoreCreateInfo, null, pRenderingFinishedSemaphore);
             renderingFinishedSemaphore = pRenderingFinishedSemaphore.get(0);
+        }
+        prepare();
+    }
+
+    void prepare() {
+        createSwapchain();
+        createRenderPass();
+        createFramebuffers();
+        createCommandBuffers();
+    }
+
+    void createSwapchain() {
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            long oldSwapchain = swapchain;
 
             // FIND SURFACE CAPABILITIES
 
@@ -247,7 +280,6 @@ public class VKRenderer implements Renderer {
             vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, pSurfaceCapabilities);
             IntBuffer pSurfaceFormatCount = stack.mallocInt(1); // Surface Formats
             vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, pSurfaceFormatCount, null);
-            int imageFormat;
             VkSurfaceFormatKHR.Buffer pSurfaceFormats = VkSurfaceFormatKHR.malloc(pSurfaceFormatCount.get(0), stack);
             vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, pSurfaceFormatCount,
                     pSurfaceFormats);
@@ -327,6 +359,148 @@ public class VKRenderer implements Renderer {
             if (oldSwapchain != VK_NULL_HANDLE) {
                 vkDestroySwapchainKHR(device, oldSwapchain, null);
             }
+            IntBuffer pSwapchainImageCount = stack.mallocInt(1);
+            vkGetSwapchainImagesKHR(device, swapchain, pSwapchainImageCount, null);
+            int swapchainImageCount = pSwapchainImageCount.get(0);
+            LongBuffer pSwapchainImages = stack.mallocLong(swapchainImageCount);
+            vkGetSwapchainImagesKHR(device, swapchain, pSwapchainImageCount, pSwapchainImages);
+            images = new long[swapchainImageCount];
+            pSwapchainImages.get(images, 0, images.length);
+            imageViews = new long[swapchainImageCount];
+            LongBuffer pImageView = stack.mallocLong(1);
+            for (int i = 0; i < swapchainImageCount; i++) {
+                VkImageSubresourceRange subresourceRange = VkImageSubresourceRange.malloc(stack);
+                subresourceRange.aspectMask(VK_IMAGE_ASPECT_COLOR_BIT);
+                subresourceRange.baseMipLevel(0);
+                subresourceRange.levelCount(1);
+                subresourceRange.baseArrayLayer(0);
+                subresourceRange.layerCount(1);
+                VkImageViewCreateInfo pImageViewCreateInfo = VkImageViewCreateInfo.malloc(stack);
+                pImageViewCreateInfo.sType$Default();
+                pImageViewCreateInfo.pNext(0);
+                pImageViewCreateInfo.image(pSwapchainImages.get(i));
+                pImageViewCreateInfo.viewType(VK_IMAGE_TYPE_2D);
+                pImageViewCreateInfo.format(imageFormat);
+                pImageViewCreateInfo.subresourceRange(subresourceRange);
+                vkCreateImageView(device, pImageViewCreateInfo, null, pImageView);
+                imageViews[i] = pImageView.get(0);
+            }
+        }
+    }
+
+    void createRenderPass() {
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            VkAttachmentDescription.Buffer pAttachments = VkAttachmentDescription.malloc(1, stack);
+            pAttachments.flags(0);
+            pAttachments.format(imageFormat);
+            pAttachments.samples(VK_SAMPLE_COUNT_1_BIT);
+            pAttachments.loadOp(VK_ATTACHMENT_LOAD_OP_CLEAR);
+            pAttachments.storeOp(VK_ATTACHMENT_STORE_OP_STORE);
+            pAttachments.stencilLoadOp(VK_ATTACHMENT_LOAD_OP_DONT_CARE);
+            pAttachments.stencilStoreOp(VK_ATTACHMENT_STORE_OP_DONT_CARE);
+            pAttachments.initialLayout(VK_IMAGE_LAYOUT_UNDEFINED);
+            pAttachments.finalLayout(VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+           // pAttachments.flip();
+            VkAttachmentReference.Buffer pColorAttachments = VkAttachmentReference.malloc(1, stack);
+            pColorAttachments.attachment(0);
+            pColorAttachments.layout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+            //pColorAttachments.flip();
+            VkSubpassDescription.Buffer pSubpasses = VkSubpassDescription.malloc(1, stack);
+            pSubpasses.flags(0);
+            pSubpasses.pipelineBindPoint(VK_PIPELINE_BIND_POINT_GRAPHICS);
+            pSubpasses.pInputAttachments(null);
+            pSubpasses.colorAttachmentCount(1);
+            pSubpasses.pColorAttachments(pColorAttachments);
+            pSubpasses.pResolveAttachments(null);
+            pSubpasses.pDepthStencilAttachment(null);
+            pSubpasses.pPreserveAttachments(null);
+            //pSubpasses.flip();
+            VkRenderPassCreateInfo pRenderPassCreateInfo = VkRenderPassCreateInfo.malloc(stack);
+            pRenderPassCreateInfo.sType$Default();
+            pRenderPassCreateInfo.pNext(0);
+            pRenderPassCreateInfo.flags(0);
+            pRenderPassCreateInfo.pAttachments(pAttachments);
+            pRenderPassCreateInfo.pSubpasses(pSubpasses);
+            pRenderPassCreateInfo.pDependencies(null);
+            LongBuffer pRenderPass = stack.mallocLong(1);
+            if (vkCreateRenderPass(device, pRenderPassCreateInfo, null, pRenderPass) != VK_SUCCESS) {
+                throw new IllegalStateException();
+            }
+            renderPass = pRenderPass.get(0);
+        }
+    }
+
+    void createFramebuffers() {
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            if (framebuffers != null) {
+                for (long framebuffer : framebuffers)
+                    vkDestroyFramebuffer(device, framebuffer, null);
+            }
+            LongBuffer pAttachments = stack.mallocLong(1);
+            VkFramebufferCreateInfo pFramebufferCreateInfo = VkFramebufferCreateInfo.malloc(stack);
+            pFramebufferCreateInfo.sType$Default();
+            pFramebufferCreateInfo.pAttachments(pAttachments);
+            pFramebufferCreateInfo.height(WindowInfo.getHeight());
+            pFramebufferCreateInfo.width(WindowInfo.getWidth());
+            pFramebufferCreateInfo.layers(1);
+            pFramebufferCreateInfo.renderPass(renderPass);
+            framebuffers = new long[images.length];
+            LongBuffer pFramebuffer = stack.mallocLong(1);
+            for (int i = 0; i < images.length; i++) {
+                pAttachments.put(0, imageViews[i]);
+                System.out.println(vkCreateFramebuffer(device, pFramebufferCreateInfo, null, pFramebuffer));
+                framebuffers[i] = pFramebuffer.get(0);
+            }
+        }
+    }
+
+    void createCommandBuffers() {
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            VkCommandPoolCreateInfo pCommandPoolCreateInfo = VkCommandPoolCreateInfo.malloc(stack);
+            pCommandPoolCreateInfo.sType$Default();
+            pCommandPoolCreateInfo.pNext(0);
+            pCommandPoolCreateInfo.flags(0);
+            pCommandPoolCreateInfo.queueFamilyIndex(presentQueueFamilyIndex);
+            LongBuffer pCommandPool = stack.mallocLong(1);
+            vkCreateCommandPool(device, pCommandPoolCreateInfo, null, pCommandPool);
+            commandPool = pCommandPool.get(0);
+            VkClearValue.Buffer pClearValues = VkClearValue.malloc(1, stack);
+            pClearValues.color().float32(0, 1.0f);
+            pClearValues.color().float32(1, 0.4f);
+            pClearValues.color().float32(2, 1.8f);
+            pClearValues.color().float32(3, 0.5f);
+            pClearValues.flip();
+            VkRenderPassBeginInfo pRenderPassBegin = VkRenderPassBeginInfo.malloc(stack);
+            pRenderPassBegin.sType$Default();
+            pRenderPassBegin.renderPass(renderPass);
+            pRenderPassBegin.pClearValues(pClearValues);
+            pRenderPassBegin.renderArea(a -> a.extent().set(WindowInfo.getWidth(), WindowInfo.getHeight())); // TODO:
+            int count = imageViews.length;
+            commandBuffers = new VkCommandBuffer[count];
+            for (int i = 0; i < images.length; i++) {
+
+                PointerBuffer pCommandBuffer = stack.mallocPointer(1);
+                vkAllocateCommandBuffers(device,
+                        VkCommandBufferAllocateInfo
+                                .calloc(stack)
+                                .sType$Default()
+                                .commandPool(commandPool)
+                                .level(VK_COMMAND_BUFFER_LEVEL_PRIMARY)
+                                .commandBufferCount(1),
+                        pCommandBuffer);
+                VkCommandBuffer commandBuffer = new VkCommandBuffer(pCommandBuffer.get(0), device);
+                VkCommandBufferBeginInfo pCommandBufferBeginInfo = VkCommandBufferBeginInfo.malloc(stack);
+                pCommandBufferBeginInfo.sType$Default();
+                pCommandBufferBeginInfo.pNext(0);
+                pCommandBufferBeginInfo.flags(VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT);
+                pCommandBufferBeginInfo.pInheritanceInfo(null);
+                vkBeginCommandBuffer(commandBuffer, pCommandBufferBeginInfo);
+                commandBuffers[i] = commandBuffer;
+                pRenderPassBegin.framebuffer(framebuffers[i]);
+                vkCmdBeginRenderPass(commandBuffer, pRenderPassBegin, VK_SUBPASS_CONTENTS_INLINE);
+                vkCmdEndRenderPass(commandBuffer);
+                vkEndCommandBuffer(commandBuffer);
+            }
         }
     }
 
@@ -345,10 +519,38 @@ public class VKRenderer implements Renderer {
         }
     }
 
+    int idx = 0;
+
     @Override
     public void loop() {
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            vkDeviceWaitIdle(device);
+            IntBuffer pImageIndex = stack.mallocInt(1);
+            vkAcquireNextImageKHR(device, swapchain, -1L, imageAcquiredSemaphore, VK_NULL_HANDLE, pImageIndex);
+            // if (!acquireSwapchainImage(pImageIndex, idx)) {
+            // needRecreate = true;
+            // continue;
+            // }
+            // needRecreate = !submitAndPresent(pImageIndex.get(0), idx);
+
+            vkQueueSubmit(presentQueue, VkSubmitInfo
+                    .calloc(stack)
+                    .sType$Default()
+                    .pWaitSemaphores(stack.longs(imageAcquiredSemaphore))
+                    // must wait before COLOR_ATTACHMENT_OUTPUT to output color values
+                    .pWaitDstStageMask(stack.ints(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT))
+                    .pCommandBuffers(stack.pointers(commandBuffers[idx]))
+                    .waitSemaphoreCount(1)
+                    .pSignalSemaphores(stack.longs(renderingFinishedSemaphore)),
+                    VK_NULL_HANDLE);
+            int result = vkQueuePresentKHR(presentQueue, VkPresentInfoKHR
+                    .calloc(stack)
+                    .sType$Default()
+                    .pWaitSemaphores(stack.longs(renderingFinishedSemaphore))
+                    .swapchainCount(1)
+                    .pSwapchains(stack.longs(swapchain))
+                    .pImageIndices(stack.ints(pImageIndex.get(0))));
+System.out.println(result);
+            idx = (idx + 1) % imageViews.length;
         }
     }
 
