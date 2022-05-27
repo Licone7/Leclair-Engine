@@ -9,6 +9,7 @@ import org.lwjgl.system.windows.WNDCLASSEX;
 import org.lwjgl.system.windows.WindowProc;
 import org.lwjgl.system.windows.WindowsLibrary;
 
+import Leclair.application.ApplicationInfo;
 import Leclair.application.ApplicationStructure;
 import Leclair.input.InputData;
 import Leclair.window.Window;
@@ -66,13 +67,38 @@ public class Win32Window implements Window {
 
     @Override
     public void loop() {
-        if (User32.GetMessage(msg, hwnd, 0, 0)) {
-            User32.TranslateMessage(msg);
-            User32.DispatchMessage(msg);
-        } else {
-            ApplicationStructure.stop();
+        // boolean messageReceived = User32.GetMessage(msg, hwnd, 0, 0);
+        // if (messageReceived) {
+        // User32.TranslateMessage(msg);
+        // User32.DispatchMessage(msg);
+        // }
+        // System.out.println(messageReceived);
+        // if (User32.GetMessage(msg, hwnd, 0, 0)) {
+        // User32.TranslateMessage(msg);
+        // User32.DispatchMessage(msg);
+        // } else {
+        // ApplicationStructure.stop();
+        // }
+        User32.PeekMessage(msg, hwnd, 0, 0, User32.PM_REMOVE);
+        if (msg.message() != User32.WM_PAINT) {
+            System.out.println(msg.message());
         }
+        switch (msg.message()) {
+            case User32.WM_PAINT:
 
+                break;
+            case User32.WM_KEYDOWN:
+                InputData.KEY_DOWN = true;
+                System.out.println("TET");
+               // InputData.CHAR = (char) wParam;
+                break;
+            case User32.WM_CLOSE:
+                System.exit(0);
+                break;
+
+            default:
+                break;
+        }
     }
 
     @Override

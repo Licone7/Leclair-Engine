@@ -7,9 +7,9 @@ import static org.lwjgl.vulkan.VK11.*;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
-import java.util.Vector;
 
 import org.lwjgl.PointerBuffer;
+import org.lwjgl.glfw.GLFWNativeWin32;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.system.Platform;
@@ -68,7 +68,8 @@ public class VKRenderer implements Renderer {
     static long swapchain;
     static long oldSwapchain;
     static long commandPool;
-    static Vector<VkCommandBuffer> commandBuffers = new Vector<>();
+    static VkCommandBuffer drawCommandBuffer;
+    // static Vector<VkCommandBuffer> commandBuffers = new Vector<>();
 
     public VKRenderer(final ViewPort viewPort) {
 
@@ -115,7 +116,7 @@ public class VKRenderer implements Renderer {
                 VkWin32SurfaceCreateInfoKHR vkWin32SurfaceCreateInfoKHR = VkWin32SurfaceCreateInfoKHR.malloc(stack);
                 vkWin32SurfaceCreateInfoKHR.sType$Default();
                 vkWin32SurfaceCreateInfoKHR.hinstance(WindowsLibrary.HINSTANCE);
-                vkWin32SurfaceCreateInfoKHR.hwnd(WindowInfo.window().getWHandle());
+                vkWin32SurfaceCreateInfoKHR.hwnd(GLFWNativeWin32.glfwGetWin32Window(WindowInfo.window().getWHandle()));
                 LongBuffer pSurface = stack.mallocLong(1);
                 if (KHRWin32Surface.vkCreateWin32SurfaceKHR(instance, vkWin32SurfaceCreateInfoKHR, null,
                         pSurface) != VK_SUCCESS) {
@@ -336,6 +337,7 @@ public class VKRenderer implements Renderer {
                 vkDestroySwapchainKHR(device, oldSwapchain, null);
             }
             createCommandBuffers();
+            recordCommandBuffers();
         }
     }
 
@@ -366,12 +368,15 @@ public class VKRenderer implements Renderer {
                     break;
                 case VK_ERROR_OUT_OF_DATE_KHR:
                     vkDeviceWaitIdle(device);
-                    createSwapchain();
-                    createCommandBuffers();
+                    //clear();
+                    // createSwapchain();
+                    // createCommandBuffers();
+                    // recordCommandBuffers();
                     return;
                 default:
                     throw new IllegalStateException();
             }
+            recordCommandBuffers();
             LongBuffer lp2 = stack.mallocLong(1).put(0, renderingFinishedSemaphore);
             VkSubmitInfo pSubmit = VkSubmitInfo.malloc(stack);
             pSubmit.sType$Default();
@@ -382,7 +387,7 @@ public class VKRenderer implements Renderer {
             // pSubmit.pCommandBuffers(stack.mallocPointer(1).put(0,
             // commandBuffers.get(pImageIndex.get(0))));
             pSubmit.pCommandBuffers(stack.mallocPointer(1).put(0,
-                    commandBuffers.get(0)));
+                    drawCommandBuffer));
             pSubmit.pSignalSemaphores(lp2);
             if (vkQueueSubmit(presentQueue, pSubmit, VK_NULL_HANDLE) != VK_SUCCESS) {
                 throw new IllegalStateException();
@@ -400,14 +405,16 @@ public class VKRenderer implements Renderer {
                     break;
                 case VK_ERROR_OUT_OF_DATE_KHR:
                 case VK_SUBOPTIMAL_KHR:
-                    vkDeviceWaitIdle(device);
-
-                    createSwapchain();
-                    createCommandBuffers();
+                    // vkDeviceWaitIdle(device);
+                    // clear();
+                    // createSwapchain();
+                    // createCommandBuffers();
+                    // recordCommandBuffers();
                 default:
                     System.out.println(vkResult);
                     // throw new IllegalStateException();
             }
+            vkDeviceWaitIdle(device);
         }
     }
 
@@ -447,13 +454,13 @@ public class VKRenderer implements Renderer {
             }
             VkExtent2D imageExtent = VkExtent2D.malloc(stack); // Swapchain Extents
             if (pSurfaceCapabilities.currentExtent().width() == 0xFFFFFFFF) {
-                // if (WindowInfo.getHeight() == 0 || WindowInfo.getWidth() == 0) {
-                // imageExtent.width(1);
-                // imageExtent.height(1);
-                // } else {
-                imageExtent.width(WindowInfo.getWidth());
-                imageExtent.height(WindowInfo.getHeight());
-                // }
+                if (WindowInfo.getHeight() == 0 || WindowInfo.getWidth() == 0) {
+                    imageExtent.width(100);
+                    imageExtent.height(100);
+                } else {
+                    imageExtent.width(WindowInfo.getWidth());
+                    imageExtent.height(WindowInfo.getHeight());
+                }
                 if (imageExtent.width() < pSurfaceCapabilities.minImageExtent().width()) {
                     imageExtent.width(pSurfaceCapabilities.minImageExtent().width());
                 } else if (imageExtent.width() > pSurfaceCapabilities.maxImageExtent().width()) {
@@ -519,7 +526,7 @@ public class VKRenderer implements Renderer {
             commandPool = pCommandPool.get(0);
             IntBuffer pSwapchainImageCount = stack.mallocInt(1);
             vkGetSwapchainImagesKHR(device, swapchain, pSwapchainImageCount, null);
-            commandBuffers.setSize(pSwapchainImageCount.get(0));
+            // commandBuffers.setSize(pSwapchainImageCount.get(0));
             VkCommandBufferAllocateInfo pAllocateInfo = VkCommandBufferAllocateInfo.malloc(stack);
             pAllocateInfo.sType$Default();
             pAllocateInfo.pNext(0);
@@ -531,9 +538,8 @@ public class VKRenderer implements Renderer {
                     pCommandBuffer) != VK_SUCCESS) {
                 throw new IllegalStateException();
             }
-            VkCommandBuffer commandBuffer = new VkCommandBuffer(pCommandBuffer.get(0), device);
-            commandBuffers.add(0, commandBuffer);
-            recordCommandBuffers();
+            drawCommandBuffer = new VkCommandBuffer(pCommandBuffer.get(0), device);
+            // commandBuffers.add(0, commandBuffer);
         }
     }
 
@@ -589,18 +595,24 @@ public class VKRenderer implements Renderer {
                 pImageMemoryBarrierClearToPresent.image(pSwapchainImages.get(i));
                 pImageMemoryBarrierClearToPresent.subresourceRange();
                 pImageMemoryBarrierClearToPresent.flip();
-                vkBeginCommandBuffer(commandBuffers.get(0), pCommandBufferBeginInfo);
-                vkCmdPipelineBarrier(commandBuffers.get(0), VK_PIPELINE_STAGE_TRANSFER_BIT,
+                vkBeginCommandBuffer(drawCommandBuffer, pCommandBufferBeginInfo);
+                vkCmdPipelineBarrier(drawCommandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT,
                         VK_PIPELINE_STAGE_TRANSFER_BIT, 0, null, null, pImageMemoryBarrierPresentToClear);
-                vkCmdClearColorImage(commandBuffers.get(0), pSwapchainImages.get(0),
+                vkCmdClearColorImage(drawCommandBuffer, pSwapchainImages.get(0),
                         VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, pColor, subresourceRange);
-                vkCmdPipelineBarrier(commandBuffers.get(0), VK_PIPELINE_STAGE_TRANSFER_BIT,
+                vkCmdPipelineBarrier(drawCommandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT,
                         VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, null, null, pImageMemoryBarrierClearToPresent);
-                if (vkEndCommandBuffer(commandBuffers.get(0)) != VK_SUCCESS) {
+                if (vkEndCommandBuffer(drawCommandBuffer) != VK_SUCCESS) {
                     throw new IllegalStateException();
                 }
             }
         }
+    }
+
+    void clear() {
+        vkFreeCommandBuffers(device, commandPool, drawCommandBuffer);
+        vkDestroyCommandPool(device, commandPool, null);
+        commandPool = VK_NULL_HANDLE;
     }
 
     @Override
@@ -635,6 +647,7 @@ public class VKRenderer implements Renderer {
 
     @Override
     public void cleanup() {
+        clear();
         vkDestroySurfaceKHR(instance, surface, null);
         vkDeviceWaitIdle(device);
         vkDestroyDevice(device, null);

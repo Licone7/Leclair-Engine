@@ -16,7 +16,7 @@ import org.lwjgl.system.Configuration;
  */
 public abstract class ApplicationStructure {
 
-    static boolean RUNNING = false;
+    public static boolean RUNNING = false;
     public ViewPort viewPort;
     float targetFps = 60;
     float actualFps = 1000000000 / targetFps;
@@ -42,14 +42,14 @@ public abstract class ApplicationStructure {
         RUNNING = true;
         long t = System.nanoTime();
         while (RUNNING == true) {
-            if (System.nanoTime() - t > actualFps) {
+           // if (System.nanoTime() - t > actualFps) {
                 WindowInfo.loop();
                 AudioInfo.loop();
                 viewPort.getCamera().update();
                 GraphicsInfo.loop();
                 appLoop();
                 t = System.nanoTime();
-            }
+            //}
         }
         cleanup();
     }
