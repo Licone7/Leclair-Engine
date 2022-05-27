@@ -1,6 +1,5 @@
 package Leclair.window.glfw;
 
-import Leclair.application.ApplicationInfo;
 import Leclair.application.ApplicationStructure;
 import Leclair.window.Window;
 import Leclair.window.WindowInfo;
@@ -42,14 +41,11 @@ public class GlfwWindow implements Window {
 
     @Override
     public long getWHandle() {
-        // TODO Auto-generated method stub
         return window;
     }
 
     @Override
     public void destroy() {
-        // TODO Auto-generated method stub
 
     }
-
 }
