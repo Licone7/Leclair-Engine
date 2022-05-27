@@ -7,6 +7,7 @@ import static org.lwjgl.vulkan.VK11.*;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
+import java.util.Vector;
 
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
@@ -15,18 +16,27 @@ import org.lwjgl.system.Platform;
 import org.lwjgl.system.windows.WindowsLibrary;
 import org.lwjgl.vulkan.KHRWin32Surface;
 import org.lwjgl.vulkan.VkApplicationInfo;
+import org.lwjgl.vulkan.VkClearColorValue;
+import org.lwjgl.vulkan.VkCommandBuffer;
+import org.lwjgl.vulkan.VkCommandBufferAllocateInfo;
+import org.lwjgl.vulkan.VkCommandBufferBeginInfo;
+import org.lwjgl.vulkan.VkCommandPoolCreateInfo;
 import org.lwjgl.vulkan.VkDevice;
 import org.lwjgl.vulkan.VkDeviceCreateInfo;
 import org.lwjgl.vulkan.VkDeviceQueueCreateInfo;
 import org.lwjgl.vulkan.VkExtent2D;
+import org.lwjgl.vulkan.VkImageMemoryBarrier;
+import org.lwjgl.vulkan.VkImageSubresourceRange;
 import org.lwjgl.vulkan.VkInstance;
 import org.lwjgl.vulkan.VkInstanceCreateInfo;
 import org.lwjgl.vulkan.VkPhysicalDevice;
 import org.lwjgl.vulkan.VkPhysicalDeviceFeatures;
 import org.lwjgl.vulkan.VkPhysicalDeviceProperties;
+import org.lwjgl.vulkan.VkPresentInfoKHR;
 import org.lwjgl.vulkan.VkQueue;
 import org.lwjgl.vulkan.VkQueueFamilyProperties;
 import org.lwjgl.vulkan.VkSemaphoreCreateInfo;
+import org.lwjgl.vulkan.VkSubmitInfo;
 import org.lwjgl.vulkan.VkSurfaceCapabilitiesKHR;
 import org.lwjgl.vulkan.VkSurfaceFormatKHR;
 import org.lwjgl.vulkan.VkSwapchainCreateInfoKHR;
@@ -57,6 +67,8 @@ public class VKRenderer implements Renderer {
     static long renderingFinishedSemaphore;
     static long swapchain;
     static long oldSwapchain;
+    static long commandPool;
+    static Vector<VkCommandBuffer> commandBuffers = new Vector<>();
 
     public VKRenderer(final ViewPort viewPort) {
 
@@ -323,7 +335,7 @@ public class VKRenderer implements Renderer {
             if (oldSwapchain != VK_NULL_HANDLE) {
                 vkDestroySwapchainKHR(device, oldSwapchain, null);
             }
-            
+            createCommandBuffers();
         }
     }
 
@@ -344,7 +356,251 @@ public class VKRenderer implements Renderer {
 
     @Override
     public void loop() {
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            IntBuffer pImageIndex = stack.mallocInt(1);
+            int vkResult = vkAcquireNextImageKHR(device, swapchain, ~0L, imageAcquiredSemaphore, VK_NULL_HANDLE,
+                    pImageIndex);
+            switch (vkResult) {
+                case VK_SUCCESS:
+                case VK_SUBOPTIMAL_KHR:
+                    break;
+                case VK_ERROR_OUT_OF_DATE_KHR:
+                    vkDeviceWaitIdle(device);
+                    createSwapchain();
+                    createCommandBuffers();
+                    return;
+                default:
+                    throw new IllegalStateException();
+            }
+            LongBuffer lp2 = stack.mallocLong(1).put(0, renderingFinishedSemaphore);
+            VkSubmitInfo pSubmit = VkSubmitInfo.malloc(stack);
+            pSubmit.sType$Default();
+            pSubmit.pNext(0);
+            pSubmit.waitSemaphoreCount(1);
+            pSubmit.pWaitSemaphores(stack.mallocLong(1).put(0, imageAcquiredSemaphore));
+            pSubmit.pWaitDstStageMask(stack.mallocInt(1).put(0, VK_PIPELINE_STAGE_TRANSFER_BIT));
+            // pSubmit.pCommandBuffers(stack.mallocPointer(1).put(0,
+            // commandBuffers.get(pImageIndex.get(0))));
+            pSubmit.pCommandBuffers(stack.mallocPointer(1).put(0,
+                    commandBuffers.get(0)));
+            pSubmit.pSignalSemaphores(lp2);
+            if (vkQueueSubmit(presentQueue, pSubmit, VK_NULL_HANDLE) != VK_SUCCESS) {
+                throw new IllegalStateException();
+            }
+            VkPresentInfoKHR pPresentInfo = VkPresentInfoKHR.calloc(stack);
+            pPresentInfo.sType$Default();
+            pPresentInfo.pNext(0);
+            pPresentInfo.pWaitSemaphores(lp2);
+            pPresentInfo.swapchainCount(1);
+            pPresentInfo.pSwapchains(stack.mallocLong(1).put(0, swapchain));
+            pPresentInfo.pImageIndices(stack.mallocInt(1).put(0, pImageIndex.get(0)));
+            vkResult = vkQueuePresentKHR(presentQueue, pPresentInfo);
+            switch (vkResult) {
+                case VK_SUCCESS:
+                    break;
+                case VK_ERROR_OUT_OF_DATE_KHR:
+                case VK_SUBOPTIMAL_KHR:
+                    vkDeviceWaitIdle(device);
 
+                    createSwapchain();
+                    createCommandBuffers();
+                default:
+                    System.out.println(vkResult);
+                    // throw new IllegalStateException();
+            }
+        }
+    }
+
+    void createSwapchain() {
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            VkSurfaceCapabilitiesKHR pSurfaceCapabilities = VkSurfaceCapabilitiesKHR.malloc(stack);
+            vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, pSurfaceCapabilities);
+            IntBuffer pSurfaceFormatCount = stack.mallocInt(1); // Surface Formats
+            vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, pSurfaceFormatCount, null);
+            int imageFormat;
+            VkSurfaceFormatKHR.Buffer pSurfaceFormats = VkSurfaceFormatKHR.malloc(pSurfaceFormatCount.get(0), stack);
+            vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, pSurfaceFormatCount,
+                    pSurfaceFormats);
+            if (pSurfaceFormatCount.get(0) == 1 && pSurfaceFormats.get(0).format() == VK_FORMAT_UNDEFINED) {
+                imageFormat = VK_FORMAT_B8G8R8A8_UNORM;
+            } else {
+                assert pSurfaceFormatCount.get(0) >= 1;
+                imageFormat = pSurfaceFormats.get(0).format();
+            }
+            IntBuffer pPresentModeCount = stack.mallocInt(1); // Present Mode
+            vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, pPresentModeCount, null);
+            IntBuffer pPresentModes = stack.mallocInt(pPresentModeCount.get(0));
+            vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, pPresentModeCount,
+                    pPresentModes);
+            int presentMode = VK_PRESENT_MODE_FIFO_KHR; // FIFO is always supported
+            for (int i = 0; i < pPresentModeCount.get(0); i++) {
+                int checkPresentMode = pPresentModes.get(i);
+                if (checkPresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
+                    presentMode = VK_PRESENT_MODE_MAILBOX_KHR; // Use Mailbox for low latency V-Sync
+                    break;
+                }
+            }
+            int minImageCount = pSurfaceCapabilities.minImageCount() + 1;
+            if (pSurfaceCapabilities.maxImageCount() > 0 &&
+                    (minImageCount > pSurfaceCapabilities.maxImageCount())) {
+                minImageCount = pSurfaceCapabilities.maxImageCount();
+            }
+            VkExtent2D imageExtent = VkExtent2D.malloc(stack); // Swapchain Extents
+            if (pSurfaceCapabilities.currentExtent().width() == 0xFFFFFFFF) {
+                // if (WindowInfo.getHeight() == 0 || WindowInfo.getWidth() == 0) {
+                // imageExtent.width(1);
+                // imageExtent.height(1);
+                // } else {
+                imageExtent.width(WindowInfo.getWidth());
+                imageExtent.height(WindowInfo.getHeight());
+                // }
+                if (imageExtent.width() < pSurfaceCapabilities.minImageExtent().width()) {
+                    imageExtent.width(pSurfaceCapabilities.minImageExtent().width());
+                } else if (imageExtent.width() > pSurfaceCapabilities.maxImageExtent().width()) {
+                    imageExtent.width(pSurfaceCapabilities.maxImageExtent().width());
+                }
+                if (imageExtent.height() < pSurfaceCapabilities.minImageExtent().height()) {
+                    imageExtent.height(pSurfaceCapabilities.minImageExtent().height());
+                } else if (imageExtent.height() > pSurfaceCapabilities.maxImageExtent().height()) {
+                    imageExtent.height(pSurfaceCapabilities.maxImageExtent().height());
+                }
+            } else {
+                imageExtent.set(pSurfaceCapabilities.currentExtent());
+                WindowInfo.setWidth(pSurfaceCapabilities.currentExtent().width());
+                WindowInfo.setHeight(pSurfaceCapabilities.currentExtent().height());
+            }
+            int preTransform; // Pretransform
+            if ((pSurfaceCapabilities.supportedTransforms() & VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR) != 0) {
+                preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
+            } else {
+                preTransform = pSurfaceCapabilities.currentTransform();
+            }
+            VkSwapchainCreateInfoKHR pSwapchainCreateInfo = VkSwapchainCreateInfoKHR.malloc(stack);
+            pSwapchainCreateInfo.sType$Default();
+            pSwapchainCreateInfo.pNext(0);
+            pSwapchainCreateInfo.flags(0);
+            pSwapchainCreateInfo.surface(surface);
+            pSwapchainCreateInfo.minImageCount(minImageCount);
+            pSwapchainCreateInfo.imageFormat(imageFormat);
+            pSwapchainCreateInfo.imageColorSpace(pSurfaceFormats.get(0).colorSpace());
+            pSwapchainCreateInfo.imageExtent(imageExtent);
+            pSwapchainCreateInfo.imageArrayLayers(1);
+            pSwapchainCreateInfo.imageUsage(VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT);
+            pSwapchainCreateInfo.imageSharingMode(VK_SHARING_MODE_EXCLUSIVE);
+            pSwapchainCreateInfo.queueFamilyIndexCount(0);
+            pSwapchainCreateInfo.pQueueFamilyIndices(null);
+            pSwapchainCreateInfo.preTransform(preTransform);
+            pSwapchainCreateInfo.compositeAlpha(VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR);
+            pSwapchainCreateInfo.presentMode(presentMode);
+            pSwapchainCreateInfo.clipped(true);
+            pSwapchainCreateInfo.oldSwapchain(oldSwapchain);
+            LongBuffer pSwapchain = stack.mallocLong(1);
+            if (vkCreateSwapchainKHR(device, pSwapchainCreateInfo, null, pSwapchain) != VK_SUCCESS) {
+                throw new IllegalStateException();
+            }
+            swapchain = pSwapchain.get(0);
+            if (oldSwapchain != VK_NULL_HANDLE) {
+                vkDestroySwapchainKHR(device, oldSwapchain, null);
+            }
+        }
+    }
+
+    void createCommandBuffers() {
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            VkCommandPoolCreateInfo pCommandPoolCreateInfo = VkCommandPoolCreateInfo.malloc(stack);
+            pCommandPoolCreateInfo.sType$Default();
+            pCommandPoolCreateInfo.pNext(0);
+            pCommandPoolCreateInfo.flags(0);
+            pCommandPoolCreateInfo.queueFamilyIndex(presentQueueFamilyIndex);
+            LongBuffer pCommandPool = stack.mallocLong(1);
+            if (vkCreateCommandPool(device, pCommandPoolCreateInfo, null, pCommandPool) != VK_SUCCESS) {
+                throw new IllegalStateException();
+            }
+            commandPool = pCommandPool.get(0);
+            IntBuffer pSwapchainImageCount = stack.mallocInt(1);
+            vkGetSwapchainImagesKHR(device, swapchain, pSwapchainImageCount, null);
+            commandBuffers.setSize(pSwapchainImageCount.get(0));
+            VkCommandBufferAllocateInfo pAllocateInfo = VkCommandBufferAllocateInfo.malloc(stack);
+            pAllocateInfo.sType$Default();
+            pAllocateInfo.pNext(0);
+            pAllocateInfo.commandPool(commandPool);
+            pAllocateInfo.level(VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+            pAllocateInfo.commandBufferCount(pSwapchainImageCount.get(0));
+            PointerBuffer pCommandBuffer = stack.mallocPointer(pSwapchainImageCount.get(0));
+            if (vkAllocateCommandBuffers(device, pAllocateInfo,
+                    pCommandBuffer) != VK_SUCCESS) {
+                throw new IllegalStateException();
+            }
+            VkCommandBuffer commandBuffer = new VkCommandBuffer(pCommandBuffer.get(0), device);
+            commandBuffers.add(0, commandBuffer);
+            recordCommandBuffers();
+        }
+    }
+
+    void recordCommandBuffers() {
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            IntBuffer pSwapchainImageCount = stack.mallocInt(1);
+            vkGetSwapchainImagesKHR(device, swapchain, pSwapchainImageCount, null);
+            int imageCount = pSwapchainImageCount.get(0);
+            // pSwapchainImageCount.put(commandBuffers.size());
+            // LongBuffer pSwapchainImages = stack.mallocLong(commandBuffers.size());
+            LongBuffer pSwapchainImages = stack.mallocLong(imageCount);
+            if (vkGetSwapchainImagesKHR(device, swapchain, pSwapchainImageCount, pSwapchainImages) != VK_SUCCESS) {
+                throw new IllegalStateException();
+            }
+            VkCommandBufferBeginInfo pCommandBufferBeginInfo = VkCommandBufferBeginInfo.malloc(stack);
+            pCommandBufferBeginInfo.sType$Default();
+            pCommandBufferBeginInfo.pNext(0);
+            pCommandBufferBeginInfo.flags(VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT);
+            pCommandBufferBeginInfo.pInheritanceInfo(null);
+            VkClearColorValue pColor = VkClearColorValue.malloc(stack);
+            pColor.float32(0, 1.0f);
+            pColor.float32(1, 0.8f);
+            pColor.float32(2, 0.4f);
+            pColor.float32(3, 0.0f);
+            VkImageSubresourceRange subresourceRange = VkImageSubresourceRange.malloc(stack);
+            subresourceRange.aspectMask(VK_IMAGE_ASPECT_COLOR_BIT);
+            subresourceRange.baseMipLevel(0);
+            subresourceRange.levelCount(1);
+            subresourceRange.baseArrayLayer(0);
+            subresourceRange.layerCount(1);
+            for (int i = 0; i < pSwapchainImageCount.get(0); ++i) {
+                VkImageMemoryBarrier.Buffer pImageMemoryBarrierPresentToClear = VkImageMemoryBarrier.malloc(1, stack);
+                pImageMemoryBarrierPresentToClear.sType$Default();
+                pImageMemoryBarrierPresentToClear.pNext(0);
+                pImageMemoryBarrierPresentToClear.srcAccessMask(VK_ACCESS_MEMORY_READ_BIT);
+                pImageMemoryBarrierPresentToClear.dstAccessMask(VK_ACCESS_TRANSFER_WRITE_BIT);
+                pImageMemoryBarrierPresentToClear.oldLayout(VK_IMAGE_LAYOUT_UNDEFINED);
+                pImageMemoryBarrierPresentToClear.newLayout(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+                pImageMemoryBarrierPresentToClear.srcQueueFamilyIndex(presentQueueFamilyIndex);
+                pImageMemoryBarrierPresentToClear.dstQueueFamilyIndex(presentQueueFamilyIndex);
+                pImageMemoryBarrierPresentToClear.image(pSwapchainImages.get(i));
+                pImageMemoryBarrierPresentToClear.subresourceRange(subresourceRange);
+                pImageMemoryBarrierPresentToClear.flip();
+                VkImageMemoryBarrier.Buffer pImageMemoryBarrierClearToPresent = VkImageMemoryBarrier.malloc(1, stack);
+                pImageMemoryBarrierClearToPresent.sType$Default();
+                pImageMemoryBarrierClearToPresent.pNext(0);
+                pImageMemoryBarrierClearToPresent.srcAccessMask(VK_ACCESS_TRANSFER_WRITE_BIT);
+                pImageMemoryBarrierClearToPresent.dstAccessMask(VK_ACCESS_MEMORY_READ_BIT);
+                pImageMemoryBarrierClearToPresent.oldLayout(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+                pImageMemoryBarrierClearToPresent.newLayout(VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+                pImageMemoryBarrierClearToPresent.srcQueueFamilyIndex(presentQueueFamilyIndex);
+                pImageMemoryBarrierClearToPresent.dstQueueFamilyIndex(presentQueueFamilyIndex);
+                pImageMemoryBarrierClearToPresent.image(pSwapchainImages.get(i));
+                pImageMemoryBarrierClearToPresent.subresourceRange();
+                pImageMemoryBarrierClearToPresent.flip();
+                vkBeginCommandBuffer(commandBuffers.get(0), pCommandBufferBeginInfo);
+                vkCmdPipelineBarrier(commandBuffers.get(0), VK_PIPELINE_STAGE_TRANSFER_BIT,
+                        VK_PIPELINE_STAGE_TRANSFER_BIT, 0, null, null, pImageMemoryBarrierPresentToClear);
+                vkCmdClearColorImage(commandBuffers.get(0), pSwapchainImages.get(0),
+                        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, pColor, subresourceRange);
+                vkCmdPipelineBarrier(commandBuffers.get(0), VK_PIPELINE_STAGE_TRANSFER_BIT,
+                        VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, null, null, pImageMemoryBarrierClearToPresent);
+                if (vkEndCommandBuffer(commandBuffers.get(0)) != VK_SUCCESS) {
+                    throw new IllegalStateException();
+                }
+            }
+        }
     }
 
     @Override
