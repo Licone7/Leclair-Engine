@@ -1,7 +1,7 @@
 package Leclair.application;
 
 import Leclair.audio.renderer.AudioRenderers;
-import Leclair.graphics.GraphicsInfo;
+import Leclair.graphics.renderer.GraphicsRenderers;
 
 /**
  * @since v1
@@ -25,7 +25,7 @@ public class ApplicationInfo {
      */
     public static final byte RUN_BEST_GRAPHICS = 102;
 
-    static byte graphicsApi = GraphicsInfo.VULKAN;
+    static byte graphicsApi = GraphicsRenderers.VULKAN;
 
     static byte audioApi = AudioRenderers.OPENAL;
 

@@ -9,6 +9,8 @@ import Leclair.audio.sound.Sound;
 import Leclair.graphics.GraphicsInfo;
 import Leclair.graphics.image.Texture;
 import Leclair.graphics.material.Material;
+import Leclair.graphics.material.Materials;
+import Leclair.graphics.renderer.GraphicsRenderers;
 import Leclair.graphics.scene.Mesh;
 import Leclair.input.Input;
 import Leclair.input.InputData;
@@ -26,7 +28,7 @@ public class Main extends ApplicationStructure {
   public static void main(String[] args) {
     Configuration.DEBUG_MEMORY_ALLOCATOR.set(true);
     testSpeed();
-    GraphicsInfo.setRenderer(GraphicsInfo.VULKAN);
+    GraphicsInfo.setRenderer(GraphicsRenderers.VULKAN);
     WindowInfo.setWidth(640);
     WindowInfo.setHeight(480);
     WindowInfo.setTitle("Leclair Engine Demo");
@@ -52,11 +54,11 @@ public class Main extends ApplicationStructure {
     fb.flip();
     Color colors = new Color(1, 20, 10, 0);
     Mesh mesh = new Mesh(fb, new Material(colors, colors, new Color(0, 0, 10, 0), 0, new Texture("textures/rust.png"),
-        GraphicsInfo.LIT_MATERIAL), new Vector3(0, 0, 0));
+        Materials.LIT_MATERIAL), new Vector3(0, 0, 0));
     mesh.getVertexNumber();
 
     Mesh mesh3 = new Mesh(fb, new Material(colors, colors, new Color(0, 10, 10, 0), 0, new Texture("textures/rust.png"),
-        GraphicsInfo.LIT_MATERIAL), new Vector3(0, 5, 0));
+        Materials.LIT_MATERIAL), new Vector3(0, 5, 0));
     mesh3.getVertexNumber();
 
     FloatBuffer fb2 = BufferUtils.createFloatBuffer(4 * 6);
@@ -68,7 +70,7 @@ public class Main extends ApplicationStructure {
     fb2.put(-1.0f).put(-1.0f).put(1f).put(1f);
     fb2.flip();
     Mesh mesh2 = new Mesh(fb2, new Material(colors, colors, new Color(0, 0, 10, 0), 0, new Texture("textures/bond.jpg"),
-        (byte) GraphicsInfo.LIT_MATERIAL), new Vector3(-8, 0, 0));
+        (byte) Materials.LIT_MATERIAL), new Vector3(-8, 0, 0));
     mesh2.getVertexNumber();
 
     // Mesh mesh3 = new Mesh(fb2, new Material(new Texture("textures/.PNG")), new

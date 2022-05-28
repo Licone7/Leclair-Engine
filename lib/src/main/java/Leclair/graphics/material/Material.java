@@ -1,8 +1,8 @@
 package Leclair.graphics.material;
 
-import Leclair.graphics.GraphicsInfo;
 import Leclair.graphics.image.Texture;
 import Leclair.graphics.shader.Shader;
+import Leclair.graphics.shader.Shaders;
 import Leclair.math.Color;
 
 public class Material {
@@ -35,15 +35,15 @@ public class Material {
         this.reflectance = reflectance;
         this.texture = texture;
         switch (type) {
-            case GraphicsInfo.UNLIT_MATERIAL:
-                vertexShader = new Shader("shaders/unlit.vert", GraphicsInfo.VERTEX_SHADER);
-                fragmentShader = new Shader("shaders/unlit.frag", GraphicsInfo.FRAGMENT_SHADER);
+            case Materials.UNLIT_MATERIAL:
+                vertexShader = new Shader("shaders/unlit.vert", Shaders.VERTEX_SHADER);
+                fragmentShader = new Shader("shaders/unlit.frag", Shaders.FRAGMENT_SHADER);
                 vertexShader.compile();
                 fragmentShader.compile();
                 break;
-            case GraphicsInfo.LIT_MATERIAL:
-                vertexShader = new Shader("shaders/lit.vert", GraphicsInfo.VERTEX_SHADER);
-                fragmentShader = new Shader("shaders/lit.frag", GraphicsInfo.FRAGMENT_SHADER);
+            case Materials.LIT_MATERIAL:
+                vertexShader = new Shader("shaders/lit.vert", Shaders.VERTEX_SHADER);
+                fragmentShader = new Shader("shaders/lit.frag", Shaders.FRAGMENT_SHADER);
                 vertexShader.compile();
                 fragmentShader.compile();
                 break;

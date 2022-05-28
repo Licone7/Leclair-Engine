@@ -4,7 +4,7 @@ import Leclair.graphics.scene.Mesh;
 import Leclair.graphics.shader.Shader;
 import Leclair.math.Color;
 
-public interface Renderer {
+public interface GraphicsRenderer {
 
     public void init();
 

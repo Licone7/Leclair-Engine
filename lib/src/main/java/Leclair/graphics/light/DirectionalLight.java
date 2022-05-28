@@ -1,12 +1,11 @@
 package Leclair.graphics.light;
 
-import Leclair.graphics.GraphicsInfo;
 import Leclair.math.Color;
 import Leclair.math.Vector3;
 
 public class DirectionalLight implements Light {
 
-    public static final byte type = GraphicsInfo.DIRECTIONAL_LIGHT;
+    public static final byte type = Lights.DIRECTIONAL_LIGHT;
     Color color;
     Vector3 direction;
     float intensity;

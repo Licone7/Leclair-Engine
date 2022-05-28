@@ -37,7 +37,7 @@ import Leclair.graphics.shader.Shader;
 import Leclair.math.Color;
 import Leclair.window.WindowInfo;
 
-public class VKRenderer implements Renderer {
+public class VKRenderer implements GraphicsRenderer {
 
     // VARIABLES INITIALIZED
     static boolean validate = false; // This should be true only for testing, otherwise it'll always be false
