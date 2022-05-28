@@ -28,7 +28,7 @@ public class Main extends ApplicationStructure {
   public static void main(String[] args) {
     Configuration.DEBUG_MEMORY_ALLOCATOR.set(true);
     testSpeed();
-    GraphicsInfo.setRenderer(GraphicsRenderers.VULKAN);
+    GraphicsInfo.setRenderer(GraphicsRenderers.OPENGL);
     WindowInfo.setWidth(640);
     WindowInfo.setHeight(480);
     WindowInfo.setTitle("Leclair Engine Demo");

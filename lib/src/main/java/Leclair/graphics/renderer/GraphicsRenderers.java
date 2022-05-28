@@ -12,4 +12,10 @@ public interface GraphicsRenderers {
      * operations
      */
     public static final byte VULKAN = 1;
+
+    /**
+     * Commands the renderer to use the OpenGL API for all graphics and compute
+     * operations
+     */
+    public static final byte OPENGL = 2;
 }

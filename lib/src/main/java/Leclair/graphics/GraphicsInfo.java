@@ -1,5 +1,6 @@
 package Leclair.graphics;
 
+import Leclair.graphics.renderer.GLRenderer;
 import Leclair.graphics.renderer.GraphicsRenderer;
 import Leclair.graphics.renderer.GraphicsRenderers;
 import Leclair.graphics.renderer.VKRenderer;
@@ -16,7 +17,8 @@ public class GraphicsInfo {
     /**
      * Commands the engine to use the specified renderer <br>
      * <br>
-     * Can be either {@link #DISABLED} or {@link #VULKAN}, any other value will result
+     * Can be either {@link #DISABLED} or {@link #VULKAN}, any other value will
+     * result
      * in an IllegalArgumentException
      */
     public static void setRenderer(final byte api) {
@@ -49,6 +51,9 @@ public class GraphicsInfo {
                 break;
             case GraphicsRenderers.VULKAN:
                 renderer = new VKRenderer(viewPort);
+                break;
+            case GraphicsRenderers.OPENGL:
+                renderer = new GLRenderer(viewPort);
                 break;
             default:
                 throw new IllegalArgumentException("The requested renderer is invalid");
