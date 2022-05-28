@@ -3,6 +3,8 @@ package Leclair.demos;
 import java.nio.FloatBuffer;
 
 import Leclair.application.ApplicationStructure;
+import Leclair.audio.effect.Effect;
+import Leclair.audio.effect.Effects;
 import Leclair.audio.sound.Sound;
 import Leclair.graphics.GraphicsInfo;
 import Leclair.graphics.image.Texture;
@@ -35,6 +37,9 @@ public class Main extends ApplicationStructure {
 
   @Override
   public void appSetup() {
+    Effect effect = new Effect(Effects.REVERB_EFFECT);
+    theme.addEffect(effect);
+    theme.play();
     viewPort.setBackgroundColor(Color.RED);
     System.out.println(MathUtilities.generateRandom());
     FloatBuffer fb = BufferUtils.createFloatBuffer(4 * 6);
@@ -87,10 +92,9 @@ public class Main extends ApplicationStructure {
       theme.play();
       viewPort.setBackgroundColor(255f, 255f, 0f, 1f);
     } else if (InputData.isKeyPressed(Input.KEY_D)) {
-      
       // theme.stop();
     } else if (InputData.isKeyPressed(Input.KEY_C)) {
-      theme.destroy();
+      theme.delete();
     }
   }
 

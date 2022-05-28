@@ -1,6 +1,6 @@
 package Leclair.application;
 
-import Leclair.audio.AudioInfo;
+import Leclair.audio.renderer.AudioRenderers;
 import Leclair.graphics.GraphicsInfo;
 
 /**
@@ -27,7 +27,7 @@ public class ApplicationInfo {
 
     static byte graphicsApi = GraphicsInfo.VULKAN;
 
-    static byte audioApi = AudioInfo.OPENAL;
+    static byte audioApi = AudioRenderers.OPENAL;
 
     static int width = 640;
 

@@ -7,9 +7,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import Leclair.asset.AssetLoader;
+import Leclair.audio.effect.Effect;
+import Leclair.audio.renderer.AudioRenderer;
+
 import org.lwjgl.stb.STBVorbis;
 import org.lwjgl.stb.STBVorbisInfo;
 import org.lwjgl.system.MemoryStack;
+
+import static Leclair.audio.AudioInfo.getRenderer;
 
 /**
  * @since v1
@@ -17,7 +22,7 @@ import org.lwjgl.system.MemoryStack;
  */
 public class Sound {
 
-    static List<Sound> sounds = new ArrayList<Sound>();
+    List<Effect> effects = new ArrayList<Effect>();
 
     public String path = null;
     public ShortBuffer pcm;
@@ -25,17 +30,14 @@ public class Sound {
     public int sampleRate = 0;
     public int index;
     float volume = 1;
-    public boolean destroy = false;
-    public boolean UPDATED_STATE = false;
-    public boolean initialized = false;
-    public boolean stopped = false;
-    public boolean paused = false;
-    public boolean playing = false;
+    byte state = PlayStates.STATE_UNINITIALIZED;
+    // public boolean destroy = false;
+    // public boolean UPDATED_STATE = false;
 
     public Sound(final String path) {
         this.path = path;
-        sounds.add(this);
-        this.index = sounds.indexOf(this);
+        AudioRenderer.sounds.add(this);
+        this.index = AudioRenderer.sounds.indexOf(this);
         compile();
     }
 
@@ -63,35 +65,44 @@ public class Sound {
     }
 
     public void play() {
-        this.stopped = false;
-        this.paused = false;
-        this.playing = true;
-        this.UPDATED_STATE = true;
+        setState(PlayStates.STATE_PLAYING);
+        getRenderer().playSound(this);
     }
 
     public void pause() {
-        this.stopped = false;
-        this.paused = true;
-        this.playing = false;
-        this.UPDATED_STATE = true;
+        setState(PlayStates.STATE_PAUSED);
+        getRenderer().pauseSound(this);
     }
 
     public void stop() {
-        this.stopped = true;
-        this.paused = false;
-        this.playing = false;
-        this.UPDATED_STATE = true;
+        setState(PlayStates.STATE_STOPPED);
+        getRenderer().stopSound(this);
     }
 
-    public void destroy() {
-        this.stopped = false;
-        this.paused = false;
-        this.playing = false;
-        this.destroy = true;
-        this.UPDATED_STATE = true;
+    public void delete() {
+        setState(PlayStates.STATE_DELETE);
+        getRenderer().deleteSound(this);
     }
 
-    public static List<Sound> getSounds() {
-        return sounds;
+    public void addEffect(Effect effect) {
+        this.effects.add(effect);  
+        getRenderer().addEffect(this, effect); 
+    }
+
+    public void deleteEffect(Effect effect) {
+        this.effects.remove(effect);
+        getRenderer().deleteEffect(this, effect);
+    }
+
+    public List<Effect> getEffects() {
+        return this.effects;
+    }
+
+    public void setState(byte state) {
+        this.state = state;
+    }
+
+    public byte getState() {
+        return this.state;
     }
 }

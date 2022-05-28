@@ -5,5 +5,14 @@ package Leclair.audio.effect;
  * @author Brett Burnett
  */
 public class Effect {
-    
+
+    byte type = Effects.REVERB_EFFECT;
+
+    public Effect(byte type) {
+        this.type = type;
+    }
+
+    public byte getType() {
+        return this.type;
+    }
 }
