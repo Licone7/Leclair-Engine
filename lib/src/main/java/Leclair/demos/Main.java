@@ -23,7 +23,7 @@ import org.lwjgl.system.Configuration;
 
 public class Main extends ApplicationStructure {
 
-  Sound theme = new Sound("sounds/test.ogg", true);
+  Sound theme = new Sound("sounds/test.ogg", false);
 
   public static void main(String[] args) {
     Configuration.DEBUG_MEMORY_ALLOCATOR.set(true);
@@ -39,6 +39,7 @@ public class Main extends ApplicationStructure {
 
   @Override
   public void appSetup() {
+    theme.process();
     Effect effect = new Effect(Effects.REVERB_EFFECT);
     theme.addEffect(effect);
     theme.play();

@@ -3,7 +3,6 @@ package Leclair.audio;
 import Leclair.audio.renderer.ALRenderer;
 import Leclair.audio.renderer.AudioRenderer;
 import Leclair.audio.renderer.AudioRenderers;
-import Leclair.audio.sound.PlayStates;
 import Leclair.audio.sound.Sound;
 
 /**
@@ -40,24 +39,12 @@ public class AudioInfo {
         }
         renderer.init();
         renderer.printCapabilities();
-        for (final Sound sound : AudioRenderer.sounds) {
-            if (sound.getState() == PlayStates.STATE_UNINITIALIZED) {
-                renderer.processSound(sound);
-                sound.setState(PlayStates.STATE_INITIALIZED);
-            }
-        }
     }
 
     /**
      * @apiNote For internal use only, <b>never</b> explicitly invoke!
      */
     public static void loop() {
-        for (final Sound sound : AudioRenderer.sounds) {
-            if (sound.getState() == PlayStates.STATE_UNINITIALIZED) {
-                renderer.processSound(sound);
-                sound.setState(PlayStates.STATE_INITIALIZED);
-            }
-        }
         renderer.loop();
     }
 
