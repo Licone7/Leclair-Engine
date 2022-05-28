@@ -1,20 +1,14 @@
 package Leclair.audio.sound;
 
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
+import static Leclair.audio.AudioInfo.getRenderer;
+
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import Leclair.asset.AssetLoader;
 import Leclair.audio.effect.Effect;
+import Leclair.audio.processor.OggProcessor;
 import Leclair.audio.renderer.AudioRenderer;
-
-import org.lwjgl.stb.STBVorbis;
-import org.lwjgl.stb.STBVorbisInfo;
-import org.lwjgl.system.MemoryStack;
-
-import static Leclair.audio.AudioInfo.getRenderer;
 
 /**
  * @since v1
@@ -34,34 +28,22 @@ public class Sound {
     // public boolean destroy = false;
     // public boolean UPDATED_STATE = false;
 
-    public Sound(final String path) {
+    public Sound(final String path, boolean process) {
         this.path = path;
         AudioRenderer.sounds.add(this);
         this.index = AudioRenderer.sounds.indexOf(this);
-        compile();
+        if (process) {
+            process();
+        } else {
+
+        }
     }
 
-    public void compile() {
-        try (MemoryStack stack = MemoryStack.stackPush()) {
-            final STBVorbisInfo info = STBVorbisInfo.malloc(stack);
-            ByteBuffer vorbis;
-            vorbis = AssetLoader.importAsBinary(path, 64 * 1024);
-            final IntBuffer error = stack.mallocInt(1);
-            final long decoder = STBVorbis.stb_vorbis_open_memory(vorbis, error, null);
-            if (decoder == 0L) {
-                throw new RuntimeException("Failed to open Ogg Vorbis file. Error: " + error.get(0));
-            }
-            STBVorbis.stb_vorbis_get_info(decoder, info);
-            final int channels = info.channels();
-            final ShortBuffer pcm = ByteBuffer
-                    .allocateDirect(STBVorbis.stb_vorbis_stream_length_in_samples(decoder) * channels).asShortBuffer();
-            STBVorbis.stb_vorbis_get_samples_short_interleaved(decoder, channels, pcm);
-            STBVorbis.stb_vorbis_close(decoder);
-            this.channels = info.channels();
-            this.sampleRate = info.sample_rate();
-            this.pcm = pcm;
-        }
-
+    public void process() {
+        List<Object> information = OggProcessor.processOggFile(path);
+        this.channels = (int) information.get(0);
+        this.sampleRate = (int) information.get(1);
+        this.pcm = (ShortBuffer) information.get(2);
     }
 
     public void play() {
@@ -85,8 +67,8 @@ public class Sound {
     }
 
     public void addEffect(Effect effect) {
-        this.effects.add(effect);  
-        getRenderer().addEffect(this, effect); 
+        this.effects.add(effect);
+        getRenderer().addEffect(this, effect);
     }
 
     public void deleteEffect(Effect effect) {

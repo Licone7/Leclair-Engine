@@ -23,7 +23,7 @@ import org.lwjgl.system.Configuration;
 
 public class Main extends ApplicationStructure {
 
-  Sound theme = new Sound("sounds/test.ogg");
+  Sound theme = new Sound("sounds/test.ogg", true);
 
   public static void main(String[] args) {
     Configuration.DEBUG_MEMORY_ALLOCATOR.set(true);
