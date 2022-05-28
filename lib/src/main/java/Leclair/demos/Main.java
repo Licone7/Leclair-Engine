@@ -57,7 +57,7 @@ public class Main extends ApplicationStructure {
 
     Mesh mesh3 = new Mesh(fb, new Material(colors, colors, new Color(0, 10, 10, 0), 0, new Texture("textures/rust.png"),
         GraphicsInfo.LIT_MATERIAL), new Vector3(0, 5, 0));
-        mesh3.getVertexNumber();
+    mesh3.getVertexNumber();
 
     FloatBuffer fb2 = BufferUtils.createFloatBuffer(4 * 6);
     fb2.put(-1.0f).put(-1.0f).put(1f).put(1f);

@@ -22,13 +22,13 @@ public abstract class ApplicationStructure {
     float actualFps = 1000000000 / targetFps;
 
     public void start() {
-        Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
+        Thread.currentThread().setPriority(Thread.MAX_PRIORITY); // We need to add multithreading
         Configuration.DISABLE_CHECKS.set(false);
         AssetLoader.setup();
         WindowInfo.setup();
-        AudioInfo.setup();
         viewPort = new ViewPort();
         GraphicsInfo.setup(viewPort);
+        AudioInfo.setup();
         appSetup();
         WindowInfo.showWindow(); // This perhaps should be made optional.
         // The reason we don't show the window immediately is because the window freezes

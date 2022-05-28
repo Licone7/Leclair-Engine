@@ -34,6 +34,8 @@ public class ALRenderer implements AudioRenderer {
     static ALCapabilities caps;
     static List<Integer> buffers = new ArrayList<Integer>();
     static List<Integer> sources = new ArrayList<Integer>();
+    static List<Integer> effects = new ArrayList<Integer>();
+    static List<Integer> effectSlots = new ArrayList<Integer>();
 
     public ALRenderer() {
 
@@ -89,30 +91,33 @@ public class ALRenderer implements AudioRenderer {
     @Override
     public void addEffect(final Sound sound, final Effect effect) {
         int effectSlot = alGenAuxiliaryEffectSlots();
-        int reverbEffect = alGenEffects();
-        switch (effect.getType()) {
+        int iEffect = alGenEffects();
+        switch (effect.getType()) { // TODO
             case Effects.CHORUS_EFFECT:
-                alEffecti(reverbEffect, AL_EFFECT_TYPE, AL_EFFECT_CHORUS);
+                alEffecti(iEffect, AL_EFFECT_TYPE, AL_EFFECT_CHORUS);
                 break;
             case Effects.DISTORTION_EFFECT:
-                alEffecti(reverbEffect, AL_EFFECT_TYPE, AL_EFFECT_DISTORTION);
+                alEffecti(iEffect, AL_EFFECT_TYPE, AL_EFFECT_DISTORTION);
                 break;
             case Effects.ECHO_EFFECT:
-                alEffecti(reverbEffect, AL_EFFECT_TYPE, AL_EFFECT_ECHO);
+                alEffecti(iEffect, AL_EFFECT_TYPE, AL_EFFECT_ECHO);
                 break;
             case Effects.REVERB_EFFECT:
-                alEffecti(reverbEffect, AL_EFFECT_TYPE, AL_EFFECT_REVERB);
+                alEffecti(iEffect, AL_EFFECT_TYPE, AL_EFFECT_REVERB);
+                alEffectf(iEffect, AL_REVERB_DECAY_TIME, 5.0f);
                 break;
         }
-       // alEffecti(reverbEffect, AL_EFFECT_TYPE, AL_EFFECT_CHORUS);
-        alEffectf(reverbEffect, AL_REVERB_DECAY_TIME, 5.0f);
-        alAuxiliaryEffectSloti(effectSlot, AL_EFFECTSLOT_EFFECT, reverbEffect);
+        alAuxiliaryEffectSloti(effectSlot, AL_EFFECTSLOT_EFFECT, iEffect);
         alSource3i(sources.get(sound.index), AL_AUXILIARY_SEND_FILTER, effectSlot, 0, AL_FILTER_NULL);
+        effects.add(sound.index, iEffect);
+        effectSlots.add(sound.index, effectSlot);
     }
 
     @Override
     public void deleteEffect(final Sound sound, final Effect effect) {
-
+        alSource3i(sources.get(sound.index), AL_AUXILIARY_SEND_FILTER, AL_EFFECTSLOT_NULL, 0, AL_FILTER_NULL);
+        alAuxiliaryEffectSloti(effectSlots.get(sound.index), AL_EFFECTSLOT_EFFECT, AL_EFFECT_NULL);
+        alDeleteEffects(effects.get(sound.index));
     }
 
     @Override

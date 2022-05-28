@@ -1,6 +1,5 @@
 package Leclair.audio;
 
-import Leclair.audio.effect.Effects;
 import Leclair.audio.renderer.ALRenderer;
 import Leclair.audio.renderer.AudioRenderer;
 import Leclair.audio.renderer.AudioRenderers;
@@ -44,7 +43,6 @@ public class AudioInfo {
         for (final Sound sound : AudioRenderer.sounds) {
             if (sound.getState() == PlayStates.STATE_UNINITIALIZED) {
                 renderer.processSound(sound);
-               // renderer.addEffect(sound, Effects.CHORUS_EFFECT);
                 sound.setState(PlayStates.STATE_INITIALIZED);
             }
         }
