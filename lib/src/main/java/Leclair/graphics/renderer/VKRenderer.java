@@ -279,8 +279,18 @@ public class VKRenderer implements GraphicsRenderer {
     }
 
     @Override
-    public void addMesh(final Mesh mesh) {
+    public void processMesh(final Mesh mesh) {
 
+    }
+
+    @Override
+    public void renderMesh(final Mesh mesh) {
+        
+    }
+
+    @Override
+    public void removeMesh(final Mesh mesh) {
+        
     }
 
     @Override

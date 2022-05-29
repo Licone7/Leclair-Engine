@@ -10,6 +10,7 @@ import java.util.List;
 
 import Leclair.asset.AssetLoader;
 import Leclair.graphics.scene.Mesh;
+import Leclair.graphics.scene.RenderStates;
 import Leclair.graphics.scene.ViewPort;
 import Leclair.graphics.shader.Shader;
 import Leclair.graphics.shader.Shaders;
@@ -96,12 +97,11 @@ public class GLRenderer implements GraphicsRenderer {
 
     @Override
     public void loop() {
-        long start = System.currentTimeMillis();
         try (MemoryStack stack = MemoryStack.stackPush()) {
             FloatBuffer UtilityFB2 = stack.mallocFloat(16);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             for (final Mesh mesh : Mesh.getMeshes()) {
-                if (mesh.initialized == true) {
+                if (mesh.getState() == RenderStates.STATE_RENDER) {
                     glUseProgram(programs.get(mesh.index));
                     glBindBufferBase(GL_UNIFORM_BUFFER, 0, ubo);
                     int uniformId = glGetUniformBlockIndex(programs.get(mesh.index), "camera");
@@ -143,7 +143,6 @@ public class GLRenderer implements GraphicsRenderer {
             glViewport(0, 0, WindowInfo.getWidth(), WindowInfo.getHeight());
             GLFW.glfwSwapBuffers(WindowInfo.getNativeWindow());
         }
-        long end = System.currentTimeMillis();
     }
 
     Matrix4f updateMatrices() {
@@ -185,7 +184,7 @@ public class GLRenderer implements GraphicsRenderer {
     }
 
     @Override
-    public void addMesh(final Mesh mesh) {
+    public void processMesh(final Mesh mesh) {
         final int id = glGenTextures();
         glBindTexture(GL_TEXTURE_2D, id);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -209,6 +208,10 @@ public class GLRenderer implements GraphicsRenderer {
         if (linked == 0)
             throw new AssertionError("Could not link program");
         glUseProgram(programs.get(mesh.index));
+    }
+
+    @Override
+    public void renderMesh(final Mesh mesh) {
         final int texLocation = glGetUniformLocation(programs.get(mesh.index), "tex");
         glUniform1i(texLocation, 0);
         final int inputPosition = glGetAttribLocation(programs.get(mesh.index), "position");
@@ -244,6 +247,11 @@ public class GLRenderer implements GraphicsRenderer {
         glEnableVertexAttribArray(inputTextureCoords);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
+    }
+
+    @Override
+    public void removeMesh(final Mesh mesh) {
+        
     }
 
     @Override

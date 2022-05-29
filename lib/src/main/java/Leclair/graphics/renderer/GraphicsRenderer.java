@@ -14,7 +14,11 @@ public interface GraphicsRenderer {
 
     public void setBackgroundColor(Color backgroundColor);
 
-    public void addMesh(Mesh mesh);
+    public void processMesh(Mesh mesh);
+
+    public void renderMesh(Mesh mesh);
+
+    public void removeMesh(Mesh mesh);
 
     public void deleteMesh(Mesh mesh);
 

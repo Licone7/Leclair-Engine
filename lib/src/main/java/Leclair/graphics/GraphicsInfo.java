@@ -26,15 +26,6 @@ public class GraphicsInfo {
     }
 
     /**
-     * Returns the renderer being used
-     * 
-     * @return
-     */
-    public static byte getRenderer() {
-        return rendererApi;
-    }
-
-    /**
      * Commands the engine whether to use Vsync or not
      */
     public static void useVsync(final boolean enabled) {
@@ -66,12 +57,6 @@ public class GraphicsInfo {
      * @apiNote For internal use only, <b>never</b> explicitly invoke!
      */
     public static void loop() {
-        for (final Mesh mesh : Mesh.getMeshes()) {
-            if (mesh.initialized == false) {
-                renderer.addMesh(mesh);
-                mesh.initialized = true;
-            }
-        }
         renderer.setBackgroundColor(viewPort.getBackgroundColor());
         renderer.setWireframe(true);
         renderer.loop();
@@ -85,5 +70,9 @@ public class GraphicsInfo {
         for (Mesh mesh : Mesh.meshes) {
             mesh.material.getTexture().free();
         }
+    }
+
+    public static GraphicsRenderer getRenderer() {
+        return renderer;
     }
 }
