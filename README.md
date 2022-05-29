@@ -2,7 +2,7 @@
 From the French word "L'éclair", meaning "lightning bolt" or "flash"
 
 Welcome!
-L'éclair Engine is a WIP game engine focused on providing an easy to use, yet powerful method of creating beautiful games. 
+Leclair Engine is a WIP game engine focused on providing an easy to use, yet powerful method of creating beautiful games. 
 As the engine isn't finished, contributing is much wanted! 
 
 ## Contributing
