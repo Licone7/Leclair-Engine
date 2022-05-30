@@ -205,6 +205,26 @@ public class GLRenderer implements GraphicsRenderer {
         if (linked == 0)
             throw new AssertionError("Could not link program");
         glUseProgram(programs.get(mesh.index));
+
+        // final int texLocation = glGetUniformLocation(programs.get(mesh.index), "tex");
+        // glUniform1i(texLocation, 0);
+        // final int inputPosition = glGetAttribLocation(programs.get(mesh.index), "position");
+        // final int inputTextureCoords = glGetAttribLocation(programs.get(mesh.index), "texCoords");
+        // int uboId = glGenBuffers();
+        // GLRenderer.ubo = uboId;
+
+        // int tra = glGenBuffers();
+        // transWell = tra;
+
+        // glUseProgram(0);
+        final int vao = glGenVertexArrays();
+        // glBindVertexArray(vao);
+        // final int positionVbo = glGenBuffers();
+        // glBindBuffer(GL_ARRAY_BUFFER, positionVbo);
+        // glBufferData(GL_ARRAY_BUFFER, mesh.getData(), GL_STATIC_DRAW);
+        // glVertexAttribPointer(inputPosition, 4, GL_FLOAT, false, 0, 0L);
+        // glEnableVertexAttribArray(inputPosition);
+        vaos.add(mesh.index, vao);
     }
 
     @Override
@@ -220,15 +240,16 @@ public class GLRenderer implements GraphicsRenderer {
         transWell = tra;
 
         glUseProgram(0);
-
-        final int vao = glGenVertexArrays();
+        // final int vao = glGenVertexArrays();
+        final int vao = vaos.get(mesh.index);
         glBindVertexArray(vao);
         final int positionVbo = glGenBuffers();
         glBindBuffer(GL_ARRAY_BUFFER, positionVbo);
         glBufferData(GL_ARRAY_BUFFER, mesh.getData(), GL_STATIC_DRAW);
         glVertexAttribPointer(inputPosition, 4, GL_FLOAT, false, 0, 0L);
         glEnableVertexAttribArray(inputPosition);
-        vaos.add(mesh.index, vao);
+        // vaos.add(mesh.index, vao);
+
         final int texCoordsVbo = glGenBuffers();
         final FloatBuffer fb = BufferUtils.createFloatBuffer(2 * 6);
         fb.put(0.0f).put(1.0f);
