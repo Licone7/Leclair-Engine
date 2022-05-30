@@ -23,8 +23,6 @@ public class Mesh {
     byte state = RenderStates.STATE_UNPROCESSED;
 
     public Mesh(FloatBuffer vertices, Material material, Vector3 pos, boolean process) {
-        meshes.add(this);
-        this.index = meshes.indexOf(this);
         this.vertexNumber = vertices.capacity();
         this.data = vertices;
         this.material = material;
@@ -43,6 +41,8 @@ public class Mesh {
     // }
 
     public void process() {
+        meshes.add(this);
+        this.index = meshes.indexOf(this);
         getRenderer().processMesh(this);
         setState(RenderStates.STATE_PROCESS);
     }

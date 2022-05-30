@@ -92,7 +92,7 @@ public class ALRenderer implements AudioRenderer {
     public void addEffect(final Sound sound, final Effect effect) {
         int effectSlot = alGenAuxiliaryEffectSlots();
         int iEffect = alGenEffects();
-        switch (effect.getType()) { // TODO
+        switch (effect.getType()) { // TODO: Add more effects
             case Effects.CHORUS_EFFECT:
                 alEffecti(iEffect, AL_EFFECT_TYPE, AL_EFFECT_CHORUS);
                 break;

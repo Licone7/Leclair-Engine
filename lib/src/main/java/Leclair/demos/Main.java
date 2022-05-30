@@ -24,6 +24,7 @@ import org.lwjgl.system.Configuration;
 public class Main extends ApplicationStructure {
 
   Sound theme = new Sound("sounds/test.ogg", false);
+  Mesh mesh3;
 
   public static void main(String[] args) {
     Configuration.DEBUG_MEMORY_ALLOCATOR.set(true);
@@ -58,9 +59,9 @@ public class Main extends ApplicationStructure {
         Materials.LIT_MATERIAL), new Vector3(0, 0, 0), true);
     mesh.render();
 
-    Mesh mesh3 = new Mesh(fb, new Material(colors, colors, new Color(0, 10, 10, 0), 0, new Texture("textures/bond.jpg"),
+    mesh3 = new Mesh(fb, new Material(colors, colors, new Color(0, 10, 10, 0), 0, new Texture("textures/bond.jpg"),
         Materials.LIT_MATERIAL), new Vector3(0, 5, 0), true);
-    mesh3.render();
+    // mesh3.render();
 
     FloatBuffer fb2 = BufferUtils.createFloatBuffer(4 * 6);
     fb2.put(-1.0f).put(-1.0f).put(1f).put(1f);
@@ -70,14 +71,14 @@ public class Main extends ApplicationStructure {
     fb2.put(-1.0f).put(1.0f).put(1f).put(1f);
     fb2.put(-1.0f).put(-1.0f).put(1f).put(1f);
     fb2.flip();
+
     Mesh mesh2 = new Mesh(fb2, new Material(colors, colors, new Color(0, 0, 10, 0), 0, new Texture("textures/bond.jpg"),
         (byte) Materials.LIT_MATERIAL), new Vector3(-8, 0, 0), false);
     mesh2.process();
     mesh2.render();
 
-    // Mesh mesh3 = new Mesh(fb2, new Material(new Texture("textures/.PNG")), new
-    // Vector3(0, 3, 0));
-    // mesh3.getVertexNumber();
+    //mesh3.process();
+    mesh3.render();
   }
 
   static void testSpeed() {
@@ -99,7 +100,7 @@ public class Main extends ApplicationStructure {
       theme.stop();
     } else if (KeyHandler.isKeyPressed(Keys.KEY_C)) {
       theme.delete();
-    } 
+    }
   }
 
   @Override

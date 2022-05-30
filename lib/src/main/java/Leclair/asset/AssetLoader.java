@@ -20,6 +20,7 @@ public class AssetLoader {
 
     public static String pathOfResourcesFolder = null;
 
+    // TODO: MULTITHREAD THIS
     public static void setup() {
         String tempPath = System.getProperty("user.dir") + "/src/main/resources/";
         if (tempPath.contains("\\")) {
