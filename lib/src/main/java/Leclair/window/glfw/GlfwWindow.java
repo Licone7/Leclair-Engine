@@ -10,6 +10,8 @@ import Leclair.window.WindowInfo;
 
 import static org.lwjgl.glfw.GLFW.*;
 
+import org.lwjgl.glfw.Callbacks;
+
 public class GlfwWindow implements Window {
 
     static long window;
@@ -72,7 +74,6 @@ public class GlfwWindow implements Window {
     @Override
     public void show() {
         glfwShowWindow(window);
-
     }
 
     @Override
@@ -82,6 +83,8 @@ public class GlfwWindow implements Window {
 
     @Override
     public void destroy() {
-
+        Callbacks.glfwFreeCallbacks(window);
+		glfwDestroyWindow(window);
+		glfwTerminate();
     }
 }
