@@ -3,6 +3,7 @@ package Leclair.audio;
 import Leclair.audio.renderer.ALRenderer;
 import Leclair.audio.renderer.AudioRenderer;
 import Leclair.audio.renderer.AudioRenderers;
+import Leclair.audio.renderer.BlackHoleRenderer;
 import Leclair.audio.sound.Sound;
 
 /**
@@ -29,7 +30,8 @@ public class AudioInfo {
      */
     public static void setup() {
         switch (audioApi) {
-            case AudioRenderers.DISABLED:
+            case AudioRenderers.BLACK_HOLE:
+                renderer = new BlackHoleRenderer();
                 break;
             case AudioRenderers.OPENAL:
                 renderer = new ALRenderer();

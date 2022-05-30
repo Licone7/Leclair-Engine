@@ -1,5 +1,6 @@
 package Leclair.graphics;
 
+import Leclair.graphics.renderer.BlackHoleRenderer;
 import Leclair.graphics.renderer.GLRenderer;
 import Leclair.graphics.renderer.GraphicsRenderer;
 import Leclair.graphics.renderer.GraphicsRenderers;
@@ -38,7 +39,8 @@ public class GraphicsInfo {
     public static void setup(final ViewPort vp) {
         viewPort = vp;
         switch (rendererApi) {
-            case GraphicsRenderers.DISABLED:
+            case GraphicsRenderers.BLACK_HOLE:
+                renderer = new BlackHoleRenderer();
                 break;
             case GraphicsRenderers.VULKAN:
                 renderer = new VKRenderer(viewPort);

@@ -3,8 +3,10 @@ package Leclair.demos;
 import java.nio.FloatBuffer;
 
 import Leclair.application.ApplicationStructure;
+import Leclair.audio.AudioInfo;
 import Leclair.audio.effect.Effect;
 import Leclair.audio.effect.Effects;
+import Leclair.audio.renderer.AudioRenderers;
 import Leclair.audio.sound.Sound;
 import Leclair.graphics.GraphicsInfo;
 import Leclair.graphics.image.Texture;
@@ -29,7 +31,8 @@ public class Main extends ApplicationStructure {
   public static void main(String[] args) {
     Configuration.DEBUG_MEMORY_ALLOCATOR.set(true);
     testSpeed();
-    GraphicsInfo.setRenderer(GraphicsRenderers.OPENGL);
+    AudioInfo.setRenderer(AudioRenderers.OPENAL);
+    GraphicsInfo.setRenderer(GraphicsRenderers.BLACK_HOLE);
     WindowInfo.setWidth(640);
     WindowInfo.setHeight(480);
     WindowInfo.setTitle("Leclair Engine Demo");
