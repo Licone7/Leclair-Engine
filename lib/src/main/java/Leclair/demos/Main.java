@@ -97,6 +97,7 @@ public class Main extends ApplicationStructure {
       theme.stop();
     } else if (KeyHandler.isKeyPressed(Keys.KEY_C)) {
       theme.delete();
+      mesh3.remove();
     }
   }
 

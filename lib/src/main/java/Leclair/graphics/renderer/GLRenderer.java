@@ -83,7 +83,7 @@ public class GLRenderer implements GraphicsRenderer {
     @Override
     public void loop() {
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            FloatBuffer UtilityFB2 = stack.mallocFloat(16);
+            FloatBuffer UtilityFB2 = stack.mallocFloat(16); // TODO: We don't need this
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             if (MouseButtonHandler.isMouseButtonPressed(MouseButtons.MOUSE_BUTTON_LEFT) == true) {
                 viewing = true;
@@ -144,24 +144,18 @@ public class GLRenderer implements GraphicsRenderer {
 
     Matrix4f updateMatrices() {
         if (KeyHandler.isKeyPressed(Keys.KEY_A))
-            // speed = 10f;
             position.add(0.06f, 0, 0);
         if (KeyHandler.isKeyPressed(Keys.KEY_D))
-            // rotateZ -= 1f;
             position.add(-0.06f, 0, 0);
         if (KeyHandler.isKeyPressed(Keys.KEY_W))
-            // rotateZ -= 1f;
             position.add(0, 0, 0.06f);
         if (KeyHandler.isKeyPressed(Keys.KEY_S))
             position.add(0, 0, -0.06f);
         if (KeyHandler.isKeyPressed(Keys.KEY_Q)) {
-            // rotateZ += 1f;
             position.add(0, -0.06f, 0);
         }
         if (KeyHandler.isKeyPressed(Keys.KEY_Z)) {
             position.add(0, 0.06f, 0);
-            // rotateZ -= 1f;
-            // position.add(orientation.positiveZ(new Vector3f()).mul(dt * speed));
         }
         orientation.z = 0;
         final AxisAngle4f dest = new AxisAngle4f();
@@ -206,24 +200,7 @@ public class GLRenderer implements GraphicsRenderer {
             throw new AssertionError("Could not link program");
         glUseProgram(programs.get(mesh.index));
 
-        // final int texLocation = glGetUniformLocation(programs.get(mesh.index), "tex");
-        // glUniform1i(texLocation, 0);
-        // final int inputPosition = glGetAttribLocation(programs.get(mesh.index), "position");
-        // final int inputTextureCoords = glGetAttribLocation(programs.get(mesh.index), "texCoords");
-        // int uboId = glGenBuffers();
-        // GLRenderer.ubo = uboId;
-
-        // int tra = glGenBuffers();
-        // transWell = tra;
-
-        // glUseProgram(0);
         final int vao = glGenVertexArrays();
-        // glBindVertexArray(vao);
-        // final int positionVbo = glGenBuffers();
-        // glBindBuffer(GL_ARRAY_BUFFER, positionVbo);
-        // glBufferData(GL_ARRAY_BUFFER, mesh.getData(), GL_STATIC_DRAW);
-        // glVertexAttribPointer(inputPosition, 4, GL_FLOAT, false, 0, 0L);
-        // glEnableVertexAttribArray(inputPosition);
         vaos.add(mesh.index, vao);
     }
 
@@ -234,13 +211,13 @@ public class GLRenderer implements GraphicsRenderer {
         final int inputPosition = glGetAttribLocation(programs.get(mesh.index), "position");
         final int inputTextureCoords = glGetAttribLocation(programs.get(mesh.index), "texCoords");
         int uboId = glGenBuffers();
-        GLRenderer.ubo = uboId;
+        ubo = uboId;
 
         int tra = glGenBuffers();
         transWell = tra;
 
         glUseProgram(0);
-        // final int vao = glGenVertexArrays();
+
         final int vao = vaos.get(mesh.index);
         glBindVertexArray(vao);
         final int positionVbo = glGenBuffers();
@@ -248,7 +225,6 @@ public class GLRenderer implements GraphicsRenderer {
         glBufferData(GL_ARRAY_BUFFER, mesh.getData(), GL_STATIC_DRAW);
         glVertexAttribPointer(inputPosition, 4, GL_FLOAT, false, 0, 0L);
         glEnableVertexAttribArray(inputPosition);
-        // vaos.add(mesh.index, vao);
 
         final int texCoordsVbo = glGenBuffers();
         final FloatBuffer fb = BufferUtils.createFloatBuffer(2 * 6);
@@ -274,7 +250,7 @@ public class GLRenderer implements GraphicsRenderer {
 
     @Override
     public void deleteMesh(final Mesh mesh) {
-
+//glDeleteVertexArrays();
     }
 
     @Override
