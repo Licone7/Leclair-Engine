@@ -14,8 +14,10 @@ import Leclair.graphics.scene.RenderStates;
 import Leclair.graphics.scene.ViewPort;
 import Leclair.graphics.shader.Shader;
 import Leclair.graphics.shader.Shaders;
-import Leclair.input.InputData;
+import Leclair.input.key.KeyHandler;
 import Leclair.input.key.Keys;
+import Leclair.input.mouse.MouseButtonHandler;
+import Leclair.input.mouse.MouseButtons;
 import Leclair.math.Color;
 import Leclair.math.Vector3;
 import Leclair.window.WindowInfo;
@@ -72,14 +74,14 @@ public class GLRenderer implements GraphicsRenderer {
                     mouseX = (int) xpos;
                     mouseY = (int) ypos;
                 });
-        GLFW.glfwSetMouseButtonCallback(WindowInfo.getNativeWindow(),
-                (final long window4, final int button, final int action, final int mods) -> {
-                    if (button == GLFW.GLFW_MOUSE_BUTTON_1 && action == GLFW.GLFW_PRESS) {
-                        viewing = true;
-                    } else {
-                        viewing = false;
-                    }
-                });
+        // GLFW.glfwSetMouseButtonCallback(WindowInfo.getNativeWindow(),
+        //         (final long window4, final int button, final int action, final int mods) -> {
+        //             if (button == GLFW.GLFW_MOUSE_BUTTON_1 && action == GLFW.GLFW_PRESS) {
+        //                 viewing = true;
+        //             } else {
+        //                 viewing = false;
+        //             }
+        //         });
     }
 
     @Override
@@ -100,6 +102,11 @@ public class GLRenderer implements GraphicsRenderer {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             FloatBuffer UtilityFB2 = stack.mallocFloat(16);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            if (MouseButtonHandler.isMouseButtonPressed(MouseButtons.MOUSE_BUTTON_LEFT) == true) {
+                viewing = true;
+            } else {
+                viewing = false;
+            }
             for (final Mesh mesh : Mesh.getMeshes()) {
                 if (mesh.getState() == RenderStates.STATE_RENDER) {
                     glUseProgram(programs.get(mesh.index));
@@ -146,22 +153,22 @@ public class GLRenderer implements GraphicsRenderer {
     }
 
     Matrix4f updateMatrices() {
-        if (InputData.isKeyPressed(Keys.KEY_A))
+        if (KeyHandler.isKeyPressed(Keys.KEY_A))
             // speed = 10f;
             position.add(0.06f, 0, 0);
-        if (InputData.isKeyPressed(Keys.KEY_D))
+        if (KeyHandler.isKeyPressed(Keys.KEY_D))
             // rotateZ -= 1f;
             position.add(-0.06f, 0, 0);
-        if (InputData.isKeyPressed(Keys.KEY_W))
+        if (KeyHandler.isKeyPressed(Keys.KEY_W))
             // rotateZ -= 1f;
             position.add(0, 0, 0.06f);
-        if (InputData.isKeyPressed(Keys.KEY_S))
+        if (KeyHandler.isKeyPressed(Keys.KEY_S))
             position.add(0, 0, -0.06f);
-        if (InputData.isKeyPressed(Keys.KEY_Q)) {
+        if (KeyHandler.isKeyPressed(Keys.KEY_Q)) {
             // rotateZ += 1f;
             position.add(0, -0.06f, 0);
         }
-        if (InputData.isKeyPressed(Keys.KEY_Z)) {
+        if (KeyHandler.isKeyPressed(Keys.KEY_Z)) {
             position.add(0, 0.06f, 0);
             // rotateZ -= 1f;
             // position.add(orientation.positiveZ(new Vector3f()).mul(dt * speed));

@@ -12,8 +12,10 @@ import Leclair.graphics.material.Material;
 import Leclair.graphics.material.Materials;
 import Leclair.graphics.renderer.GraphicsRenderers;
 import Leclair.graphics.scene.Mesh;
-import Leclair.input.InputData;
+import Leclair.input.key.KeyHandler;
 import Leclair.input.key.Keys;
+import Leclair.input.mouse.MouseButtonHandler;
+import Leclair.input.mouse.MouseButtons;
 import Leclair.math.Color;
 import Leclair.math.MathUtilities;
 import Leclair.math.Vector3;
@@ -90,16 +92,16 @@ public class Main extends ApplicationStructure {
 
   @Override
   public void appLoop() {
-    if (InputData.isKeyPressed(Keys.KEY_A)) {
+    if (KeyHandler.isKeyPressed(Keys.KEY_A)) {
       viewPort.setBackgroundColor(Color.BLACK);
-    } else if (InputData.isKeyPressed(Keys.KEY_B)) {
+    } else if (KeyHandler.isKeyPressed(Keys.KEY_B)) {
       theme.play();
       viewPort.setBackgroundColor(255f, 255f, 0f, 1f);
-    } else if (InputData.isKeyPressed(Keys.KEY_D)) {
+    } else if (KeyHandler.isKeyPressed(Keys.KEY_D)) {
       theme.stop();
-    } else if (InputData.isKeyPressed(Keys.KEY_C)) {
+    } else if (KeyHandler.isKeyPressed(Keys.KEY_C)) {
       theme.delete();
-    }
+    } 
   }
 
   @Override

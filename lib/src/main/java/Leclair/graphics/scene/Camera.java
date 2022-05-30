@@ -1,6 +1,6 @@
 package Leclair.graphics.scene;
 
-import Leclair.input.InputData;
+import Leclair.input.key.KeyHandler;
 import Leclair.input.key.Keys;
 import Leclair.math.MathUtilities;
 import Leclair.math.Matrix4x4;
@@ -58,22 +58,22 @@ public class Camera {
             orientation.z = 0;
             mouseX = (int) WindowInfo.getMousePosX();
             mouseY = (int) WindowInfo.getMousePosY();
-            if (InputData.isKeyPressed(Keys.KEY_A))
+            if (KeyHandler.isKeyPressed(Keys.KEY_A))
                 // speed = 10f;
                 position.add(0.06f, 0, 0);
-            if (InputData.isKeyPressed(Keys.KEY_D))
+            if (KeyHandler.isKeyPressed(Keys.KEY_D))
                 // rotateZ -= 1f;
                 position.add(-0.06f, 0, 0);
-            if (InputData.isKeyPressed(Keys.KEY_W))
+            if (KeyHandler.isKeyPressed(Keys.KEY_W))
                 // rotateZ -= 1f;
                 position.add(0, 0, 0.06f);
-            if (InputData.isKeyPressed(Keys.KEY_S))
+            if (KeyHandler.isKeyPressed(Keys.KEY_S))
                 position.add(0, 0, -0.06f);
-            if (InputData.isKeyPressed(Keys.KEY_Q)) {
+            if (KeyHandler.isKeyPressed(Keys.KEY_Q)) {
                 // rotateZ += 1f;
                 position.add(0, -0.06f, 0);
             }
-            if (InputData.isKeyPressed(Keys.KEY_Z)) {
+            if (KeyHandler.isKeyPressed(Keys.KEY_Z)) {
                 position.add(0, 0.06f, 0);
                 // rotateZ -= 1f;
                 // position.add(orientation.positiveZ(new Vector3f()).mul(dt * speed));

@@ -1,7 +1,9 @@
 package Leclair.window.glfw;
 
 import Leclair.application.ApplicationStructure;
-import Leclair.input.InputData;
+import Leclair.input.key.KeyHandler;
+import Leclair.input.mouse.MouseButtonHandler;
+import Leclair.input.mouse.MouseButtons;
 import Leclair.window.Window;
 import Leclair.window.WindowInfo;
 
@@ -24,12 +26,32 @@ public class GlfwWindow implements Window {
         }
         glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> {
             if (action == GLFW_PRESS) {
-                InputData.KEY_DOWN = true;
-                InputData.CHAR = (char) key;
+                KeyHandler.KEY_PRESS = true;
+                KeyHandler.CHAR = (char) key;
             } else if (action == GLFW_RELEASE) {
-                InputData.KEY_DOWN = false;
+                KeyHandler.KEY_PRESS = false;
             }
         });
+        glfwSetMouseButtonCallback(window,
+                (final long window, final int button, final int action, final int mods) -> {
+                    if (button == GLFW_MOUSE_BUTTON_1 && action == GLFW_PRESS) {
+                        MouseButtonHandler.MOUSE_BUTTON_PRESS = true;
+                        System.out.println(button);
+                        switch (button) {
+                            case GLFW_MOUSE_BUTTON_LEFT:
+                                MouseButtonHandler.MOUSE_BUTTON = MouseButtons.MOUSE_BUTTON_LEFT;
+                                break;
+                            case GLFW_MOUSE_BUTTON_RIGHT:
+                                MouseButtonHandler.MOUSE_BUTTON = MouseButtons.MOUSE_BUTTON_RIGHT;
+                                break;
+                            case GLFW_MOUSE_BUTTON_MIDDLE:
+                                MouseButtonHandler.MOUSE_BUTTON = MouseButtons.MOUSE_BUTTON_MIDDLE;
+                                break;
+                        }
+                    } else {
+                        MouseButtonHandler.MOUSE_BUTTON_PRESS = false;
+                    }
+                });
     }
 
     @Override
