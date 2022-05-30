@@ -14,8 +14,6 @@ import Leclair.graphics.renderer.GraphicsRenderers;
 import Leclair.graphics.scene.Mesh;
 import Leclair.input.key.KeyHandler;
 import Leclair.input.key.Keys;
-import Leclair.input.mouse.MouseButtonHandler;
-import Leclair.input.mouse.MouseButtons;
 import Leclair.math.Color;
 import Leclair.math.MathUtilities;
 import Leclair.math.Vector3;
