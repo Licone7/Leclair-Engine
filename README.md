@@ -1,4 +1,4 @@
-![image](https://github.com/Licone7/Leclair-Engine/blob/main/logos/logo_landscape.png)
+![image](https://github.com/Licone7/Leclair-Engine/blob/main/logos/logo_scenery.png)
 
 Welcome!
 Leclair Engine (taken from the French word "L'éclair", meaning "lightning bolt" or "flash") is a WIP game engine focused on providing an easy to use, yet powerful method of creating beautiful games. 
