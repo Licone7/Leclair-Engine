@@ -57,8 +57,6 @@ public class GraphicsInfo {
      * @apiNote For internal use only, <b>never</b> explicitly invoke!
      */
     public static void loop() {
-        renderer.setBackgroundColor(viewPort.getBackgroundColor());
-        renderer.setWireframe(true);
         renderer.loop();
     }
 
