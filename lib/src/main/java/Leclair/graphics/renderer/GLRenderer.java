@@ -14,15 +14,9 @@ import Leclair.graphics.scene.RenderStates;
 import Leclair.graphics.scene.ViewPort;
 import Leclair.graphics.shader.Shader;
 import Leclair.graphics.shader.Shaders;
-import Leclair.input.key.KeyHandler;
-import Leclair.input.key.Keys;
-import Leclair.input.mouse.CursorHandler;
-import Leclair.input.mouse.MouseButtonHandler;
-import Leclair.input.mouse.MouseButtons;
 import Leclair.math.Color;
 import Leclair.math.Vector3;
 import Leclair.window.WindowInfo;
-import org.joml.AxisAngle4f;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.lwjgl.BufferUtils;
@@ -85,25 +79,13 @@ public class GLRenderer implements GraphicsRenderer {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             FloatBuffer UtilityFB2 = stack.mallocFloat(16); // TODO: We don't need this
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            if (MouseButtonHandler.isMouseButtonPressed(MouseButtons.MOUSE_BUTTON_LEFT) == true) {
-                viewing = true;
-            } else {
-                viewing = false;
-            }
-            if (viewing) {
-                final float deltaX = CursorHandler.getCursorXPosition() - mouseX;
-                final float deltaY = CursorHandler.getCursorYPosition() - mouseY;
-                orientation.rotateLocalX(deltaY * 0.01f).rotateLocalY(deltaX * 0.01f);
-            }
-            mouseX = (int) CursorHandler.getCursorXPosition();
-            mouseY = (int) CursorHandler.getCursorYPosition();
             for (final Mesh mesh : Mesh.getMeshes()) {
                 if (mesh.getState() == RenderStates.STATE_RENDER) {
                     glUseProgram(programs.get(mesh.index));
                     glBindBufferBase(GL_UNIFORM_BUFFER, 0, ubo);
                     int uniformId = glGetUniformBlockIndex(programs.get(mesh.index), "camera");
                     glUniformBlockBinding(programs.get(mesh.index), uniformId, ubo);
-                    FloatBuffer u = updateMatrices().get(UtilityFB2);
+                    FloatBuffer u = viewPort.getCamera().getProjectionMatrix().get(UtilityFB2);
                     glBufferData(GL_UNIFORM_BUFFER, u, GL_DYNAMIC_DRAW);
                     glBufferSubData(GL_UNIFORM_BUFFER, 64, u);
                     glUnmapBuffer(GL_UNIFORM_BUFFER);
@@ -140,33 +122,6 @@ public class GLRenderer implements GraphicsRenderer {
             glViewport(0, 0, WindowInfo.getWidth(), WindowInfo.getHeight());
             GLFW.glfwSwapBuffers(WindowInfo.getNativeWindow());
         }
-    }
-
-    Matrix4f updateMatrices() {
-        if (KeyHandler.isKeyPressed(Keys.KEY_A))
-            position.add(0.06f, 0, 0);
-        if (KeyHandler.isKeyPressed(Keys.KEY_D))
-            position.add(-0.06f, 0, 0);
-        if (KeyHandler.isKeyPressed(Keys.KEY_W))
-            position.add(0, 0, 0.06f);
-        if (KeyHandler.isKeyPressed(Keys.KEY_S))
-            position.add(0, 0, -0.06f);
-        if (KeyHandler.isKeyPressed(Keys.KEY_Q)) {
-            position.add(0, -0.06f, 0);
-        }
-        if (KeyHandler.isKeyPressed(Keys.KEY_Z)) {
-            position.add(0, 0.06f, 0);
-        }
-        orientation.z = 0;
-        final AxisAngle4f dest = new AxisAngle4f();
-        orientation.get(dest);
-        final float x = dest.angle;
-        final float y = dest.x;
-        final float z = dest.y; // Dude
-        final float w = dest.z;
-        // System.out.println(z);
-        return projectionMatrix.setPerspective((float) Math.toRadians(70), (float) 640 / 480, 0.1f, 1000.0f)
-                .rotate(x, y, z, w).translate(position.getX(), position.getY(), position.getZ());
     }
 
     @Override

@@ -93,9 +93,9 @@ public class Main extends ApplicationStructure {
       theme.play();
       mesh3.render();
       viewPort.setBackgroundColor(255f, 255f, 0f, 1f);
-    } else if (KeyHandler.isKeyPressed(Keys.KEY_D)) {
+    } else if (KeyHandler.isKeyPressed(Keys.KEY_F)) {
       theme.stop();
-    } else if (KeyHandler.isKeyPressed(Keys.KEY_C)) {
+    } else if (KeyHandler.isKeyPressed(Keys.KEY_G)) {
       theme.delete();
       mesh3.remove();
     }
