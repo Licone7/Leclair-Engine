@@ -16,6 +16,7 @@ import Leclair.graphics.shader.Shader;
 import Leclair.graphics.shader.Shaders;
 import Leclair.input.key.KeyHandler;
 import Leclair.input.key.Keys;
+import Leclair.input.mouse.CursorHandler;
 import Leclair.input.mouse.MouseButtonHandler;
 import Leclair.input.mouse.MouseButtons;
 import Leclair.math.Color;
@@ -64,24 +65,6 @@ public class GLRenderer implements GraphicsRenderer {
         glEnable(GL_STENCIL_TEST);
         glEnable(GL_CULL_FACE);
         glCullFace(GL_BACK);
-        GLFW.glfwSetCursorPosCallback(WindowInfo.getNativeWindow(),
-                (final long window2, final double xpos, final double ypos) -> {
-                    if (viewing) {
-                        final float deltaX = (float) xpos - mouseX;
-                        final float deltaY = (float) ypos - mouseY;
-                        orientation.rotateLocalX(deltaY * 0.01f).rotateLocalY(deltaX * 0.01f);
-                    }
-                    mouseX = (int) xpos;
-                    mouseY = (int) ypos;
-                });
-        // GLFW.glfwSetMouseButtonCallback(WindowInfo.getNativeWindow(),
-        //         (final long window4, final int button, final int action, final int mods) -> {
-        //             if (button == GLFW.GLFW_MOUSE_BUTTON_1 && action == GLFW.GLFW_PRESS) {
-        //                 viewing = true;
-        //             } else {
-        //                 viewing = false;
-        //             }
-        //         });
     }
 
     @Override
@@ -107,6 +90,13 @@ public class GLRenderer implements GraphicsRenderer {
             } else {
                 viewing = false;
             }
+            if (viewing) {
+                final float deltaX = CursorHandler.getCursorXPosition() - mouseX;
+                final float deltaY = CursorHandler.getCursorYPosition() - mouseY;
+                orientation.rotateLocalX(deltaY * 0.01f).rotateLocalY(deltaX * 0.01f);
+            }
+            mouseX = (int) CursorHandler.getCursorXPosition();
+            mouseY = (int) CursorHandler.getCursorYPosition();
             for (final Mesh mesh : Mesh.getMeshes()) {
                 if (mesh.getState() == RenderStates.STATE_RENDER) {
                     glUseProgram(programs.get(mesh.index));
@@ -258,7 +248,7 @@ public class GLRenderer implements GraphicsRenderer {
 
     @Override
     public void removeMesh(final Mesh mesh) {
-        
+
     }
 
     @Override

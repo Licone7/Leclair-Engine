@@ -2,6 +2,7 @@ package Leclair.window.glfw;
 
 import Leclair.application.ApplicationStructure;
 import Leclair.input.key.KeyHandler;
+import Leclair.input.mouse.CursorHandler;
 import Leclair.input.mouse.MouseButtonHandler;
 import Leclair.input.mouse.MouseButtons;
 import Leclair.window.Window;
@@ -51,6 +52,11 @@ public class GlfwWindow implements Window {
                     } else {
                         MouseButtonHandler.MOUSE_BUTTON_PRESS = false;
                     }
+                });
+        glfwSetCursorPosCallback(window,
+                (final long window, final double xpos, final double ypos) -> {
+                    CursorHandler.cursorXPosition = (float) xpos;
+                    CursorHandler.cursorYPosition = (float) ypos;
                 });
     }
 
