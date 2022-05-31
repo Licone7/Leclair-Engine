@@ -11,7 +11,7 @@ import Leclair.audio.renderer.AudioRenderer;
 
 /**
  * @since v1
- * @author Brett Burnett
+ * @author Kane Burnett
  */
 public class Sound {
 

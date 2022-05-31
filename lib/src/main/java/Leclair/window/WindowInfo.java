@@ -6,7 +6,7 @@ import org.lwjgl.system.Platform;
 
 /**
  * @since v1
- * @author Brett Burnett
+ * @author Kane Burnett
  */
 public class WindowInfo {
 

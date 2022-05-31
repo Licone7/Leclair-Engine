@@ -4,7 +4,7 @@ package Leclair.math;
  * This class contains basic math functions
  * 
  * @since 1.0
- * @author Brett Burnett
+ * @author Kane Burnett
  */
 public class MathUtilities {
 

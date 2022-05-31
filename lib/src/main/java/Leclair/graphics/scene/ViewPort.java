@@ -7,7 +7,7 @@ import Leclair.math.Color;
 /**
  * 
  * @since v1
- * @author Brett Burnett
+ * @author Kane Burnett
  */
 public class ViewPort {
 

@@ -5,7 +5,7 @@ import Leclair.graphics.renderer.GraphicsRenderers;
 
 /**
  * @since v1
- * @author Brett Burnett
+ * @author Kane Burnett
  */
 public class ApplicationInfo {
 

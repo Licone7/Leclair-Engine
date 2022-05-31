@@ -2,7 +2,7 @@ package Leclair.window;
 
 /**
  * @since v1
- * @author Brett Burnett
+ * @author Kane Burnett
  */
 public interface Window {
 

@@ -14,7 +14,7 @@ import org.lwjgl.BufferUtils;
 
 /**
  * @since v1
- * @author Brett Burnett
+ * @author Kane Burnett
  */
 public class AssetLoader {
 

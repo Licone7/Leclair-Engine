@@ -22,7 +22,7 @@ import Leclair.audio.sound.Sound;
 
 /**
  * @since v1
- * @author Brett Burnett
+ * @author Kane Burnett
  */
 public class ALRenderer implements AudioRenderer {
 

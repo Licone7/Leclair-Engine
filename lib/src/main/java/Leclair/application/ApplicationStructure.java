@@ -12,7 +12,7 @@ import org.lwjgl.system.Configuration;
  * Leclair Engine.
  * 
  * @since v1
- * @author Brett Burnett
+ * @author Kane Burnett
  */
 public abstract class ApplicationStructure {
 

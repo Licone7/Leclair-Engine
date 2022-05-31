@@ -4,7 +4,7 @@ package Leclair.math;
  * This class represents a standard three-by-three matrix using floats
  * 
  * @since v1
- * @author Brett Burnett
+ * @author Kane Burnett
  */
 public class Matrix3x3 {
 
