@@ -10,6 +10,10 @@ import Leclair.graphics.material.Material;
 import Leclair.math.Vector3;
 import org.joml.Matrix4f;
 
+/**
+ * @since v1
+ * @author Kane Burnett
+ */
 public class Mesh {
 
     public static List<Mesh> meshes = new ArrayList<>();

@@ -1,5 +1,9 @@
 package Leclair.graphics.light;
 
+/**
+ * @since v1
+ * @author Kane Burnett
+ */
 public interface Lights {
     public static final byte AMBIENT_LIGHT = 30;
 

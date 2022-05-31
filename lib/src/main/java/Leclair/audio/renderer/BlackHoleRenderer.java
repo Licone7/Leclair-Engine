@@ -3,6 +3,10 @@ package Leclair.audio.renderer;
 import Leclair.audio.effect.Effect;
 import Leclair.audio.sound.Sound;
 
+/**
+ * @since v1
+ * @author Kane Burnett
+ */
 public class BlackHoleRenderer implements AudioRenderer {
 
     @Override

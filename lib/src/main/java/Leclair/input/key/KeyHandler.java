@@ -1,5 +1,9 @@
 package Leclair.input.key;
 
+/**
+ * @since v1
+ * @author Kane Burnett
+ */
 public class KeyHandler {
     public static boolean KEY_PRESS = false;
     public static char CHAR = '\u0000';

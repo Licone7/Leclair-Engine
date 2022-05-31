@@ -12,6 +12,10 @@ import org.lwjgl.system.MemoryStack;
 
 import Leclair.asset.AssetLoader;
 
+/**
+ * @since v1
+ * @author Kane Burnett
+ */
 public class OggProcessor {
 
     public static List<Object> processOggFile(String path) {

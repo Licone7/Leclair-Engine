@@ -8,6 +8,10 @@ import Leclair.graphics.shader.Shader;
 import org.lwjgl.stb.STBImage;
 import org.lwjgl.system.MemoryStack;
 
+/**
+ * @since v1
+ * @author Kane Burnett
+ */
 public class Texture {
 
     String path;

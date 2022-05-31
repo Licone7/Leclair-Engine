@@ -1,5 +1,9 @@
 package Leclair.graphics.scene;
 
+/**
+ * @since v1
+ * @author Kane Burnett
+ */
 public interface RenderStates {
 
     public static byte STATE_UNPROCESSED = 0;

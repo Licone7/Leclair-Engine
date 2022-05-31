@@ -1,5 +1,9 @@
 package Leclair.audio.renderer;
 
+/**
+ * @since v1
+ * @author Kane Burnett
+ */
 public interface AudioRenderers {
     
     /**

@@ -37,6 +37,10 @@ import Leclair.graphics.shader.Shader;
 import Leclair.math.Color;
 import Leclair.window.WindowInfo;
 
+/**
+ * @since v1
+ * @author Kane Burnett
+ */
 public class VKRenderer implements GraphicsRenderer {
 
     // VARIABLES INITIALIZED

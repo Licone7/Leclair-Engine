@@ -1,5 +1,9 @@
 package Leclair.graphics.shader;
 
+/**
+ * @since v1
+ * @author Kane Burnett
+ */
 public interface Shaders {
 
     /**
