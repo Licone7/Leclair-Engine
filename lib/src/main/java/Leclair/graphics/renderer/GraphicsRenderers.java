@@ -1,5 +1,9 @@
 package Leclair.graphics.renderer;
 
+/**
+ * @since v1
+ * @author Kane Burnett
+ */
 public interface GraphicsRenderers {
     
     /**

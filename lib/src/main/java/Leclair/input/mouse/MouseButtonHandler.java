@@ -1,5 +1,9 @@
 package Leclair.input.mouse;
 
+/**
+ * @since v1
+ * @author Kane Burnett
+ */
 public class MouseButtonHandler {
     public static boolean MOUSE_BUTTON_PRESS = false;
     public static byte MOUSE_BUTTON = 0;

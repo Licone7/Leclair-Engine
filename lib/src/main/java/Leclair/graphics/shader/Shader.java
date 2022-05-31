@@ -35,6 +35,10 @@ import org.lwjgl.util.shaderc.ShadercIncludeResolve;
 import org.lwjgl.util.shaderc.ShadercIncludeResult;
 import org.lwjgl.util.shaderc.ShadercIncludeResultRelease;
 
+/**
+ * @since v1
+ * @author Kane Burnett
+ */
 public class Shader {
 
     public boolean compiled = false;

@@ -1,5 +1,9 @@
 package Leclair.input.mouse;
 
+/**
+ * @since v1
+ * @author Kane Burnett
+ */
 public class CursorHandler {
 
     public static float cursorXPosition = 100;

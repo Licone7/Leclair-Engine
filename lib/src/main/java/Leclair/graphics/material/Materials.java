@@ -1,5 +1,9 @@
 package Leclair.graphics.material;
 
+/**
+ * @since v1
+ * @author Kane Burnett
+ */
 public interface Materials {
     /**
      * Handle to an unlit material <br>

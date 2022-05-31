@@ -1,5 +1,9 @@
 package Leclair.audio.effect;
 
+/**
+ * @since v1
+ * @author Kane Burnett
+ */
 public interface Effects {
     
     public static byte REVERB_EFFECT = 0;

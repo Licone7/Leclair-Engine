@@ -1,5 +1,9 @@
 package Leclair.input.key;
 
+/**
+ * @since v1
+ * @author Kane Burnett
+ */
 public interface Keys {
 
     public static final byte KEY_A = 1;

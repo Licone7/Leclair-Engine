@@ -25,6 +25,10 @@ import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GLCapabilities;
 import org.lwjgl.system.MemoryStack;
 
+/**
+ * @since v1
+ * @author Kane Burnett
+ */
 public class GLRenderer implements GraphicsRenderer {
 
     static ViewPort viewPort;

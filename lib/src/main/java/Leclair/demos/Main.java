@@ -23,6 +23,10 @@ import Leclair.window.WindowInfo;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.system.Configuration;
 
+/**
+ * @since v1
+ * @author Kane Burnett
+ */
 public class Main extends ApplicationStructure {
 
   Sound theme = new Sound("sounds/test.ogg", false);

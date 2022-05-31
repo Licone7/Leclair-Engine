@@ -14,7 +14,8 @@ import Leclair.math.Matrix4x4;
 import Leclair.math.Vector3;
 
 /**
- * 
+ * @since v1
+ * @author Kane Burnett
  */
 public class Camera {
 

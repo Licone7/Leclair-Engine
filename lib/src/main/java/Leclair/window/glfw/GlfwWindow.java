@@ -12,6 +12,10 @@ import static org.lwjgl.glfw.GLFW.*;
 
 import org.lwjgl.glfw.Callbacks;
 
+/**
+ * @since v1
+ * @author Kane Burnett
+ */
 public class GlfwWindow implements Window {
 
     static long window;

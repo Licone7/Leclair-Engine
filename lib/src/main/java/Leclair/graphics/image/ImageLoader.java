@@ -6,6 +6,10 @@ import Leclair.asset.AssetLoader;
 import org.lwjgl.stb.STBImage;
 import org.lwjgl.system.MemoryStack;
 
+/**
+ * @since v1
+ * @author Kane Burnett
+ */
 public class ImageLoader {
 
     public static void loadImage() {

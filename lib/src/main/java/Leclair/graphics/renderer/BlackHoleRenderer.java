@@ -4,6 +4,10 @@ import Leclair.graphics.scene.Mesh;
 import Leclair.graphics.shader.Shader;
 import Leclair.math.Color;
 
+/**
+ * @since v1
+ * @author Kane Burnett
+ */
 public class BlackHoleRenderer implements GraphicsRenderer {
 
     @Override

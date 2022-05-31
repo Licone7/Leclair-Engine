@@ -3,6 +3,10 @@ package Leclair.graphics.light;
 import Leclair.math.Color;
 import Leclair.math.Vector3;
 
+/**
+ * @since v1
+ * @author Kane Burnett
+ */
 public class DirectionalLight implements Light {
 
     public static final byte type = Lights.DIRECTIONAL_LIGHT;

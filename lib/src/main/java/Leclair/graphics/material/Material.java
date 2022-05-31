@@ -5,6 +5,10 @@ import Leclair.graphics.shader.Shader;
 import Leclair.graphics.shader.Shaders;
 import Leclair.math.Color;
 
+/**
+ * @since v1
+ * @author Kane Burnett
+ */
 public class Material {
 
     Color ambientColor = Color.BLACK;

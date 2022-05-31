@@ -8,6 +8,10 @@ import Leclair.graphics.renderer.VKRenderer;
 import Leclair.graphics.scene.Mesh;
 import Leclair.graphics.scene.ViewPort;
 
+/**
+ * @since v1
+ * @author Kane Burnett
+ */
 public class GraphicsInfo {
 
     static byte rendererApi = GraphicsRenderers.VULKAN;
