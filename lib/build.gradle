@@ -7,9 +7,6 @@
  */
 
 plugins {
-    // Apply the groovy plugin to also add support for Groovy (needed for Spock)
-    id 'groovy'
-
     // Apply the java-library plugin for API and implementation separation.
     id 'java-library'
 }
@@ -24,12 +21,6 @@ repositories {
 }
 
 dependencies {
-    // Use the latest Groovy version for Spock testing
-    testImplementation 'org.codehaus.groovy:groovy:3.0.9'
-
-    // Use the awesome Spock testing and specification framework even with Java
-    testImplementation 'org.spockframework:spock-core:2.0-groovy-3.0'
-
     // LWJGL
 	implementation platform("org.lwjgl:lwjgl-bom:3.3.1")
 	implementation "org.lwjgl:lwjgl"
@@ -108,9 +99,4 @@ dependencies {
 	runtimeOnly "org.lwjgl:lwjgl-stb::natives-windows-arm64"
 
 	implementation "org.joml:joml:1.10.1"
-}
-
-tasks.named('test') {
-    // Use JUnit Platform for unit tests.
-    useJUnitPlatform()
 }
