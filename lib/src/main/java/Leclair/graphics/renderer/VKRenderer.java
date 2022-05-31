@@ -1,5 +1,6 @@
 package Leclair.graphics.renderer;
 
+import static org.lwjgl.vulkan.EXTDebugReport.VK_EXT_DEBUG_REPORT_EXTENSION_NAME;
 import static org.lwjgl.vulkan.KHRSurface.*;
 import static org.lwjgl.vulkan.KHRSwapchain.*;
 import static org.lwjgl.vulkan.VK11.*;
@@ -16,30 +17,18 @@ import org.lwjgl.system.Platform;
 import org.lwjgl.system.windows.WindowsLibrary;
 import org.lwjgl.vulkan.KHRWin32Surface;
 import org.lwjgl.vulkan.VkApplicationInfo;
-import org.lwjgl.vulkan.VkClearColorValue;
 import org.lwjgl.vulkan.VkCommandBuffer;
-import org.lwjgl.vulkan.VkCommandBufferAllocateInfo;
-import org.lwjgl.vulkan.VkCommandBufferBeginInfo;
-import org.lwjgl.vulkan.VkCommandPoolCreateInfo;
 import org.lwjgl.vulkan.VkDevice;
 import org.lwjgl.vulkan.VkDeviceCreateInfo;
 import org.lwjgl.vulkan.VkDeviceQueueCreateInfo;
-import org.lwjgl.vulkan.VkExtent2D;
-import org.lwjgl.vulkan.VkImageMemoryBarrier;
-import org.lwjgl.vulkan.VkImageSubresourceRange;
 import org.lwjgl.vulkan.VkInstance;
 import org.lwjgl.vulkan.VkInstanceCreateInfo;
 import org.lwjgl.vulkan.VkPhysicalDevice;
 import org.lwjgl.vulkan.VkPhysicalDeviceFeatures;
 import org.lwjgl.vulkan.VkPhysicalDeviceProperties;
-import org.lwjgl.vulkan.VkPresentInfoKHR;
 import org.lwjgl.vulkan.VkQueue;
 import org.lwjgl.vulkan.VkQueueFamilyProperties;
 import org.lwjgl.vulkan.VkSemaphoreCreateInfo;
-import org.lwjgl.vulkan.VkSubmitInfo;
-import org.lwjgl.vulkan.VkSurfaceCapabilitiesKHR;
-import org.lwjgl.vulkan.VkSurfaceFormatKHR;
-import org.lwjgl.vulkan.VkSwapchainCreateInfoKHR;
 import org.lwjgl.vulkan.VkWin32SurfaceCreateInfoKHR;
 
 import Leclair.graphics.scene.Mesh;
@@ -48,13 +37,17 @@ import Leclair.graphics.shader.Shader;
 import Leclair.math.Color;
 import Leclair.window.WindowInfo;
 
-public class VKRenderer implements Renderer {
+public class VKRenderer implements GraphicsRenderer {
 
+    // VARIABLES INITIALIZED
+    static boolean validate = false; // This should be true only for testing, otherwise it'll always be false
     static boolean multiDrawIndirectSupported = false;
+    static final ByteBuffer EXT_debug_report = MemoryUtil.memASCII(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
     static final ByteBuffer KHR_Surface = MemoryUtil.memASCII(VK_KHR_SURFACE_EXTENSION_NAME);
     static final ByteBuffer KHR_Win32_Surface = MemoryUtil
             .memASCII(KHRWin32Surface.VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
     static final ByteBuffer KHR_swapchain = MemoryUtil.memASCII(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+    // VARIABLES NOT INITIALIZED
     static VkInstance instance;
     static long surface;
     static VkPhysicalDevice physicalDevice;
@@ -66,10 +59,14 @@ public class VKRenderer implements Renderer {
     static long imageAcquiredSemaphore;
     static long renderingFinishedSemaphore;
     static long swapchain;
-    static long oldSwapchain;
+    static int imageFormat;
+    static long images[];
+    static long imageViews[];
+    static long renderPass;
+    static long framebuffers[];
     static long commandPool;
-    static VkCommandBuffer drawCommandBuffer;
-    // static Vector<VkCommandBuffer> commandBuffers = new Vector<>();
+    static VkCommandBuffer[] commandBuffers;
+    static long[] fences;
 
     public VKRenderer(final ViewPort viewPort) {
 
@@ -95,30 +92,32 @@ public class VKRenderer implements Renderer {
             vkApplicationInfo.sType$Default();
             vkApplicationInfo.pNext(0);
             vkApplicationInfo.apiVersion(VK_API_VERSION_1_1);
-            VkInstanceCreateInfo vkInstanceCreateInfo = VkInstanceCreateInfo.malloc(stack);
-            vkInstanceCreateInfo.sType$Default();
-            vkInstanceCreateInfo.pNext(0);
-            vkInstanceCreateInfo.flags(0);
-            vkInstanceCreateInfo.pApplicationInfo(vkApplicationInfo);
-            vkInstanceCreateInfo.ppEnabledLayerNames(layerList);
-            vkInstanceCreateInfo.ppEnabledExtensionNames(ppEnabledExtensionNames);
+            VkInstanceCreateInfo pInstanceCreateInfo = VkInstanceCreateInfo.malloc(stack);
+            pInstanceCreateInfo.sType$Default();
+            pInstanceCreateInfo.pNext(0);
+            pInstanceCreateInfo.flags(0);
+            pInstanceCreateInfo.pApplicationInfo(vkApplicationInfo);
+            pInstanceCreateInfo.ppEnabledLayerNames(layerList);
+            pInstanceCreateInfo.ppEnabledExtensionNames(ppEnabledExtensionNames);
             PointerBuffer pInstance = stack.mallocPointer(1);
-            if (vkCreateInstance(vkInstanceCreateInfo, null, pInstance) != VK_SUCCESS) {
+            if (vkCreateInstance(pInstanceCreateInfo, null, pInstance) != VK_SUCCESS) {
                 throw new IllegalStateException(
                         "Vulkan instance creation failed; ensure you have a Vulkan ICD installed!");
             }
-            instance = new VkInstance(pInstance.get(0), vkInstanceCreateInfo);
+            instance = new VkInstance(pInstance.get(0), pInstanceCreateInfo);
             ppEnabledExtensionNames.clear();
 
             // CREATE WINDOW SURFACE
 
             if (Platform.get() == Platform.WINDOWS) {
-                VkWin32SurfaceCreateInfoKHR vkWin32SurfaceCreateInfoKHR = VkWin32SurfaceCreateInfoKHR.malloc(stack);
-                vkWin32SurfaceCreateInfoKHR.sType$Default();
-                vkWin32SurfaceCreateInfoKHR.hinstance(WindowsLibrary.HINSTANCE);
-                vkWin32SurfaceCreateInfoKHR.hwnd(GLFWNativeWin32.glfwGetWin32Window(WindowInfo.window().getWHandle()));
+                VkWin32SurfaceCreateInfoKHR pWin32SurfaceCreateInfoKHR = VkWin32SurfaceCreateInfoKHR.malloc(stack);
+                pWin32SurfaceCreateInfoKHR.sType$Default();
+                pWin32SurfaceCreateInfoKHR.pNext(0);
+                pWin32SurfaceCreateInfoKHR.flags(0);
+                pWin32SurfaceCreateInfoKHR.hinstance(WindowsLibrary.HINSTANCE);
+                pWin32SurfaceCreateInfoKHR.hwnd(GLFWNativeWin32.glfwGetWin32Window(WindowInfo.window().getWHandle()));
                 LongBuffer pSurface = stack.mallocLong(1);
-                if (KHRWin32Surface.vkCreateWin32SurfaceKHR(instance, vkWin32SurfaceCreateInfoKHR, null,
+                if (KHRWin32Surface.vkCreateWin32SurfaceKHR(instance, pWin32SurfaceCreateInfoKHR, null,
                         pSurface) != VK_SUCCESS) {
                     throw new IllegalStateException("Window surface creation failed!");
                 }
@@ -215,18 +214,18 @@ public class VKRenderer implements Renderer {
 
             ppEnabledExtensionNames.put(KHR_swapchain); // Here we're assuming the extension is available
             ppEnabledExtensionNames.flip(); // and although it probably is, it'd be good to check
-            VkDeviceCreateInfo pCreateInfo = VkDeviceCreateInfo.malloc(stack);
-            pCreateInfo.sType$Default();
-            pCreateInfo.pNext(0);
-            pCreateInfo.flags(0);
-            pCreateInfo.pQueueCreateInfos(vkDeviceQueueCreateInfo);
-            pCreateInfo.ppEnabledLayerNames(null);
-            pCreateInfo.ppEnabledExtensionNames(ppEnabledExtensionNames);
+            VkDeviceCreateInfo pDeviceCreateInfo = VkDeviceCreateInfo.malloc(stack);
+            pDeviceCreateInfo.sType$Default();
+            pDeviceCreateInfo.pNext(0);
+            pDeviceCreateInfo.flags(0);
+            pDeviceCreateInfo.pQueueCreateInfos(vkDeviceQueueCreateInfo);
+            pDeviceCreateInfo.ppEnabledLayerNames(null);
+            pDeviceCreateInfo.ppEnabledExtensionNames(ppEnabledExtensionNames);
             PointerBuffer pDevice = stack.mallocPointer(1);
-            if (vkCreateDevice(physicalDevice, pCreateInfo, null, pDevice) != VK_SUCCESS) {
+            if (vkCreateDevice(physicalDevice, pDeviceCreateInfo, null, pDevice) != VK_SUCCESS) {
                 throw new IllegalStateException();
             }
-            device = new VkDevice(pDevice.get(0), physicalDevice, pCreateInfo);
+            device = new VkDevice(pDevice.get(0), physicalDevice, pDeviceCreateInfo);
 
             // CREATE QUEUES
 
@@ -249,93 +248,6 @@ public class VKRenderer implements Renderer {
             LongBuffer pRenderingFinishedSemaphore = stack.mallocLong(1);
             vkCreateSemaphore(device, semaphoreCreateInfo, null, pRenderingFinishedSemaphore);
             renderingFinishedSemaphore = pRenderingFinishedSemaphore.get(0);
-
-            // FIND SURFACE CAPABILITIES
-
-            VkSurfaceCapabilitiesKHR pSurfaceCapabilities = VkSurfaceCapabilitiesKHR.malloc(stack);
-            vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, pSurfaceCapabilities);
-            IntBuffer pSurfaceFormatCount = stack.mallocInt(1); // Surface Formats
-            vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, pSurfaceFormatCount, null);
-            int imageFormat;
-            VkSurfaceFormatKHR.Buffer pSurfaceFormats = VkSurfaceFormatKHR.malloc(pSurfaceFormatCount.get(0), stack);
-            vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, pSurfaceFormatCount,
-                    pSurfaceFormats);
-            if (pSurfaceFormatCount.get(0) == 1 && pSurfaceFormats.get(0).format() == VK_FORMAT_UNDEFINED) {
-                imageFormat = VK_FORMAT_B8G8R8A8_UNORM;
-            } else {
-                assert pSurfaceFormatCount.get(0) >= 1;
-                imageFormat = pSurfaceFormats.get(0).format();
-            }
-            IntBuffer pPresentModeCount = stack.mallocInt(1); // Present Mode
-            vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, pPresentModeCount, null);
-            IntBuffer pPresentModes = stack.mallocInt(pPresentModeCount.get(0));
-            vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, pPresentModeCount,
-                    pPresentModes);
-            int presentMode = VK_PRESENT_MODE_FIFO_KHR; // FIFO is always supported
-            for (int i = 0; i < pPresentModeCount.get(0); i++) {
-                int checkPresentMode = pPresentModes.get(i);
-                if (checkPresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
-                    presentMode = VK_PRESENT_MODE_MAILBOX_KHR; // Use Mailbox for low latency V-Sync
-                    break;
-                }
-            }
-            int minImageCount = pSurfaceCapabilities.minImageCount() + 1;
-            if (pSurfaceCapabilities.maxImageCount() > 0 &&
-                    (minImageCount > pSurfaceCapabilities.maxImageCount())) {
-                minImageCount = pSurfaceCapabilities.maxImageCount();
-            }
-            VkExtent2D imageExtent = VkExtent2D.malloc(stack); // Swapchain Extents
-            if (pSurfaceCapabilities.currentExtent().width() == 0xFFFFFFFF) {
-                imageExtent.width(WindowInfo.getWidth());
-                imageExtent.height(WindowInfo.getHeight());
-                if (imageExtent.width() < pSurfaceCapabilities.minImageExtent().width()) {
-                    imageExtent.width(pSurfaceCapabilities.minImageExtent().width());
-                } else if (imageExtent.width() > pSurfaceCapabilities.maxImageExtent().width()) {
-                    imageExtent.width(pSurfaceCapabilities.maxImageExtent().width());
-                }
-                if (imageExtent.height() < pSurfaceCapabilities.minImageExtent().height()) {
-                    imageExtent.height(pSurfaceCapabilities.minImageExtent().height());
-                } else if (imageExtent.height() > pSurfaceCapabilities.maxImageExtent().height()) {
-                    imageExtent.height(pSurfaceCapabilities.maxImageExtent().height());
-                }
-            } else {
-                imageExtent.set(pSurfaceCapabilities.currentExtent());
-                WindowInfo.setWidth(pSurfaceCapabilities.currentExtent().width());
-                WindowInfo.setHeight(pSurfaceCapabilities.currentExtent().height());
-            }
-            int preTransform; // Pretransform
-            if ((pSurfaceCapabilities.supportedTransforms() & VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR) != 0) {
-                preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
-            } else {
-                preTransform = pSurfaceCapabilities.currentTransform();
-            }
-            VkSwapchainCreateInfoKHR pSwapchainCreateInfo = VkSwapchainCreateInfoKHR.malloc(stack);
-            pSwapchainCreateInfo.sType$Default();
-            pSwapchainCreateInfo.pNext(0);
-            pSwapchainCreateInfo.flags(0);
-            pSwapchainCreateInfo.surface(surface);
-            pSwapchainCreateInfo.minImageCount(minImageCount);
-            pSwapchainCreateInfo.imageFormat(imageFormat);
-            pSwapchainCreateInfo.imageColorSpace(pSurfaceFormats.get(0).colorSpace());
-            pSwapchainCreateInfo.imageExtent(imageExtent);
-            pSwapchainCreateInfo.imageArrayLayers(1);
-            pSwapchainCreateInfo.imageUsage(VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT);
-            pSwapchainCreateInfo.imageSharingMode(VK_SHARING_MODE_EXCLUSIVE);
-            pSwapchainCreateInfo.queueFamilyIndexCount(0);
-            pSwapchainCreateInfo.pQueueFamilyIndices(null);
-            pSwapchainCreateInfo.preTransform(preTransform);
-            pSwapchainCreateInfo.compositeAlpha(VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR);
-            pSwapchainCreateInfo.presentMode(presentMode);
-            pSwapchainCreateInfo.clipped(true);
-            pSwapchainCreateInfo.oldSwapchain(oldSwapchain);
-            LongBuffer pSwapchain = stack.mallocLong(1);
-            if (vkCreateSwapchainKHR(device, pSwapchainCreateInfo, null, pSwapchain) != VK_SUCCESS) {
-                throw new IllegalStateException();
-            }
-            swapchain = pSwapchain.get(0);
-            if (oldSwapchain != VK_NULL_HANDLE) {
-                vkDestroySwapchainKHR(device, oldSwapchain, null);
-            }
         }
     }
 
@@ -354,11 +266,11 @@ public class VKRenderer implements Renderer {
         }
     }
 
+    int idx = 0;
+
     @Override
     public void loop() {
-        try (MemoryStack stack = MemoryStack.stackPush()) {
-            vkDeviceWaitIdle(device);
-        }
+       
     }
 
     @Override
@@ -367,8 +279,18 @@ public class VKRenderer implements Renderer {
     }
 
     @Override
-    public void addMesh(final Mesh mesh) {
+    public void processMesh(final Mesh mesh) {
 
+    }
+
+    @Override
+    public void renderMesh(final Mesh mesh) {
+        
+    }
+
+    @Override
+    public void removeMesh(final Mesh mesh) {
+        
     }
 
     @Override
@@ -393,10 +315,25 @@ public class VKRenderer implements Renderer {
 
     @Override
     public void cleanup() {
+        // for (long framebuffer : framebuffers) {
+        //     vkDestroyFramebuffer(device, framebuffer, null);
+        // }
+        // for (VkCommandBuffer commandBuffer : commandBuffers) {
+        //     vkFreeCommandBuffers(device, commandPool, commandBuffer);
+        // }
+        // vkDestroyRenderPass(device, renderPass, null);
+        // vkDestroyCommandPool(device, commandPool, null);
+        // for (int i = 0; i < imageViews.length; i++) {
+        //     vkDestroyImageView(device, imageViews[i], null);
+        // }
+        vkDestroySwapchainKHR(device, swapchain, null);
+        vkDestroySemaphore(device, imageAcquiredSemaphore, null);
+        vkDestroySemaphore(device, renderingFinishedSemaphore, null);
         vkDestroySurfaceKHR(instance, surface, null);
         vkDeviceWaitIdle(device);
         vkDestroyDevice(device, null);
         vkDestroyInstance(instance, null);
+        MemoryUtil.memFree(EXT_debug_report);
         MemoryUtil.memFree(KHR_Surface);
         MemoryUtil.memFree(KHR_Win32_Surface);
         MemoryUtil.memFree(KHR_swapchain);

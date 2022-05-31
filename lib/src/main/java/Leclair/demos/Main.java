@@ -3,13 +3,19 @@ package Leclair.demos;
 import java.nio.FloatBuffer;
 
 import Leclair.application.ApplicationStructure;
+import Leclair.audio.AudioInfo;
+import Leclair.audio.effect.Effect;
+import Leclair.audio.effect.Effects;
+import Leclair.audio.renderer.AudioRenderers;
 import Leclair.audio.sound.Sound;
 import Leclair.graphics.GraphicsInfo;
 import Leclair.graphics.image.Texture;
 import Leclair.graphics.material.Material;
+import Leclair.graphics.material.Materials;
+import Leclair.graphics.renderer.GraphicsRenderers;
 import Leclair.graphics.scene.Mesh;
-import Leclair.input.Input;
-import Leclair.input.InputData;
+import Leclair.input.key.KeyHandler;
+import Leclair.input.key.Keys;
 import Leclair.math.Color;
 import Leclair.math.MathUtilities;
 import Leclair.math.Vector3;
@@ -19,12 +25,14 @@ import org.lwjgl.system.Configuration;
 
 public class Main extends ApplicationStructure {
 
-  Sound theme = new Sound("sounds/test.ogg");
+  Sound theme = new Sound("sounds/test.ogg", false);
+  Mesh mesh3;
 
   public static void main(String[] args) {
     Configuration.DEBUG_MEMORY_ALLOCATOR.set(true);
     testSpeed();
-    GraphicsInfo.setRenderer(GraphicsInfo.VULKAN);
+    AudioInfo.setRenderer(AudioRenderers.OPENAL);
+    GraphicsInfo.setRenderer(GraphicsRenderers.OPENGL);
     WindowInfo.setWidth(640);
     WindowInfo.setHeight(480);
     WindowInfo.setTitle("Leclair Engine Demo");
@@ -35,6 +43,10 @@ public class Main extends ApplicationStructure {
 
   @Override
   public void appSetup() {
+    theme.process();
+    Effect effect = new Effect(Effects.REVERB_EFFECT);
+    theme.addEffect(effect);
+    theme.play();
     viewPort.setBackgroundColor(Color.RED);
     System.out.println(MathUtilities.generateRandom());
     FloatBuffer fb = BufferUtils.createFloatBuffer(4 * 6);
@@ -47,12 +59,11 @@ public class Main extends ApplicationStructure {
     fb.flip();
     Color colors = new Color(1, 20, 10, 0);
     Mesh mesh = new Mesh(fb, new Material(colors, colors, new Color(0, 0, 10, 0), 0, new Texture("textures/rust.png"),
-        GraphicsInfo.LIT_MATERIAL), new Vector3(0, 0, 0));
-    mesh.getVertexNumber();
+        Materials.LIT_MATERIAL), new Vector3(0, 0, 0), true);
+    mesh.render();
 
-    Mesh mesh3 = new Mesh(fb, new Material(colors, colors, new Color(0, 10, 10, 0), 0, new Texture("textures/rust.png"),
-        GraphicsInfo.LIT_MATERIAL), new Vector3(0, 5, 0));
-        mesh3.getVertexNumber();
+    mesh3 = new Mesh(fb, new Material(colors, colors, new Color(0, 10, 10, 0), 0, new Texture("textures/bond.jpg"),
+        Materials.LIT_MATERIAL), new Vector3(0, 5, 0), true);
 
     FloatBuffer fb2 = BufferUtils.createFloatBuffer(4 * 6);
     fb2.put(-1.0f).put(-1.0f).put(1f).put(1f);
@@ -62,13 +73,11 @@ public class Main extends ApplicationStructure {
     fb2.put(-1.0f).put(1.0f).put(1f).put(1f);
     fb2.put(-1.0f).put(-1.0f).put(1f).put(1f);
     fb2.flip();
-    Mesh mesh2 = new Mesh(fb2, new Material(colors, colors, new Color(0, 0, 10, 0), 0, new Texture("textures/bond.jpg"),
-        (byte) GraphicsInfo.LIT_MATERIAL), new Vector3(-8, 0, 0));
-    mesh2.getVertexNumber();
 
-    // Mesh mesh3 = new Mesh(fb2, new Material(new Texture("textures/.PNG")), new
-    // Vector3(0, 3, 0));
-    // mesh3.getVertexNumber();
+    Mesh mesh2 = new Mesh(fb2, new Material(colors, colors, new Color(0, 0, 10, 0), 0, new Texture("textures/bond.jpg"),
+        (byte) Materials.LIT_MATERIAL), new Vector3(-8, 0, 0), false);
+    mesh2.process();
+    mesh2.render();
   }
 
   static void testSpeed() {
@@ -81,21 +90,22 @@ public class Main extends ApplicationStructure {
 
   @Override
   public void appLoop() {
-    if (InputData.isKeyPressed(Input.KEY_A)) {
+    if (KeyHandler.isKeyPressed(Keys.KEY_A)) {
       viewPort.setBackgroundColor(Color.BLACK);
-    } else if (InputData.isKeyPressed(Input.KEY_B)) {
+    } else if (KeyHandler.isKeyPressed(Keys.KEY_B)) {
       theme.play();
+      mesh3.render();
       viewPort.setBackgroundColor(255f, 255f, 0f, 1f);
-    } else if (InputData.isKeyPressed(Input.KEY_D)) {
-      
-      // theme.stop();
-    } else if (InputData.isKeyPressed(Input.KEY_C)) {
-      theme.destroy();
+    } else if (KeyHandler.isKeyPressed(Keys.KEY_F)) {
+      theme.stop();
+    } else if (KeyHandler.isKeyPressed(Keys.KEY_G)) {
+      theme.delete();
+      mesh3.remove();
     }
   }
 
   @Override
   public void appCleanup() {
-    System.out.println("Window Destroyed");
+    System.out.println("Demo run complete!");
   }
 }

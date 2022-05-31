@@ -4,7 +4,7 @@ import Leclair.graphics.scene.Mesh;
 import Leclair.graphics.shader.Shader;
 import Leclair.math.Color;
 
-public interface Renderer {
+public interface GraphicsRenderer {
 
     public void init();
 
@@ -14,7 +14,11 @@ public interface Renderer {
 
     public void setBackgroundColor(Color backgroundColor);
 
-    public void addMesh(Mesh mesh);
+    public void processMesh(Mesh mesh);
+
+    public void renderMesh(Mesh mesh);
+
+    public void removeMesh(Mesh mesh);
 
     public void deleteMesh(Mesh mesh);
 

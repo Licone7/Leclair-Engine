@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import Leclair.asset.AssetLoader;
-import Leclair.graphics.GraphicsInfo;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
@@ -121,11 +120,11 @@ public class Shader {
     }
 
     private static int bbTypeToShadercKind(byte shaderType) {
-        if (shaderType == GraphicsInfo.FRAGMENT_SHADER) {
+        if (shaderType == Shaders.FRAGMENT_SHADER) {
             return shaderc_fragment_shader;
-        } else if (shaderType == GraphicsInfo.VERTEX_SHADER) {
+        } else if (shaderType == Shaders.VERTEX_SHADER) {
             return shaderc_vertex_shader;
-        } else if (shaderType == GraphicsInfo.COMPUTE_SHADER) {
+        } else if (shaderType == Shaders.COMPUTE_SHADER) {
             return shaderc_compute_shader;
         } else {
             throw new RuntimeException("Unknown Type");

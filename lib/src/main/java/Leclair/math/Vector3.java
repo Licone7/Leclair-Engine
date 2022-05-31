@@ -4,7 +4,7 @@ package Leclair.math;
  * This class represents a standard three component vector using floats
  * 
  * @since v1
- * @author Brett Burnett
+ * @author Kane Burnett
  */
 public class Vector3 {
 

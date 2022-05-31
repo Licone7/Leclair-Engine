@@ -2,7 +2,7 @@ package Leclair.graphics.light;
 
 /**
  * @since v1
- * @author Brett Burnett
+ * @author Kane Burnett
  */
 public interface Light {
     

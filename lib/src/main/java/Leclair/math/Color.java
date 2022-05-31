@@ -4,7 +4,7 @@ package Leclair.math;
  * This class represents a color with a four component vector
  * 
  * @since v1
- * @author Brett Burnett
+ * @author Kane Burnett
  */
 public class Color {
 

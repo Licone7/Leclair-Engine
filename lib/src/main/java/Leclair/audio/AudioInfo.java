@@ -2,25 +2,17 @@ package Leclair.audio;
 
 import Leclair.audio.renderer.ALRenderer;
 import Leclair.audio.renderer.AudioRenderer;
+import Leclair.audio.renderer.AudioRenderers;
+import Leclair.audio.renderer.BlackHoleRenderer;
 import Leclair.audio.sound.Sound;
 
 /**
  * @since v1
- * @author Brett Burnett
+ * @author Kane Burnett
  */
 public class AudioInfo {
 
-    /**
-     * Commands the renderer to disable all audio operations
-     */
-    public static final byte DISABLED = 0;
-
-    /**
-     * Commands the renderer to use the OpenAL API for all audio operations
-     */
-    public static final byte OPENAL = 1;
-
-    static byte audioApi = OPENAL;
+    static byte audioApi = AudioRenderers.OPENAL;
     static AudioRenderer renderer;
 
     /**
@@ -38,34 +30,23 @@ public class AudioInfo {
      */
     public static void setup() {
         switch (audioApi) {
-        case DISABLED:
-            break;
-        case OPENAL:
-            renderer = new ALRenderer();
-            break;
-        default:
-            throw new IllegalArgumentException("The requested renderer is invalid");
+            case AudioRenderers.BLACK_HOLE:
+                renderer = new BlackHoleRenderer();
+                break;
+            case AudioRenderers.OPENAL:
+                renderer = new ALRenderer();
+                break;
+            default:
+                throw new IllegalArgumentException("The requested renderer is invalid");
         }
         renderer.init();
         renderer.printCapabilities();
-        for (final Sound sound : Sound.getSounds()) {
-            if (sound.initialized == false) {
-                renderer.addSound(sound);
-                sound.initialized = true;
-            }
-        }
     }
 
     /**
      * @apiNote For internal use only, <b>never</b> explicitly invoke!
      */
     public static void loop() {
-        for (final Sound sound : Sound.getSounds()) {
-            if (sound.initialized == false) {
-                renderer.addSound(sound);
-                sound.initialized = true;
-            }
-        }
         renderer.loop();
     }
 
@@ -73,10 +54,14 @@ public class AudioInfo {
      * @apiNote For internal use only, <b>never</b> explicitly invoke!
      */
     public static void cleanup() {
-        for (final Sound sound : Sound.getSounds()) {
+        for (final Sound sound : AudioRenderer.sounds) {
             renderer.deleteSound(sound);
         }
         renderer.cleanup();
+    }
+
+    public static AudioRenderer getRenderer() {
+        return renderer;
     }
 
 }

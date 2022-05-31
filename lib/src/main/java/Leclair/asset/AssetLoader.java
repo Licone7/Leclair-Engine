@@ -14,12 +14,13 @@ import org.lwjgl.BufferUtils;
 
 /**
  * @since v1
- * @author Brett Burnett
+ * @author Kane Burnett
  */
 public class AssetLoader {
 
     public static String pathOfResourcesFolder = null;
 
+    // TODO: MULTITHREAD THIS
     public static void setup() {
         String tempPath = System.getProperty("user.dir") + "/src/main/resources/";
         if (tempPath.contains("\\")) {
@@ -37,7 +38,6 @@ public class AssetLoader {
     }
 
     public static ByteBuffer importAsBinary(final String resource, final int bufferSize) {
-        final long start = System.currentTimeMillis();
         ByteBuffer buffer = null;
         try {
             // Path path = Paths.get(resource);
@@ -92,7 +92,6 @@ public class AssetLoader {
                     final byte[] buf = new byte[8192];
                     while (true) {
                         final int bytes = source.read(buf, 0, buf.length);
-                        System.out.println("HUH");
                         if (bytes == -1)
                             break;
                         if (buffer.remaining() < bytes) {
@@ -109,8 +108,6 @@ public class AssetLoader {
         } catch (final IOException e) {
 
         }
-        final long end = System.currentTimeMillis();
-        System.out.println((end - start) + "ms");
         return buffer;
     }
 

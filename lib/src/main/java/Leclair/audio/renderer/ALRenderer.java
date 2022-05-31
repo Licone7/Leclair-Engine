@@ -1,51 +1,41 @@
 package Leclair.audio.renderer;
 
-import static org.lwjgl.openal.AL10.AL_BUFFER;
-import static org.lwjgl.openal.AL10.AL_FORMAT_MONO16;
-import static org.lwjgl.openal.AL10.AL_FORMAT_STEREO16;
-import static org.lwjgl.openal.AL10.AL_LOOPING;
-import static org.lwjgl.openal.AL10.AL_POSITION;
-import static org.lwjgl.openal.AL10.AL_RENDERER;
-import static org.lwjgl.openal.AL10.AL_VERSION;
-import static org.lwjgl.openal.AL10.alBufferData;
-import static org.lwjgl.openal.AL10.alDeleteBuffers;
-import static org.lwjgl.openal.AL10.alDeleteSources;
-import static org.lwjgl.openal.AL10.alGenBuffers;
-import static org.lwjgl.openal.AL10.alGenSources;
-import static org.lwjgl.openal.AL10.alGetString;
-import static org.lwjgl.openal.AL10.alSource3f;
-import static org.lwjgl.openal.AL10.alSourcePause;
-import static org.lwjgl.openal.AL10.alSourcePlay;
-import static org.lwjgl.openal.AL10.alSourceStop;
-import static org.lwjgl.openal.AL10.alSourcei;
+import static org.lwjgl.openal.AL11.*;
+import static org.lwjgl.openal.ALC11.*;
+import static org.lwjgl.openal.EXTEfx.*;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import Leclair.audio.sound.Sound;
 import org.lwjgl.openal.AL;
 import org.lwjgl.openal.ALC;
-import org.lwjgl.openal.ALC10;
 import org.lwjgl.openal.ALCCapabilities;
 import org.lwjgl.openal.ALCapabilities;
 import org.lwjgl.openal.EXTThreadLocalContext;
 import org.lwjgl.system.MemoryStack;
 
+import Leclair.audio.effect.Effect;
+import Leclair.audio.effect.Effects;
+import Leclair.audio.sound.Sound;
+
 /**
  * @since v1
- * @author Brett Burnett
+ * @author Kane Burnett
  */
 public class ALRenderer implements AudioRenderer {
 
-    long device;
-    ALCCapabilities deviceCaps;
-    long context;
-    boolean useTLC;
-    ALCapabilities caps;
-    List<Integer> buffers = new ArrayList<Integer>();
-    List<Integer> sources = new ArrayList<Integer>();
+    static boolean effectsSupported = true;
+    static long device;
+    static ALCCapabilities deviceCaps;
+    static long context;
+    static boolean useTLC;
+    static ALCapabilities caps;
+    static List<Integer> buffers = new ArrayList<Integer>();
+    static List<Integer> sources = new ArrayList<Integer>();
+    static List<Integer> effects = new ArrayList<Integer>();
+    static List<Integer> effectSlots = new ArrayList<Integer>();
 
     public ALRenderer() {
 
@@ -53,12 +43,18 @@ public class ALRenderer implements AudioRenderer {
 
     @Override
     public void init() {
-        device = ALC10.alcOpenDevice((ByteBuffer) null);
+        device = alcOpenDevice((ByteBuffer) null);
         deviceCaps = ALC.createCapabilities(device);
-        context = ALC10.alcCreateContext(device, (IntBuffer) null);
+        if (!deviceCaps.ALC_EXT_EFX) {
+            effectsSupported = false;
+        }
+        if (!deviceCaps.OpenALC11) {
+            effectsSupported = false;
+        }
+        context = alcCreateContext(device, (IntBuffer) null);
         useTLC = deviceCaps.ALC_EXT_thread_local_context && EXTThreadLocalContext.alcSetThreadContext(context);
         if (!useTLC) {
-            if (!ALC10.alcMakeContextCurrent(context)) {
+            if (!alcMakeContextCurrent(context)) {
                 throw new IllegalStateException();
             }
         }
@@ -77,48 +73,55 @@ public class ALRenderer implements AudioRenderer {
 
     @Override
     public void loop() {
-        for (final Sound sound : Sound.getSounds()) { // Very inefficient, need a better way
-            if (sound.UPDATED_STATE == true) {
-                if (sound.playing == true) {
-                    alSource3f(sources.get(sound.index), AL_POSITION, 0f, 0.0f, 0.0f);
-                    alSourcePlay(sources.get(sound.index));
-                } else if (sound.paused == true) {
-                    alSourcePause(sources.get(sound.index));
-                } else if (sound.stopped == true) {
-                    alSourceStop(sources.get(sound.index));
-                } else if (sound.destroy == true) {
-                    alSourceStop(sources.get(sound.index));
-                    deleteSound(sound);
-                }
-            }
-            sound.UPDATED_STATE = false;
-        }
+
     }
 
     @Override
     public void cleanup() {
-        ALC10.alcMakeContextCurrent(0L);
+        alcMakeContextCurrent(0L);
         if (useTLC) {
             AL.setCurrentThread(null);
         } else {
             AL.setCurrentProcess(null);
         }
-        ALC10.alcDestroyContext(context);
-        ALC10.alcCloseDevice(device);
+        alcDestroyContext(context);
+        alcCloseDevice(device);
     }
 
     @Override
-    public void addEffect(final Sound sound, final byte effect) {
-
+    public void addEffect(final Sound sound, final Effect effect) {
+        int effectSlot = alGenAuxiliaryEffectSlots();
+        int iEffect = alGenEffects();
+        switch (effect.getType()) { // TODO: Add more effects
+            case Effects.CHORUS_EFFECT:
+                alEffecti(iEffect, AL_EFFECT_TYPE, AL_EFFECT_CHORUS);
+                break;
+            case Effects.DISTORTION_EFFECT:
+                alEffecti(iEffect, AL_EFFECT_TYPE, AL_EFFECT_DISTORTION);
+                break;
+            case Effects.ECHO_EFFECT:
+                alEffecti(iEffect, AL_EFFECT_TYPE, AL_EFFECT_ECHO);
+                break;
+            case Effects.REVERB_EFFECT:
+                alEffecti(iEffect, AL_EFFECT_TYPE, AL_EFFECT_REVERB);
+                alEffectf(iEffect, AL_REVERB_DECAY_TIME, 5.0f);
+                break;
+        }
+        alAuxiliaryEffectSloti(effectSlot, AL_EFFECTSLOT_EFFECT, iEffect);
+        alSource3i(sources.get(sound.index), AL_AUXILIARY_SEND_FILTER, effectSlot, 0, AL_FILTER_NULL);
+        effects.add(sound.index, iEffect);
+        effectSlots.add(sound.index, effectSlot);
     }
 
     @Override
-    public void deleteEffect(final Sound sound, final byte effect) {
-
+    public void deleteEffect(final Sound sound, final Effect effect) {
+        alSource3i(sources.get(sound.index), AL_AUXILIARY_SEND_FILTER, AL_EFFECTSLOT_NULL, 0, AL_FILTER_NULL);
+        alAuxiliaryEffectSloti(effectSlots.get(sound.index), AL_EFFECTSLOT_EFFECT, AL_EFFECT_NULL);
+        alDeleteEffects(effects.get(sound.index));
     }
 
     @Override
-    public void addSound(final Sound sound) {
+    public void processSound(final Sound sound) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             IntBuffer bufferNames = stack.mallocInt(1);
             alGenBuffers(bufferNames);
@@ -136,9 +139,24 @@ public class ALRenderer implements AudioRenderer {
     }
 
     @Override
+    public void playSound(Sound sound) {
+        alSource3f(sources.get(sound.index), AL_POSITION, 0f, 0.0f, 0.0f);
+        alSourcePlay(sources.get(sound.index));
+    }
+
+    @Override
+    public void pauseSound(Sound sound) {
+        alSourcePause(sources.get(sound.index));
+    }
+
+    @Override
+    public void stopSound(Sound sound) {
+        alSourceStop(sources.get(sound.index));
+    }
+
+    @Override
     public void deleteSound(final Sound sound) {
         alDeleteSources(sources.get(sound.index));
         alDeleteBuffers(buffers.get(sound.index));
     }
-
 }

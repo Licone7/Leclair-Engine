@@ -12,7 +12,7 @@ import org.lwjgl.system.Configuration;
  * Leclair Engine.
  * 
  * @since v1
- * @author Brett Burnett
+ * @author Kane Burnett
  */
 public abstract class ApplicationStructure {
 
@@ -22,13 +22,13 @@ public abstract class ApplicationStructure {
     float actualFps = 1000000000 / targetFps;
 
     public void start() {
-        Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
+        Thread.currentThread().setPriority(Thread.MAX_PRIORITY); // We need to add multithreading
         Configuration.DISABLE_CHECKS.set(false);
         AssetLoader.setup();
         WindowInfo.setup();
-        AudioInfo.setup();
         viewPort = new ViewPort();
         GraphicsInfo.setup(viewPort);
+        AudioInfo.setup();
         appSetup();
         WindowInfo.showWindow(); // This perhaps should be made optional.
         // The reason we don't show the window immediately is because the window freezes
@@ -42,14 +42,14 @@ public abstract class ApplicationStructure {
         RUNNING = true;
         long t = System.nanoTime();
         while (RUNNING == true) {
-           // if (System.nanoTime() - t > actualFps) {
+            if (System.nanoTime() - t > actualFps) {
                 WindowInfo.loop();
                 AudioInfo.loop();
                 viewPort.getCamera().update();
                 GraphicsInfo.loop();
                 appLoop();
                 t = System.nanoTime();
-            //}
+            }
         }
         cleanup();
     }
