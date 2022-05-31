@@ -32,7 +32,7 @@ public class Main extends ApplicationStructure {
     Configuration.DEBUG_MEMORY_ALLOCATOR.set(true);
     testSpeed();
     AudioInfo.setRenderer(AudioRenderers.OPENAL);
-    GraphicsInfo.setRenderer(GraphicsRenderers.BLACK_HOLE);
+    GraphicsInfo.setRenderer(GraphicsRenderers.OPENGL);
     WindowInfo.setWidth(640);
     WindowInfo.setHeight(480);
     WindowInfo.setTitle("Leclair Engine Demo");
