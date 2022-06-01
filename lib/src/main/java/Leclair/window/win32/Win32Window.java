@@ -2,7 +2,6 @@ package Leclair.window.win32;
 
 import java.nio.ByteBuffer;
 
-import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.windows.MSG;
 import org.lwjgl.system.windows.POINT;
@@ -64,11 +63,7 @@ public class Win32Window implements Window {
                             MouseButtonHandler.MOUSE_BUTTON_PRESS = false;
                             break;
                         // case User32.WM_MOUSEMOVE:
-
                         // break;
-                        case User32.WM_PAINT:
-                            GL.createCapabilities();
-                            break;
                     }
                     return User32.DefWindowProc(hwnd, uMsg, wParam, lParam);
                 }
