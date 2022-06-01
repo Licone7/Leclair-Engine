@@ -112,19 +112,27 @@ public class VKRenderer implements GraphicsRenderer {
 
             // CREATE WINDOW SURFACE
 
-            if (Platform.get() == Platform.WINDOWS) {
-                VkWin32SurfaceCreateInfoKHR pWin32SurfaceCreateInfoKHR = VkWin32SurfaceCreateInfoKHR.malloc(stack);
-                pWin32SurfaceCreateInfoKHR.sType$Default();
-                pWin32SurfaceCreateInfoKHR.pNext(0);
-                pWin32SurfaceCreateInfoKHR.flags(0);
-                pWin32SurfaceCreateInfoKHR.hinstance(WindowsLibrary.HINSTANCE);
-                pWin32SurfaceCreateInfoKHR.hwnd(WindowInfo.window().getWHandle());
-                LongBuffer pSurface = stack.mallocLong(1);
-                if (KHRWin32Surface.vkCreateWin32SurfaceKHR(instance, pWin32SurfaceCreateInfoKHR, null,
-                        pSurface) != VK_SUCCESS) {
-                    throw new IllegalStateException("Window surface creation failed!");
-                }
-                surface = pSurface.get(0);
+            switch (Platform.get()) {
+                case WINDOWS:
+                    VkWin32SurfaceCreateInfoKHR pWin32SurfaceCreateInfoKHR = VkWin32SurfaceCreateInfoKHR.malloc(stack);
+                    pWin32SurfaceCreateInfoKHR.sType$Default();
+                    pWin32SurfaceCreateInfoKHR.pNext(0);
+                    pWin32SurfaceCreateInfoKHR.flags(0);
+                    pWin32SurfaceCreateInfoKHR.hinstance(WindowsLibrary.HINSTANCE);
+                    pWin32SurfaceCreateInfoKHR.hwnd(WindowInfo.window().getWHandle());
+                    LongBuffer pSurface = stack.mallocLong(1);
+                    if (KHRWin32Surface.vkCreateWin32SurfaceKHR(instance, pWin32SurfaceCreateInfoKHR, null,
+                            pSurface) != VK_SUCCESS) {
+                        throw new IllegalStateException("Window surface creation failed!");
+                    }
+                    surface = pSurface.get(0);
+                    break;
+                case MACOSX:
+                    // TODO
+                    break;
+                case LINUX:
+                    // TODO
+                    break;
             }
 
             // FIND VULKANS GPUS
@@ -252,6 +260,7 @@ public class VKRenderer implements GraphicsRenderer {
             vkCreateSemaphore(device, semaphoreCreateInfo, null, pRenderingFinishedSemaphore);
             renderingFinishedSemaphore = pRenderingFinishedSemaphore.get(0);
         }
+
     }
 
     @Override
@@ -273,7 +282,7 @@ public class VKRenderer implements GraphicsRenderer {
 
     @Override
     public void loop() {
-       
+
     }
 
     @Override
@@ -288,12 +297,12 @@ public class VKRenderer implements GraphicsRenderer {
 
     @Override
     public void renderMesh(final Mesh mesh) {
-        
+
     }
 
     @Override
     public void removeMesh(final Mesh mesh) {
-        
+
     }
 
     @Override
@@ -319,15 +328,15 @@ public class VKRenderer implements GraphicsRenderer {
     @Override
     public void cleanup() {
         // for (long framebuffer : framebuffers) {
-        //     vkDestroyFramebuffer(device, framebuffer, null);
+        // vkDestroyFramebuffer(device, framebuffer, null);
         // }
         // for (VkCommandBuffer commandBuffer : commandBuffers) {
-        //     vkFreeCommandBuffers(device, commandPool, commandBuffer);
+        // vkFreeCommandBuffers(device, commandPool, commandBuffer);
         // }
         // vkDestroyRenderPass(device, renderPass, null);
         // vkDestroyCommandPool(device, commandPool, null);
         // for (int i = 0; i < imageViews.length; i++) {
-        //     vkDestroyImageView(device, imageViews[i], null);
+        // vkDestroyImageView(device, imageViews[i], null);
         // }
         vkDestroySwapchainKHR(device, swapchain, null);
         vkDestroySemaphore(device, imageAcquiredSemaphore, null);

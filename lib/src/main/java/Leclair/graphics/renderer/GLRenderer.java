@@ -23,13 +23,22 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GLCapabilities;
+import org.lwjgl.opengl.WGL;
 import org.lwjgl.system.MemoryStack;
+import org.lwjgl.system.Platform;
+import org.lwjgl.system.windows.GDI32;
+import org.lwjgl.system.windows.PIXELFORMATDESCRIPTOR;
+import org.lwjgl.system.windows.User32;
 
 /**
  * @since v1
  * @author Kane Burnett
  */
 public class GLRenderer implements GraphicsRenderer {
+
+    // Windows only variables
+    public static long hdc;
+    static long hglrc;
 
     static ViewPort viewPort;
     static GLCapabilities capabilities;
@@ -55,12 +64,40 @@ public class GLRenderer implements GraphicsRenderer {
 
     @Override
     public void init() {
-        position.negate();
-        capabilities = GL.createCapabilities(true);
-        glEnable(GL_DEPTH_TEST);
-        glEnable(GL_STENCIL_TEST);
-        glEnable(GL_CULL_FACE);
-        glCullFace(GL_BACK);
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            switch (Platform.get()) {
+                case WINDOWS:
+                    hdc = User32.GetDC(WindowInfo.getNativeWindow());
+                    PIXELFORMATDESCRIPTOR ppfd = PIXELFORMATDESCRIPTOR.calloc(stack);
+                    ppfd.nSize((short) PIXELFORMATDESCRIPTOR.SIZEOF);
+                    ppfd.nVersion((short) 1);
+                    ppfd.dwFlags(GDI32.PFD_DRAW_TO_WINDOW | GDI32.PFD_SUPPORT_OPENGL |
+                            GDI32.PFD_DOUBLEBUFFER);
+                    ppfd.dwLayerMask(GDI32.PFD_MAIN_PLANE);
+                    int pixelformat = GDI32.ChoosePixelFormat(hdc, ppfd);
+                    if ((pixelformat = GDI32.ChoosePixelFormat(hdc, ppfd)) == 0) {
+                        throw new IllegalStateException();
+                    }
+                    if (GDI32.SetPixelFormat(hdc, pixelformat, ppfd) == false) {
+                        throw new IllegalStateException();
+                    }
+                    hglrc = WGL.wglCreateContext(hdc);
+                    WGL.wglMakeCurrent(hdc, hglrc);
+                    break;
+                case MACOSX:
+                    // TODO
+                    break;
+                case LINUX:
+                    // TODO
+                    break;
+            }
+            position.negate();
+            capabilities = GL.createCapabilities(true);
+            glEnable(GL_DEPTH_TEST);
+            glEnable(GL_STENCIL_TEST);
+            glEnable(GL_CULL_FACE);
+            glCullFace(GL_BACK);
+        }
     }
 
     @Override
@@ -122,6 +159,17 @@ public class GLRenderer implements GraphicsRenderer {
                 }
             }
             glViewport(0, 0, WindowInfo.getWidth(), WindowInfo.getHeight());
+            switch (Platform.get()) {
+                case WINDOWS:
+                    GDI32.SwapBuffers(hdc);
+                    break;
+                case MACOSX:
+                    // TODO
+                    break;
+                case LINUX:
+                    // TODO
+                    break;
+            }
         }
     }
 
@@ -206,7 +254,7 @@ public class GLRenderer implements GraphicsRenderer {
 
     @Override
     public void deleteMesh(final Mesh mesh) {
-//glDeleteVertexArrays();
+        // glDeleteVertexArrays();
     }
 
     @Override
