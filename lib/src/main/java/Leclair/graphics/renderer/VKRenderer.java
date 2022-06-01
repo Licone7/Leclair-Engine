@@ -10,7 +10,6 @@ import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 
 import org.lwjgl.PointerBuffer;
-import org.lwjgl.glfw.GLFWNativeWin32;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.system.Platform;
@@ -119,7 +118,7 @@ public class VKRenderer implements GraphicsRenderer {
                 pWin32SurfaceCreateInfoKHR.pNext(0);
                 pWin32SurfaceCreateInfoKHR.flags(0);
                 pWin32SurfaceCreateInfoKHR.hinstance(WindowsLibrary.HINSTANCE);
-                pWin32SurfaceCreateInfoKHR.hwnd(GLFWNativeWin32.glfwGetWin32Window(WindowInfo.window().getWHandle()));
+                pWin32SurfaceCreateInfoKHR.hwnd(WindowInfo.window().getWHandle());
                 LongBuffer pSurface = stack.mallocLong(1);
                 if (KHRWin32Surface.vkCreateWin32SurfaceKHR(instance, pWin32SurfaceCreateInfoKHR, null,
                         pSurface) != VK_SUCCESS) {

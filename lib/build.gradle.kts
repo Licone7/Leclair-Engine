@@ -12,7 +12,6 @@ dependencies {
 
 	implementation("org.lwjgl", "lwjgl")
 	implementation("org.lwjgl", "lwjgl-assimp")
-	implementation("org.lwjgl", "lwjgl-glfw")
 	implementation("org.lwjgl", "lwjgl-openal")
 	implementation("org.lwjgl", "lwjgl-opengl")
 	implementation("org.lwjgl", "lwjgl-shaderc")
@@ -21,7 +20,6 @@ dependencies {
     // LWJGL NATIVES LINUX X64
     implementation("org.lwjgl", "lwjgl", classifier = "natives-linux")
 	implementation("org.lwjgl", "lwjgl-assimp", classifier = "natives-linux")
-	implementation("org.lwjgl", "lwjgl-glfw", classifier = "natives-linux")
 	implementation("org.lwjgl", "lwjgl-openal", classifier = "natives-linux")
 	implementation("org.lwjgl", "lwjgl-opengl", classifier = "natives-linux")
 	implementation("org.lwjgl", "lwjgl-shaderc", classifier = "natives-linux")
@@ -29,7 +27,6 @@ dependencies {
     // LWJGL NATIVES LINUX ARM64
     implementation("org.lwjgl", "lwjgl", classifier = "natives-linux-arm64")
 	implementation("org.lwjgl", "lwjgl-assimp", classifier = "natives-linux-arm64")
-	implementation("org.lwjgl", "lwjgl-glfw", classifier = "natives-linux-arm64")
 	implementation("org.lwjgl", "lwjgl-openal", classifier = "natives-linux-arm64")
 	implementation("org.lwjgl", "lwjgl-opengl", classifier = "natives-linux-arm64")
 	implementation("org.lwjgl", "lwjgl-shaderc", classifier = "natives-linux-arm64")
@@ -37,7 +34,6 @@ dependencies {
     // LWJGL NATIVES LINUX ARM32
     implementation("org.lwjgl", "lwjgl", classifier = "natives-linux-arm32")
 	implementation("org.lwjgl", "lwjgl-assimp", classifier = "natives-linux-arm32")
-	implementation("org.lwjgl", "lwjgl-glfw", classifier = "natives-linux-arm32")
 	implementation("org.lwjgl", "lwjgl-openal", classifier = "natives-linux-arm32")
 	implementation("org.lwjgl", "lwjgl-opengl", classifier = "natives-linux-arm32")
 	implementation("org.lwjgl", "lwjgl-shaderc", classifier = "natives-linux-arm32")
@@ -45,7 +41,6 @@ dependencies {
     // LWJGL NATIVES MACOS X64
     implementation("org.lwjgl", "lwjgl", classifier = "natives-macos")
 	implementation("org.lwjgl", "lwjgl-assimp", classifier = "natives-macos")
-	implementation("org.lwjgl", "lwjgl-glfw", classifier = "natives-macos")
 	implementation("org.lwjgl", "lwjgl-openal", classifier = "natives-macos")
 	implementation("org.lwjgl", "lwjgl-opengl", classifier = "natives-macos")
 	implementation("org.lwjgl", "lwjgl-shaderc", classifier = "natives-macos")
@@ -54,7 +49,6 @@ dependencies {
     // LWJGL NATIVES MACOS ARM64
     implementation("org.lwjgl", "lwjgl", classifier = "natives-macos-arm64")
 	implementation("org.lwjgl", "lwjgl-assimp", classifier = "natives-macos-arm64")
-	implementation("org.lwjgl", "lwjgl-glfw", classifier = "natives-macos-arm64")
 	implementation("org.lwjgl", "lwjgl-openal", classifier = "natives-macos-arm64")
 	implementation("org.lwjgl", "lwjgl-opengl", classifier = "natives-macos-arm64")
 	implementation("org.lwjgl", "lwjgl-shaderc", classifier = "natives-macos-arm64")
@@ -63,7 +57,6 @@ dependencies {
     // LWJGL NATIVES WINDOWS X64
 	implementation("org.lwjgl", "lwjgl", classifier = "natives-windows")
 	implementation("org.lwjgl", "lwjgl-assimp", classifier = "natives-windows")
-	implementation("org.lwjgl", "lwjgl-glfw", classifier = "natives-windows")
 	implementation("org.lwjgl", "lwjgl-openal", classifier = "natives-windows")
 	implementation("org.lwjgl", "lwjgl-opengl", classifier = "natives-windows")
 	implementation("org.lwjgl", "lwjgl-shaderc", classifier = "natives-windows")
@@ -71,7 +64,6 @@ dependencies {
     // LWJGL NATIVES WINDOWS X86
     implementation("org.lwjgl", "lwjgl", classifier = "natives-windows-x86")
 	implementation("org.lwjgl", "lwjgl-assimp", classifier = "natives-windows-x86")
-	implementation("org.lwjgl", "lwjgl-glfw", classifier = "natives-windows-x86")
 	implementation("org.lwjgl", "lwjgl-openal", classifier = "natives-windows-x86")
 	implementation("org.lwjgl", "lwjgl-opengl", classifier = "natives-windows-x86")
 	implementation("org.lwjgl", "lwjgl-shaderc", classifier = "natives-windows-x86")
@@ -79,7 +71,6 @@ dependencies {
     // LWJGL NATIVES WINDOWS ARM64
     implementation("org.lwjgl", "lwjgl", classifier = "natives-windows-arm64")
 	implementation("org.lwjgl", "lwjgl-assimp", classifier = "natives-windows-arm64")
-	implementation("org.lwjgl", "lwjgl-glfw", classifier = "natives-windows-arm64")
 	implementation("org.lwjgl", "lwjgl-openal", classifier = "natives-windows-arm64")
 	implementation("org.lwjgl", "lwjgl-opengl", classifier = "natives-windows-arm64")
 	implementation("org.lwjgl", "lwjgl-shaderc", classifier = "natives-windows-arm64")

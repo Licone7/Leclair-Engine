@@ -56,7 +56,6 @@ public class GLRenderer implements GraphicsRenderer {
     @Override
     public void init() {
         position.negate();
-        //GLFW.glfwMakeContextCurrent(WindowInfo.getNativeWindow());
         capabilities = GL.createCapabilities(true);
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_STENCIL_TEST);
@@ -123,7 +122,6 @@ public class GLRenderer implements GraphicsRenderer {
                 }
             }
             glViewport(0, 0, WindowInfo.getWidth(), WindowInfo.getHeight());
-           // GLFW.glfwSwapBuffers(WindowInfo.getNativeWindow());
         }
     }
 
