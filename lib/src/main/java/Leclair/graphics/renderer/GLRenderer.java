@@ -21,7 +21,6 @@ import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.PointerBuffer;
-import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GLCapabilities;
 import org.lwjgl.system.MemoryStack;
@@ -57,7 +56,7 @@ public class GLRenderer implements GraphicsRenderer {
     @Override
     public void init() {
         position.negate();
-        GLFW.glfwMakeContextCurrent(WindowInfo.getNativeWindow());
+        //GLFW.glfwMakeContextCurrent(WindowInfo.getNativeWindow());
         capabilities = GL.createCapabilities(true);
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_STENCIL_TEST);
@@ -124,7 +123,7 @@ public class GLRenderer implements GraphicsRenderer {
                 }
             }
             glViewport(0, 0, WindowInfo.getWidth(), WindowInfo.getHeight());
-            GLFW.glfwSwapBuffers(WindowInfo.getNativeWindow());
+           // GLFW.glfwSwapBuffers(WindowInfo.getNativeWindow());
         }
     }
 
