@@ -61,12 +61,12 @@ public class Main extends ApplicationStructure {
     fb.put(-3.0f).put(2.0f).put(0f).put(1f);
     fb.put(-3.0f).put(-2.0f).put(0f).put(1f);
     fb.flip();
-    Color colors = new Color(1, 20, 10, 0);
-    Mesh mesh = new Mesh(fb, new Material(colors, colors, new Color(0, 0, 10, 0), 0, new Texture("textures/rust.png"),
+    Color colors = new Color(1, 0, 0, 0);
+    Mesh mesh = new Mesh(fb, new Material(colors, colors, new Color(0, 1, 0, 0), 0, new Texture("textures/rust.png"),
         Materials.LIT_MATERIAL), new Vector3(0, 0, 0), true);
     mesh.render();
 
-    mesh3 = new Mesh(fb, new Material(colors, colors, new Color(0, 10, 10, 0), 0, new Texture("textures/bond.jpg"),
+    mesh3 = new Mesh(fb, new Material(colors, colors, new Color(0, 0, 1, 0), 0, new Texture("textures/bond.jpg"),
         Materials.LIT_MATERIAL), new Vector3(0, 5, 0), true);
 
     FloatBuffer fb2 = BufferUtils.createFloatBuffer(4 * 6);
@@ -78,7 +78,7 @@ public class Main extends ApplicationStructure {
     fb2.put(-1.0f).put(-1.0f).put(1f).put(1f);
     fb2.flip();
 
-    Mesh mesh2 = new Mesh(fb2, new Material(colors, colors, new Color(0, 0, 10, 0), 0, new Texture("textures/bond.jpg"),
+    Mesh mesh2 = new Mesh(fb2, new Material(colors, colors, new Color(0, 0, 0, 0), 0, new Texture("textures/bond.jpg"),
         (byte) Materials.LIT_MATERIAL), new Vector3(-8, 0, 0), false);
     mesh2.process();
     mesh2.render();

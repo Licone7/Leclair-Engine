@@ -50,6 +50,7 @@ public class GLRenderer implements GraphicsRenderer {
     static List<Integer> textures = new ArrayList<>();
     static int ubo;
     static int transWell;
+    static int matId;
 
     Matrix4f projectionMatrix = new Matrix4f();
     Quaternionf orientation = new Quaternionf();
@@ -137,18 +138,13 @@ public class GLRenderer implements GraphicsRenderer {
                     glBufferSubData(GL_UNIFORM_BUFFER, 64, u2);
                     glUnmapBuffer(GL_UNIFORM_BUFFER);
                     glBindBuffer(GL_UNIFORM_BUFFER, 0);
-                    glVertexAttrib4fv(4, UtilityFB2.put(0, mesh.material.getAmbientColor().getR())
-                            .put(1, mesh.material.getAmbientColor().getG())
-                            .put(2, mesh.material.getAmbientColor().getB())
-                            .put(3, mesh.material.getAmbientColor().getA()));
-                    glVertexAttrib4fv(6, UtilityFB2.put(0, mesh.material.getDiffuseColor().getR())
-                            .put(1, mesh.material.getDiffuseColor().getG())
-                            .put(2, mesh.material.getDiffuseColor().getB())
-                            .put(3, mesh.material.getDiffuseColor().getA()));
-                    glVertexAttrib4fv(8, UtilityFB2.put(0, mesh.material.getSpecularColor().getR())
-                            .put(1, mesh.material.getSpecularColor().getG())
-                            .put(2, mesh.material.getSpecularColor().getB())
-                            .put(3, mesh.material.getSpecularColor().getA()));
+
+
+
+
+
+
+
                     glBindVertexArray(vaos.get(mesh.index));
                     glEnableVertexAttribArray(0);
                     glBindTexture(GL_TEXTURE_2D, textures.get(mesh.index));
@@ -156,6 +152,28 @@ public class GLRenderer implements GraphicsRenderer {
                     glBindTexture(GL_TEXTURE_2D, 0);
                     glDisableVertexAttribArray(0);
                     glBindVertexArray(0);
+
+                    glBindBufferBase(GL_UNIFORM_BUFFER, 2, matId);
+                    int uniformId3 = glGetUniformBlockIndex(programs.get(mesh.index), "material");
+                    glUniformBlockBinding(programs.get(mesh.index), uniformId3, matId);
+                    FloatBuffer u3 = stack.mallocFloat(14);
+                    u3.put(0, mesh.material.getAmbientColor().getR());
+                    u3.put(1, mesh.material.getAmbientColor().getG());
+                    u3.put(2, mesh.material.getAmbientColor().getB());
+                    u3.put(3, mesh.material.getAmbientColor().getA());
+                    u3.put(4, mesh.material.getDiffuseColor().getR());
+                    u3.put(5, mesh.material.getDiffuseColor().getG());
+                    u3.put(6, mesh.material.getDiffuseColor().getB());
+                    u3.put(7, mesh.material.getDiffuseColor().getA());
+                    u3.put(8, mesh.material.getSpecularColor().getR());
+                    u3.put(9, mesh.material.getSpecularColor().getG());
+                    u3.put(10, mesh.material.getSpecularColor().getB());
+                    u3.put(11, mesh.material.getSpecularColor().getA());
+                    u3.put(12, 1f);
+                    u3.put(13, 0f);// reflect
+                    glBufferData(GL_UNIFORM_BUFFER, u3, GL_DYNAMIC_DRAW);
+                    glBufferSubData(GL_UNIFORM_BUFFER, 0, u3);
+                    glBindBuffer(GL_UNIFORM_BUFFER, 0);
                 }
             }
             glViewport(0, 0, WindowInfo.getWidth(), WindowInfo.getHeight());
@@ -219,6 +237,9 @@ public class GLRenderer implements GraphicsRenderer {
 
         int tra = glGenBuffers();
         transWell = tra;
+
+        int mat = glGenBuffers();
+        matId = mat;
 
         glUseProgram(0);
 
