@@ -3,6 +3,7 @@ package Leclair.graphics.scene;
 import static Leclair.graphics.GraphicsInfo.getRenderer;
 
 import Leclair.math.Color;
+import Leclair.math.Colors;
 
 /**
  * 
@@ -12,7 +13,7 @@ import Leclair.math.Color;
 public class ViewPort {
 
     Camera camera;
-    Color color = Color.WHITE;
+    Color color = Colors.WHITE;
 
     public ViewPort() {
         camera = new Camera();

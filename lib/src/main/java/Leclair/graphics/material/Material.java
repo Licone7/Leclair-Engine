@@ -3,6 +3,7 @@ package Leclair.graphics.material;
 import Leclair.graphics.image.Texture;
 import Leclair.graphics.shader.Shader;
 import Leclair.math.Color;
+import Leclair.math.Colors;
 
 /**
  * @since v1
@@ -10,9 +11,9 @@ import Leclair.math.Color;
  */
 public class Material {
 
-    Color ambientColor = Color.BLACK;
-    Color diffuseColor = Color.WHITE;
-    Color specularColor = Color.BLACK;
+    Color ambientColor = Colors.BLACK;
+    Color diffuseColor = Colors.WHITE;
+    Color specularColor = Colors.BLACK;
     float reflectance = 0;
     Texture texture = null;
     Shader vertexShader = null;
@@ -27,7 +28,7 @@ public class Material {
     }
 
     public Material(Texture texture, byte type) {
-        this(Color.BLACK, Color.WHITE, Color.BLACK, 0f, texture, type);
+        this(Colors.BLACK, Colors.WHITE, Colors.BLACK, 0f, texture, type);
     }
 
     public Material(Color ambientColor, Color diffuseColor, Color specularColor, float reflectance, Texture texture,
