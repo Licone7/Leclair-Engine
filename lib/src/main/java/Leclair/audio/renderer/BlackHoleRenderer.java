@@ -1,6 +1,7 @@
 package Leclair.audio.renderer;
 
 import Leclair.audio.effect.Effect;
+import Leclair.audio.filter.Filter;
 import Leclair.audio.sound.Sound;
 
 /**
@@ -63,4 +64,15 @@ public class BlackHoleRenderer implements AudioRenderer {
     public void deleteEffect(Sound sound, Effect effect) {
       
     }
+
+    @Override
+    public void addFilter(Sound sound, Filter filter) {
+        
+    }
+
+    @Override
+    public void deleteFilter(Sound sound, Effect filter) {
+
+    }
+
 }

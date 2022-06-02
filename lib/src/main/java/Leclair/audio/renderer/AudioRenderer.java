@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import Leclair.audio.effect.Effect;
+import Leclair.audio.filter.Filter;
 import Leclair.audio.sound.Sound;
 
 /**
@@ -95,4 +96,21 @@ public interface AudioRenderer {
      * @apiNote For internal usage <b>only</b>!
      */
     public void deleteEffect(Sound sound, Effect effect);
+
+    /**
+     * 
+     * @param sound
+     * @param filter
+     * @apiNote For internal usage <b>only</b>!
+     */
+    public void addFilter(Sound sound, Filter filter);
+
+    /**
+     * 
+     * @param sound
+     * @param filter
+     * @apiNote For internal usage <b>only</b>!
+     */
+    public void deleteFilter(Sound sound, Effect filter);
+
 }

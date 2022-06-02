@@ -18,6 +18,7 @@ import org.lwjgl.system.MemoryStack;
 
 import Leclair.audio.effect.Effect;
 import Leclair.audio.effect.Effects;
+import Leclair.audio.filter.Filter;
 import Leclair.audio.sound.Sound;
 
 /**
@@ -26,16 +27,19 @@ import Leclair.audio.sound.Sound;
  */
 public class ALRenderer implements AudioRenderer {
 
+    // Capabilities Info
     static boolean effectsSupported = true;
+    // OpenAL variables
     static long device;
     static ALCCapabilities deviceCaps;
     static long context;
     static boolean useTLC;
     static ALCapabilities caps;
-    static List<Integer> buffers = new ArrayList<Integer>();
-    static List<Integer> sources = new ArrayList<Integer>();
-    static List<Integer> effects = new ArrayList<Integer>();
-    static List<Integer> effectSlots = new ArrayList<Integer>();
+    // Lists
+    static List<Integer> buffers = new ArrayList<Integer>(10);
+    static List<Integer> sources = new ArrayList<Integer>(10);
+    static List<Integer> effects = new ArrayList<Integer>(10);
+    static List<Integer> effectSlots = new ArrayList<Integer>(10);
 
     public ALRenderer() {
 
@@ -48,7 +52,7 @@ public class ALRenderer implements AudioRenderer {
         if (!deviceCaps.ALC_EXT_EFX) {
             effectsSupported = false;
         }
-        if (!deviceCaps.OpenALC11) {
+        if (!deviceCaps.OpenALC11) { // It seems effects aren't supported on ALC10
             effectsSupported = false;
         }
         context = alcCreateContext(device, (IntBuffer) null);
@@ -117,13 +121,17 @@ public class ALRenderer implements AudioRenderer {
         alSource3i(sources.get(sound.index), AL_AUXILIARY_SEND_FILTER, effectSlot, 0, AL_FILTER_NULL);
         effects.add(sound.index, iEffect);
         effectSlots.add(sound.index, effectSlot);
+        System.out.println(effectSlots.get(sound.index));
     }
 
     @Override
     public void deleteEffect(final Sound sound, final Effect effect) {
+        System.out.println(effectSlots.get(sound.index));
         alSource3i(sources.get(sound.index), AL_AUXILIARY_SEND_FILTER, AL_EFFECTSLOT_NULL, 0, AL_FILTER_NULL);
         alAuxiliaryEffectSloti(effectSlots.get(sound.index), AL_EFFECTSLOT_EFFECT, AL_EFFECT_NULL);
         alDeleteEffects(effects.get(sound.index));
+        effects.remove(sound.index);
+        effectSlots.remove(sound.index);
     }
 
     @Override
@@ -165,4 +173,15 @@ public class ALRenderer implements AudioRenderer {
         alDeleteSources(sources.get(sound.index));
         alDeleteBuffers(buffers.get(sound.index));
     }
+
+    @Override
+    public void addFilter(Sound sound, Filter filter) {
+
+    }
+
+    @Override
+    public void deleteFilter(Sound sound, Effect filter) {
+
+    }
+
 }

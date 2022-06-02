@@ -23,6 +23,7 @@ import Leclair.window.WindowInfo;
  */
 public class Main extends ApplicationStructure {
 
+  Effect effect = new Effect(Effects.FLANGER_EFFECT);
   Sound theme = new Sound("sounds/test.ogg", false);
   Mesh mesh3;
 
@@ -42,8 +43,6 @@ public class Main extends ApplicationStructure {
   @Override
   public void appSetup() {
     theme.process();
-    Effect effect = new Effect(Effects.FLANGER_EFFECT);
-    theme.addEffect(effect);
     theme.play();
     viewPort.setBackgroundColor(Colors.RED);
     System.out.println(MathUtilities.generateRandom());
@@ -61,9 +60,11 @@ public class Main extends ApplicationStructure {
   public void appLoop() {
     if (KeyHandler.isKeyPressed(Keys.KEY_A)) {
       viewPort.setBackgroundColor(Colors.BLACK);
+      theme.addEffect(effect);
     } else if (KeyHandler.isKeyPressed(Keys.KEY_B)) {
       theme.play();
       viewPort.setBackgroundColor(255f, 255f, 0f, 1f);
+      theme.deleteEffect(effect);
     } else if (KeyHandler.isKeyPressed(Keys.KEY_F)) {
       theme.stop();
     } else if (KeyHandler.isKeyPressed(Keys.KEY_G)) {
