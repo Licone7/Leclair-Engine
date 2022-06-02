@@ -13,4 +13,9 @@ public interface Effects {
     public static byte DISTORTION_EFFECT = 2;
 
     public static byte ECHO_EFFECT = 3;
+
+    public static byte FLANGER_EFFECT = 4;
+
+    public static byte COMPRESSOR_EFFECT = 5;
+
 }

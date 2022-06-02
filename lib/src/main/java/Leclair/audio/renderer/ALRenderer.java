@@ -92,7 +92,7 @@ public class ALRenderer implements AudioRenderer {
     public void addEffect(final Sound sound, final Effect effect) {
         int effectSlot = alGenAuxiliaryEffectSlots();
         int iEffect = alGenEffects();
-        switch (effect.getType()) { // TODO: Add more effects
+        switch (effect.getType()) {
             case Effects.CHORUS_EFFECT:
                 alEffecti(iEffect, AL_EFFECT_TYPE, AL_EFFECT_CHORUS);
                 break;
@@ -105,6 +105,12 @@ public class ALRenderer implements AudioRenderer {
             case Effects.REVERB_EFFECT:
                 alEffecti(iEffect, AL_EFFECT_TYPE, AL_EFFECT_REVERB);
                 alEffectf(iEffect, AL_REVERB_DECAY_TIME, 5.0f);
+                break;
+            case Effects.FLANGER_EFFECT:
+                alEffecti(iEffect, AL_EFFECT_TYPE, AL_EFFECT_FLANGER);
+                break;
+            case Effects.COMPRESSOR_EFFECT:
+                alEffecti(iEffect, AL_EFFECT_TYPE, AL_EFFECT_COMPRESSOR);
                 break;
         }
         alAuxiliaryEffectSloti(effectSlot, AL_EFFECTSLOT_EFFECT, iEffect);

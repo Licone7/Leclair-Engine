@@ -2,7 +2,6 @@ package Leclair.graphics.material;
 
 import Leclair.graphics.image.Texture;
 import Leclair.graphics.shader.Shader;
-import Leclair.graphics.shader.Shaders;
 import Leclair.math.Color;
 
 /**
@@ -40,16 +39,10 @@ public class Material {
         this.texture = texture;
         switch (type) {
             case Materials.UNLIT_MATERIAL:
-                vertexShader = new Shader("shaders/unlit.vert", Shaders.VERTEX_SHADER);
-                fragmentShader = new Shader("shaders/unlit.frag", Shaders.FRAGMENT_SHADER);
-                vertexShader.compile();
-                fragmentShader.compile();
+                // TODO
                 break;
             case Materials.LIT_MATERIAL:
-                vertexShader = new Shader("shaders/lit.vert", Shaders.VERTEX_SHADER);
-                fragmentShader = new Shader("shaders/lit.frag", Shaders.FRAGMENT_SHADER);
-                vertexShader.compile();
-                fragmentShader.compile();
+                // TODO
                 break;
             default:
                 throw new IllegalArgumentException("Unknown material type");
