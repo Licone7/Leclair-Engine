@@ -71,7 +71,7 @@ public class BlackHoleRenderer implements AudioRenderer {
     }
 
     @Override
-    public void deleteFilter(Sound sound, Effect filter) {
+    public void deleteFilter(Sound sound, Filter filter) {
 
     }
 

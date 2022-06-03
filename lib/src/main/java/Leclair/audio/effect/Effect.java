@@ -15,4 +15,5 @@ public class Effect {
     public byte getType() {
         return this.type;
     }
+
 }

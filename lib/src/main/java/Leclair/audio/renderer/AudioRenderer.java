@@ -111,6 +111,6 @@ public interface AudioRenderer {
      * @param filter
      * @apiNote For internal usage <b>only</b>!
      */
-    public void deleteFilter(Sound sound, Effect filter);
+    public void deleteFilter(Sound sound, Filter filter);
 
 }

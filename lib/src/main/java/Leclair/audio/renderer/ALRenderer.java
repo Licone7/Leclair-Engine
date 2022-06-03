@@ -19,6 +19,7 @@ import org.lwjgl.system.MemoryStack;
 import Leclair.audio.effect.Effect;
 import Leclair.audio.effect.Effects;
 import Leclair.audio.filter.Filter;
+import Leclair.audio.filter.Filters;
 import Leclair.audio.sound.Sound;
 
 /**
@@ -36,10 +37,11 @@ public class ALRenderer implements AudioRenderer {
     static boolean useTLC;
     static ALCapabilities caps;
     // Lists
-    static List<Integer> buffers = new ArrayList<Integer>(10);
-    static List<Integer> sources = new ArrayList<Integer>(10);
-    static List<Integer> effects = new ArrayList<Integer>(10);
-    static List<Integer> effectSlots = new ArrayList<Integer>(10);
+    static List<Integer> buffers = new ArrayList<Integer>();
+    static List<Integer> sources = new ArrayList<Integer>();
+    static List<Integer> effects = new ArrayList<Integer>();
+    static List<Integer> effectSlots = new ArrayList<Integer>();
+    static List<Integer> filters = new ArrayList<Integer>();
 
     public ALRenderer() {
 
@@ -176,12 +178,28 @@ public class ALRenderer implements AudioRenderer {
 
     @Override
     public void addFilter(Sound sound, Filter filter) {
-
+        int iFilter = alGenFilters();
+        switch (filter.getType()) {
+            case Filters.HIGHPASS_FILTER:
+                alFilteri(iFilter, AL_FILTER_TYPE, AL_FILTER_HIGHPASS);
+                break;
+            case Filters.LOWPASS_FILTER:
+                alFilteri(iFilter, AL_FILTER_TYPE, AL_FILTER_LOWPASS);
+                alFilterf(iFilter, AL_LOWPASS_GAIN, 0.5f);
+                alFilterf(iFilter, AL_LOWPASS_GAINHF, 0.5f);
+                break;
+            case Filters.BANDPASS_FILTER:
+                alFilteri(iFilter, AL_FILTER_TYPE, AL_FILTER_BANDPASS);
+                break;
+        }
+        alSourcei(sources.get(sound.index), AL_DIRECT_FILTER, iFilter);
+        filters.add(sound.index, iFilter);
     }
 
     @Override
-    public void deleteFilter(Sound sound, Effect filter) {
-
+    public void deleteFilter(Sound sound, Filter filter) {
+        alSourcei(sources.get(sound.index), AL_DIRECT_FILTER, AL_FILTER_NULL);
+        alDeleteFilters(filters.get(sound.index));
     }
 
 }

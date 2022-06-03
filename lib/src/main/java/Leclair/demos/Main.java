@@ -6,6 +6,8 @@ import Leclair.application.ApplicationStructure;
 import Leclair.audio.AudioInfo;
 import Leclair.audio.effect.Effect;
 import Leclair.audio.effect.Effects;
+import Leclair.audio.filter.Filter;
+import Leclair.audio.filter.Filters;
 import Leclair.audio.renderer.AudioRenderers;
 import Leclair.audio.sound.Sound;
 import Leclair.graphics.GraphicsInfo;
@@ -66,7 +68,8 @@ public class Main extends ApplicationStructure {
       viewPort.setBackgroundColor(255f, 255f, 0f, 1f);
       theme.deleteEffect(effect);
     } else if (KeyHandler.isKeyPressed(Keys.KEY_F)) {
-      theme.stop();
+      // theme.stop();
+      theme.addFilter(new Filter(Filters.LOWPASS_FILTER));
     } else if (KeyHandler.isKeyPressed(Keys.KEY_G)) {
       theme.delete();
     }

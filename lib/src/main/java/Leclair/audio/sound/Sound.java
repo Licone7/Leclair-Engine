@@ -6,6 +6,7 @@ import java.nio.ShortBuffer;
 import java.util.List;
 
 import Leclair.audio.effect.Effect;
+import Leclair.audio.filter.Filter;
 import Leclair.audio.processor.OggProcessor;
 import Leclair.audio.renderer.AudioRenderer;
 
@@ -67,6 +68,15 @@ public class Sound {
     public void deleteEffect(Effect effect) {
         getRenderer().deleteEffect(this, effect);
     }
+
+    public void addFilter(Filter filter) {
+        getRenderer().addFilter(this, filter);
+    }
+
+    public void deleteFilter(Filter filter) {
+        getRenderer().deleteFilter(this, filter);
+    }
+
 
     public void setState(byte state) {
         this.state = state;
