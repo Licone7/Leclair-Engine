@@ -12,15 +12,7 @@ public class MathUtilities {
         throw new IllegalAccessError();
     }
 
-    public static final float PI = 3.141592f;
-
-    public static final float E = 2.718281f;
-
-    public static final float ROOT_TWO = 1.414213f;
-
-    public static final float ROOT_THREE = 1.732050f;
-
-    public static float power(float number, int exponent) {
+    public static float power(final float number, final int exponent) {
         float result = 1;
         for (int i = 0; i < exponent; i++) {
             result = result * number;
@@ -31,7 +23,7 @@ public class MathUtilities {
     /** 
      * Calculates the factorial of the given number
      */
-    public static int factorial(int number) {
+    public static int factorial(final int number) {
         int factorial = 1;
         for (int i = 1; i <= number; i++) {
             factorial = factorial * i;
@@ -64,15 +56,15 @@ public class MathUtilities {
     /**
      * Converts degrees to radians
      */
-    public static float asRadians(float degrees) {
-        return degrees * (PI / 180);
+    public static float asRadians(final float degrees) {
+        return degrees * (Constants.PI / 180);
     }
 
     /**
      * Converts radians to degrees
      */
-    public static float asDegrees(float radians) {
-        return radians * (180 / PI);
+    public static float asDegrees(final float radians) {
+        return radians * (180 / Constants.PI);
     }
 
     // RANDOM NUMBERS
