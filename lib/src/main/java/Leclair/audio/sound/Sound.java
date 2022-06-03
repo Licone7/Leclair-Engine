@@ -9,6 +9,7 @@ import Leclair.audio.effect.Effect;
 import Leclair.audio.filter.Filter;
 import Leclair.audio.processor.OggProcessor;
 import Leclair.audio.renderer.AudioRenderer;
+import Leclair.math.Vector3;
 
 /**
  * @since v1
@@ -22,15 +23,27 @@ public class Sound {
     public int sampleRate = 0;
     public int index;
     float volume = 1;
+    Vector3 position;
     byte state = PlayStates.STATE_UNINITIALIZED;
 
     public Sound(final String path, boolean process) {
         this.path = path;
         AudioRenderer.sounds.add(this);
         this.index = AudioRenderer.sounds.indexOf(this);
+        this.position = new Vector3(0, 0, 0);
         if (process) {
             process();
-        } 
+        }
+    }
+
+    public Sound(final String path, boolean process, Vector3 position) {
+        this.path = path;
+        AudioRenderer.sounds.add(this);
+        this.index = AudioRenderer.sounds.indexOf(this);
+        this.position = position;
+        if (process) {
+            process();
+        }
     }
 
     public void process() {
@@ -56,6 +69,15 @@ public class Sound {
         getRenderer().stopSound(this);
     }
 
+    public void setPosition(Vector3 position) {
+        this.position = position;
+        getRenderer().setPosition(this);
+    }
+
+    public Vector3 getPosition() {
+        return this.position;
+    }
+
     public void delete() {
         setState(PlayStates.STATE_DELETE);
         getRenderer().deleteSound(this);
@@ -76,7 +98,6 @@ public class Sound {
     public void deleteFilter(Filter filter) {
         getRenderer().deleteFilter(this, filter);
     }
-
 
     public void setState(byte state) {
         this.state = state;

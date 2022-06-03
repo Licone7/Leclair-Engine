@@ -84,6 +84,13 @@ public interface AudioRenderer {
     /**
      * 
      * @param sound
+     * @apiNote For internal usage <b>only</b>!
+     */
+    public void setPosition(Sound sound);
+
+    /**
+     * 
+     * @param sound
      * @param effect
      * @apiNote For internal usage <b>only</b>!
      */

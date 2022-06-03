@@ -17,6 +17,7 @@ import Leclair.input.key.KeyHandler;
 import Leclair.input.key.Keys;
 import Leclair.math.Colors;
 import Leclair.math.MathUtilities;
+import Leclair.math.Vector3;
 import Leclair.window.WindowInfo;
 
 /**
@@ -62,11 +63,12 @@ public class Main extends ApplicationStructure {
   public void appLoop() {
     if (KeyHandler.isKeyPressed(Keys.KEY_A)) {
       viewPort.setBackgroundColor(Colors.BLACK);
-      theme.addEffect(effect);
+      //theme.addEffect(effect);
+      theme.setPosition(new Vector3(10, 10, 10));
     } else if (KeyHandler.isKeyPressed(Keys.KEY_B)) {
       theme.play();
       viewPort.setBackgroundColor(255f, 255f, 0f, 1f);
-      theme.deleteEffect(effect);
+      //theme.deleteEffect(effect);
     } else if (KeyHandler.isKeyPressed(Keys.KEY_F)) {
       // theme.stop();
       theme.addFilter(new Filter(Filters.LOWPASS_FILTER));

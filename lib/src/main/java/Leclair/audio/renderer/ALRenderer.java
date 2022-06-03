@@ -156,7 +156,6 @@ public class ALRenderer implements AudioRenderer {
 
     @Override
     public void playSound(Sound sound) {
-        alSource3f(sources.get(sound.index), AL_POSITION, 0f, 0.0f, 0.0f);
         alSourcePlay(sources.get(sound.index));
     }
 
@@ -174,6 +173,14 @@ public class ALRenderer implements AudioRenderer {
     public void deleteSound(final Sound sound) {
         alDeleteSources(sources.get(sound.index));
         alDeleteBuffers(buffers.get(sound.index));
+    }
+
+    @Override
+    public void setPosition(final Sound sound) {
+        System.out.println(sound.getPosition().getX());
+        alSourcei(sources.get(sound.index), AL_SOURCE_RELATIVE, AL_TRUE);
+        alSource3f(sources.get(sound.index), AL_POSITION, sound.getPosition().getX(), sound.getPosition().getY(),
+                sound.getPosition().getZ());
     }
 
     @Override

@@ -75,4 +75,9 @@ public class BlackHoleRenderer implements AudioRenderer {
 
     }
 
+    @Override
+    public void setPosition(Sound sound) {
+  
+    }
+
 }
