@@ -84,6 +84,22 @@ public class ALRenderer implements AudioRenderer {
 
     @Override
     public void cleanup() {
+        for (int effect : effects) {
+            alDeleteEffects(effect);
+        }
+        effects.clear();
+        effectSlots.clear();
+        for (int filter : filters) {
+            alDeleteFilters(filter);
+        }
+        for (int source : sources) {
+            alDeleteSources(source);
+        }
+        sources.clear();
+        for (int buffer : buffers) {
+            alDeleteBuffers(buffer);
+        }
+        buffers.clear();
         alcMakeContextCurrent(0L);
         if (useTLC) {
             AL.setCurrentThread(null);
