@@ -69,6 +69,12 @@ public class Sound {
         getRenderer().stopSound(this);
     }
 
+    /**
+     * Sets the 3D position of the given sound
+     * 
+     * @param position
+     * @apiNote Stereo sounds cannot be given a position!
+     */
     public void setPosition(Vector3 position) {
         this.position = position;
         getRenderer().setPosition(this);

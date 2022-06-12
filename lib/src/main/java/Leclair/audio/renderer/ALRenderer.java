@@ -37,14 +37,18 @@ public class ALRenderer implements AudioRenderer {
     static boolean useTLC;
     static ALCapabilities caps;
     // Lists
-    static List<Integer> buffers = new ArrayList<Integer>();
-    static List<Integer> sources = new ArrayList<Integer>();
-    static List<Integer> effects = new ArrayList<Integer>();
-    static List<Integer> effectSlots = new ArrayList<Integer>();
-    static List<Integer> filters = new ArrayList<Integer>();
+    static List<Integer> buffers;
+    static List<Integer> sources;
+    static List<Integer> effects;
+    static List<Integer> effectSlots;
+    static List<Integer> filters;
 
     public ALRenderer() {
-
+        buffers = new ArrayList<Integer>();
+        sources = new ArrayList<Integer>();
+        effects = new ArrayList<Integer>();
+        effectSlots = new ArrayList<Integer>();
+        filters = new ArrayList<Integer>();
     }
 
     @Override
@@ -192,7 +196,6 @@ public class ALRenderer implements AudioRenderer {
 
     @Override
     public void setPosition(final Sound sound) {
-        System.out.println(sound.getPosition().getX());
         alSourcei(sources.get(sound.index), AL_SOURCE_RELATIVE, AL_TRUE);
         alSource3f(sources.get(sound.index), AL_POSITION, sound.getPosition().getX(), sound.getPosition().getY(),
                 sound.getPosition().getZ());
