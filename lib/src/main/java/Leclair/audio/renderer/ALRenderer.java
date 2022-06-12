@@ -144,7 +144,6 @@ public class ALRenderer implements AudioRenderer {
 
     @Override
     public void deleteEffect(final Sound sound, final Effect effect) {
-        System.out.println(effectSlots.get(sound.index));
         alSource3i(sources.get(sound.index), AL_AUXILIARY_SEND_FILTER, AL_EFFECTSLOT_NULL, 0, AL_FILTER_NULL);
         alAuxiliaryEffectSloti(effectSlots.get(sound.index), AL_EFFECTSLOT_EFFECT, AL_EFFECT_NULL);
         alDeleteEffects(effects.get(sound.index));
