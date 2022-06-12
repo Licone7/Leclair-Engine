@@ -8,12 +8,14 @@ package Leclair.math;
  */
 public class Vector3 {
 
-    float x = 0f;
-    float y = 0f;
-    float z = 0f;
+    float x;
+    float y;
+    float z;
 
     public Vector3() {
-
+        this.x = 0f;
+        this.y = 0f;
+        this.z = 0f;
     }
 
     public Vector3(float x, float y, float z) {
@@ -22,93 +24,108 @@ public class Vector3 {
         this.z = z;
     }
 
-    public void set(float x, float y, float z) {
+    public Vector3 set(float x, float y, float z) {
         this.x = x;
         this.y = y;
         this.z = z;
+        return this;
     }
 
-    public void setX(float x) {
+    public Vector3 setX(float x) {
         this.x = x;
+        return this;
     }
 
-    public void setY(float y) {
+    public Vector3 setY(float y) {
         this.y = y;
+        return this;
     }
 
-    public void setZ(float z) {
+    public Vector3 setZ(float z) {
         this.z = z;
+        return this;
     }
 
-    public void add(float x, float y, float z) {
+    public Vector3 add(float x, float y, float z) {
         this.x = this.x + x;
         this.y = this.y + y;
         this.z = this.z + z;
+        return this;
     }
 
-    public void add(Vector3 vector) {
+    public Vector3 add(Vector3 vector) {
         this.x = this.x + vector.x;
         this.y = this.y + vector.y;
         this.z = this.z + vector.z;
+        return this;
     }
 
-    public void subtract(float x, float y, float z) {
+    public Vector3 subtract(float x, float y, float z) {
         this.x = this.x - x;
         this.y = this.y - y;
         this.z = this.z - z;
+        return this;
     }
 
-    public void subtract(Vector3 vector) {
+    public Vector3 subtract(Vector3 vector) {
         this.x = this.x - vector.x;
         this.y = this.y - vector.y;
         this.z = this.z - vector.z;
+        return this;
     }
 
-    public void multiply(float scalar) {
+    public Vector3 multiply(float scalar) {
         this.x = this.x * scalar;
         this.y = this.y * scalar;
         this.z = this.z * scalar;
+        return this;
     }
 
-    public void multiply(float x, float y, float z) {
+    public Vector3 multiply(float x, float y, float z) {
         this.x = this.x * x;
         this.y = this.y * y;
         this.z = this.z * z;
+        return this;
     }
 
-    public void multiply(Vector3 vector) {
+    public Vector3 multiply(Vector3 vector) {
         this.x = this.x * vector.x;
         this.y = this.y * vector.y;
         this.z = this.z * vector.z;
+        return this;
     }
 
-    public void divide(float scalar) {
+    public Vector3 divide(float scalar) {
         scalar = 1f / scalar;
         this.x = this.x * scalar;
         this.y = this.y * scalar;
         this.z = this.z * scalar;
+        return this;
     }
 
-    public void divide(float x, float y, float z) {
+    public Vector3 divide(float x, float y, float z) {
         this.x = this.x / x;
         this.y = this.y / y;
         this.z = this.z / z;
+        return this;
     }
 
-    public void divide(Vector3 vector) {
+    public Vector3 divide(Vector3 vector) {
         this.x = this.x / vector.x;
         this.y = this.y / vector.y;
         this.z = this.z / vector.z;
+        return this;
     }
 
-    public void negate() {
+    public Vector3 negate() {
         this.x = -this.x;
         this.y = -this.y;
         this.z = -this.z;
+        return this;
     }
 
-    public void normalize() {
-        
+    public Vector3 normalize() {
+        return this;
     }
 
     public float getX() {

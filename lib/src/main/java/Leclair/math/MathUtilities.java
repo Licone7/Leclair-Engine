@@ -31,6 +31,10 @@ public class MathUtilities {
         return factorial;
     }
 
+    public static float inverseSquareRoot(final float number) {
+        return 1.0f / (float) Math.sqrt(number);
+    }
+
     // TRIGONOMETRIC FUNCTIONS
 
     /**

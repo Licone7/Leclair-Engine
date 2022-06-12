@@ -8,13 +8,16 @@ package Leclair.math;
  */
 public class Color {
 
-    float r = 0f;
-    float g = 0f;
-    float b = 0f;
-    float a = 0f;
+    float r;
+    float g;
+    float b;
+    float a;
 
     public Color() {
-        
+        this.r = 0f;
+        this.g = 0f;
+        this.b = 0f;
+        this.a = 0f;
     }
 
     public Color(float r, float g, float b, float a) {
@@ -31,109 +34,117 @@ public class Color {
         this.a = vector.w;
     }
 
-    public void set(float r, float g, float b, float a) {
+    public Color set(float r, float g, float b, float a) {
         this.r = r;
         this.g = g;
         this.b = b;
         this.a = a;
+        return this;
     }
 
-    public void setR(float r) {
+    public Color setR(float r) {
         this.r = r;
+        return this;
     }
 
-    public void setG(float g) {
+    public Color setG(float g) {
         this.g = g;
+        return this;
     }
 
-    public void setB(float b) {
+    public Color setB(float b) {
         this.b = b;
+        return this;
     }
 
-    public void setA(float a) {
+    public Color setA(float a) {
         this.a = a;
+        return this;
     }
 
-    public void add(float r, float g, float b, float a) {
+    public Color add(float r, float g, float b, float a) {
         this.r = this.r + r;
         this.g = this.g + g;
         this.b = this.b + b;
         this.a = this.a + a;
+        return this;
     }
 
-    public void add(Color color) {
+    public Color add(Color color) {
         this.r = this.r + color.r;
         this.g = this.g + color.g;
         this.b = this.b + color.b;
         this.a = this.a + color.a;
+        return this;
     }
 
-    public void subtract(float r, float g, float b, float a) {
+    public Color subtract(float r, float g, float b, float a) {
         this.r = this.r - r;
         this.g = this.g - g;
         this.b = this.b - b;
         this.a = this.a - a;
+        return this;
     }
 
-    public void subtract(Color color) {
+    public Color subtract(Color color) {
         this.r = this.r - color.r;
         this.g = this.g - color.g;
         this.b = this.b - color.b;
         this.a = this.a - color.a;
+        return this;
     }
 
-    public void multiply(float scalar) {
+    public Color multiply(float scalar) {
         this.r = this.r * scalar;
         this.g = this.g * scalar;
         this.b = this.b * scalar;
         this.a = this.a * scalar;
+        return this;
     }
 
-    public void multiply(float r, float g, float b, float a) {
+    public Color multiply(float r, float g, float b, float a) {
         this.r = this.r * r;
         this.g = this.g * g;
         this.b = this.b * b;
         this.a = this.a * a;
+        return this;
     }
 
-    public void multiply(Color color) {
+    public Color multiply(Color color) {
         this.r = this.r * color.r;
         this.g = this.g * color.g;
         this.b = this.b * color.b;
         this.a = this.a * color.a;
+        return this;
     }
 
-    public void divide(float scalar) {
+    public Color divide(float scalar) {
         scalar = 1f / scalar;
         this.r = this.r * scalar;
         this.g = this.g * scalar;
         this.b = this.b * scalar;
         this.a = this.a * scalar;
+        return this;
     }
 
-    public void divide(float r, float g, float b, float a) {
+    public Color divide(float r, float g, float b, float a) {
         this.r = this.r / r;
         this.g = this.g / g;
         this.b = this.b / b;
         this.a = this.a / a;
+        return this;
     }
 
-    public void divide(Color color) {
+    public Color divide(Color color) {
         this.r = this.r / color.r;
         this.g = this.g / color.g;
         this.b = this.b / color.b;
         this.a = this.a / color.a;
+        return this;
     }
 
-    // public void GenerateRandom() {
-    //     this.r = 255f / Constants.GenerateRandom();
-    //     this.g = 255f / Constants.GenerateRandom();
-    //     this.b = 255f / Constants.GenerateRandom();
-    //     this.a = 255f / Constants.GenerateRandom();
-    // }
-
     public Vector4 AsVector() {
-        return new Vector4(r, g, b, a);
+        return new Vector4(this.r, this.g, this.b, this.a);
     }
 
     public float getR() {
@@ -151,4 +162,5 @@ public class Color {
     public float getA() {
         return this.a;
     }
+
 }
