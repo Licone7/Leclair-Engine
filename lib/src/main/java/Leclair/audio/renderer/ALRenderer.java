@@ -15,6 +15,7 @@ import org.lwjgl.openal.ALCCapabilities;
 import org.lwjgl.openal.ALCapabilities;
 import org.lwjgl.openal.EXTThreadLocalContext;
 import org.lwjgl.system.MemoryStack;
+import org.lwjgl.system.MemoryUtil;
 
 import Leclair.audio.effect.Effect;
 import Leclair.audio.effect.Effects;
@@ -68,7 +69,7 @@ public class ALRenderer implements AudioRenderer {
                 throw new IllegalStateException();
             }
         }
-        caps = AL.createCapabilities(deviceCaps, null);
+        caps = AL.createCapabilities(deviceCaps, MemoryUtil::memCallocPointer);
     }
 
     @Override
@@ -112,6 +113,7 @@ public class ALRenderer implements AudioRenderer {
         }
         alcDestroyContext(context);
         alcCloseDevice(device);
+        MemoryUtil.memFree(caps.getAddressBuffer());
     }
 
     @Override

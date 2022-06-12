@@ -11,6 +11,7 @@ import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GLCapabilities;
 import org.lwjgl.opengl.WGL;
 import org.lwjgl.system.MemoryStack;
+import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.system.Platform;
 import org.lwjgl.system.windows.GDI32;
 import org.lwjgl.system.windows.PIXELFORMATDESCRIPTOR;
@@ -62,7 +63,7 @@ public class GLRenderer implements GraphicsRenderer {
                     // TODO
                     break;
             }
-            capabilities = GL.createCapabilities(true);
+            capabilities = GL.createCapabilities(true, MemoryUtil::memCallocPointer);
             glEnable(GL_DEPTH_TEST);
             glEnable(GL_STENCIL_TEST);
             glEnable(GL_CULL_FACE);
@@ -143,5 +144,6 @@ public class GLRenderer implements GraphicsRenderer {
     @Override
     public void cleanup() {
         GL.setCapabilities(null);
+        MemoryUtil.memFree(capabilities.getAddressBuffer());
     }
 }
