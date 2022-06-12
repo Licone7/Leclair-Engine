@@ -57,8 +57,7 @@ public class GLRenderer implements GraphicsRenderer {
                     WGL.wglMakeCurrent(hdc, hglrc);
                     break;
                 case MACOSX:
-                    // TODO
-                    break;
+                    throw new IllegalStateException("OpenGL is deprecated on MacOS. Use the Vulkan renderer!");
                 case LINUX:
                     // TODO
                     break;
@@ -113,7 +112,7 @@ public class GLRenderer implements GraphicsRenderer {
 
     @Override
     public void renderMesh(final Mesh mesh) {
-        
+
     }
 
     @Override
