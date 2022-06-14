@@ -19,7 +19,6 @@ import Leclair.logger.Logger;
 import Leclair.math.Color;
 import Leclair.window.WindowInfo;
 
-import org.lwjgl.BufferUtils;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GLCapabilities;
@@ -185,36 +184,38 @@ public class GLRenderer implements GraphicsRenderer {
 
     @Override
     public void renderMesh(final Mesh mesh) {
-        final int texLocation = glGetUniformLocation(programs.get(mesh.index), "tex");
-        glUniform1i(texLocation, 0);
-        final int inputPosition = glGetAttribLocation(programs.get(mesh.index), "position");
-        final int inputTextureCoords = glGetAttribLocation(programs.get(mesh.index), "inTexCoords");
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            final int texLocation = glGetUniformLocation(programs.get(mesh.index), "tex");
+            glUniform1i(texLocation, 0);
+            final int inputPosition = glGetAttribLocation(programs.get(mesh.index), "position");
+            final int inputTextureCoords = glGetAttribLocation(programs.get(mesh.index), "inTexCoords");
 
-        glUseProgram(0);
+            glUseProgram(0);
 
-        final int vao = vaos.get(mesh.index);
-        glBindVertexArray(vao);
-        final int positionVbo = glGenBuffers();
-        glBindBuffer(GL_ARRAY_BUFFER, positionVbo);
-        glBufferData(GL_ARRAY_BUFFER, mesh.getData(), GL_STATIC_DRAW);
-        glVertexAttribPointer(inputPosition, 4, GL_FLOAT, false, 0, 0L);
-        glEnableVertexAttribArray(inputPosition);
+            final int vao = vaos.get(mesh.index);
+            glBindVertexArray(vao);
+            final int positionVbo = glGenBuffers();
+            glBindBuffer(GL_ARRAY_BUFFER, positionVbo);
+            glBufferData(GL_ARRAY_BUFFER, mesh.getData(), GL_STATIC_DRAW);
+            glVertexAttribPointer(inputPosition, 4, GL_FLOAT, false, 0, 0L);
+            glEnableVertexAttribArray(inputPosition);
 
-        final int texCoordsVbo = glGenBuffers();
-        final FloatBuffer fb = BufferUtils.createFloatBuffer(2 * 6);
-        fb.put(0.0f).put(1.0f);
-        fb.put(1.0f).put(1.0f);
-        fb.put(1.0f).put(0.0f);
-        fb.put(1.0f).put(0.0f);
-        fb.put(0.0f).put(0.0f);
-        fb.put(0.0f).put(1.0f);
-        fb.flip();
-        glBindBuffer(GL_ARRAY_BUFFER, texCoordsVbo);
-        glBufferData(GL_ARRAY_BUFFER, fb, GL_STATIC_DRAW);
-        glVertexAttribPointer(inputTextureCoords, 2, GL_FLOAT, true, 0, 0L);
-        glEnableVertexAttribArray(inputTextureCoords);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindVertexArray(0);
+            final int texCoordsVbo = glGenBuffers();
+            final FloatBuffer fb = stack.mallocFloat(2 * 6);
+            fb.put(0.0f).put(1.0f);
+            fb.put(1.0f).put(1.0f);
+            fb.put(1.0f).put(0.0f);
+            fb.put(1.0f).put(0.0f);
+            fb.put(0.0f).put(0.0f);
+            fb.put(0.0f).put(1.0f);
+            fb.flip();
+            glBindBuffer(GL_ARRAY_BUFFER, texCoordsVbo);
+            glBufferData(GL_ARRAY_BUFFER, fb, GL_STATIC_DRAW);
+            glVertexAttribPointer(inputTextureCoords, 2, GL_FLOAT, true, 0, 0L);
+            glEnableVertexAttribArray(inputTextureCoords);
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+            glBindVertexArray(0);
+        }
     }
 
     @Override
@@ -238,36 +239,38 @@ public class GLRenderer implements GraphicsRenderer {
 
     @Override
     public void addShader(final Shader shader, final int program, final int index) {
-        final PointerBuffer strings = BufferUtils.createPointerBuffer(1);
-        final IntBuffer lengths = BufferUtils.createIntBuffer(1);
-        switch (shader.shaderType) {
-            case Shaders.VERTEX_SHADER:
-                final int vshader = glCreateShader(GL_VERTEX_SHADER);
-                ByteBuffer source = null;
-                source = AssetLoader.importAsBinary(shader.filePath, 8192);
-                strings.put(0, source);
-                lengths.put(0, source.remaining());
-                glShaderSource(vshader, strings, lengths);
-                glCompileShader(vshader);
-                glAttachShader(program, vshader);
-                vertShaders.add(index, vshader);
-                strings.clear();
-                lengths.clear();
-                break;
-            case Shaders.FRAGMENT_SHADER:
-                final int fshader = glCreateShader(GL_FRAGMENT_SHADER);
-                source = AssetLoader.importAsBinary(shader.filePath, 8192);
-                strings.put(0, source);
-                lengths.put(0, source.remaining());
-                glShaderSource(fshader, strings, lengths);
-                glCompileShader(fshader);
-                glAttachShader(program, fshader);
-                fragShaders.add(index, fshader);
-                strings.clear();
-                lengths.clear();
-                break;
-            default:
-                throw new IllegalArgumentException("Invalid shader!");
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            final PointerBuffer strings = stack.mallocPointer(1);
+            final IntBuffer lengths = stack.mallocInt(1);
+            switch (shader.shaderType) {
+                case Shaders.VERTEX_SHADER:
+                    final int vshader = glCreateShader(GL_VERTEX_SHADER);
+                    ByteBuffer source = null;
+                    source = AssetLoader.importAsBinary(shader.filePath, 8192);
+                    strings.put(0, source);
+                    lengths.put(0, source.remaining());
+                    glShaderSource(vshader, strings, lengths);
+                    glCompileShader(vshader);
+                    glAttachShader(program, vshader);
+                    vertShaders.add(index, vshader);
+                    strings.clear();
+                    lengths.clear();
+                    break;
+                case Shaders.FRAGMENT_SHADER:
+                    final int fshader = glCreateShader(GL_FRAGMENT_SHADER);
+                    source = AssetLoader.importAsBinary(shader.filePath, 8192);
+                    strings.put(0, source);
+                    lengths.put(0, source.remaining());
+                    glShaderSource(fshader, strings, lengths);
+                    glCompileShader(fshader);
+                    glAttachShader(program, fshader);
+                    fragShaders.add(index, fshader);
+                    strings.clear();
+                    lengths.clear();
+                    break;
+                default:
+                    throw new IllegalArgumentException("Invalid shader!");
+            }
         }
     }
 
