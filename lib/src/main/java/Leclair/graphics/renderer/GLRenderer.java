@@ -40,24 +40,27 @@ public class GLRenderer implements GraphicsRenderer {
     // Windows only variables
     public static long hdc;
     static long hglrc;
-
+    // Viewport
     static ViewPort viewPort;
+    // OpenGL variables
     static GLCapabilities capabilities;
-
-    static List<Integer> vaos = new ArrayList<>();
-    static List<Integer> programs = new ArrayList<>();
-    static List<Integer> vertShaders = new ArrayList<>();
-    static List<Integer> fragShaders = new ArrayList<>();
-    static List<Integer> textures = new ArrayList<>();
-    static int ubo;
-    static int transWell;
-    static int matId;
+    // Lists
+    static List<Integer> vaos;
+    static List<Integer> programs;
+    static List<Integer> vertShaders;
+    static List<Integer> fragShaders;
+    static List<Integer> textures;
 
     static int viewProjMatrixLocation;
     static int transformationMatrixLocation;
 
     public GLRenderer(final ViewPort vp) {
         viewPort = vp;
+        vaos = new ArrayList<>();
+        programs = new ArrayList<>();
+        vertShaders = new ArrayList<>();
+        fragShaders = new ArrayList<>();
+        textures = new ArrayList<>();
     }
 
     @Override
@@ -112,14 +115,15 @@ public class GLRenderer implements GraphicsRenderer {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             for (final Mesh mesh : Mesh.getMeshes()) {
                 if (mesh.getState() == RenderStates.STATE_RENDER) {
+                    // Shaders
                     glUseProgram(programs.get(mesh.index));
                     viewProjMatrixLocation = glGetUniformLocation(programs.get(mesh.index), "viewProjectionMatrix");
-                    glUniformMatrix4fv(viewProjMatrixLocation, false, viewPort.getCamera().getProjectionMatrix().get(stack.mallocFloat(16)));
-
-                    transformationMatrixLocation = glGetUniformLocation(programs.get(mesh.index), "transformationMatrix");
+                    glUniformMatrix4fv(viewProjMatrixLocation, false,
+                            viewPort.getCamera().getProjectionMatrix().get(stack.mallocFloat(16)));
+                    transformationMatrixLocation = glGetUniformLocation(programs.get(mesh.index),
+                            "transformationMatrix");
                     glUniformMatrix4fv(transformationMatrixLocation, false, mesh.transMat.get(stack.mallocFloat(16)));
-
-
+                    // Draw arrays
                     glBindVertexArray(vaos.get(mesh.index));
                     glEnableVertexAttribArray(0);
                     glBindTexture(GL_TEXTURE_2D, textures.get(mesh.index));
@@ -127,28 +131,6 @@ public class GLRenderer implements GraphicsRenderer {
                     glBindTexture(GL_TEXTURE_2D, 0);
                     glDisableVertexAttribArray(0);
                     glBindVertexArray(0);
-
-                    glBindBufferBase(GL_UNIFORM_BUFFER, 2, matId);
-                    final int uniformId3 = glGetUniformBlockIndex(programs.get(mesh.index), "material");
-                    glUniformBlockBinding(programs.get(mesh.index), uniformId3, matId);
-                    final FloatBuffer u3 = stack.mallocFloat(14);
-                    u3.put(0, mesh.material.getAmbientColor().getR());
-                    u3.put(1, mesh.material.getAmbientColor().getG());
-                    u3.put(2, mesh.material.getAmbientColor().getB());
-                    u3.put(3, mesh.material.getAmbientColor().getA());
-                    u3.put(4, mesh.material.getDiffuseColor().getR());
-                    u3.put(5, mesh.material.getDiffuseColor().getG());
-                    u3.put(6, mesh.material.getDiffuseColor().getB());
-                    u3.put(7, mesh.material.getDiffuseColor().getA());
-                    u3.put(8, mesh.material.getSpecularColor().getR());
-                    u3.put(9, mesh.material.getSpecularColor().getG());
-                    u3.put(10, mesh.material.getSpecularColor().getB());
-                    u3.put(11, mesh.material.getSpecularColor().getA());
-                    u3.put(12, 1f);
-                    u3.put(13, 0f);// reflect
-                    glBufferData(GL_UNIFORM_BUFFER, u3, GL_DYNAMIC_DRAW);
-                    glBufferSubData(GL_UNIFORM_BUFFER, 0, u3);
-                    glBindBuffer(GL_UNIFORM_BUFFER, 0);
                 }
             }
             glViewport(0, 0, WindowInfo.getWidth(), WindowInfo.getHeight());
@@ -173,6 +155,7 @@ public class GLRenderer implements GraphicsRenderer {
 
     @Override
     public void processMesh(final Mesh mesh) {
+        // Generate textures
         final int id = glGenTextures();
         glBindTexture(GL_TEXTURE_2D, id);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -182,12 +165,11 @@ public class GLRenderer implements GraphicsRenderer {
                 mesh.material.getTexture().getData());
         glBindTexture(GL_TEXTURE_2D, 0);
         textures.add(mesh.index, id);
-
+        // Process shaders
         final int program = glCreateProgram();
         addShader(mesh.material.getVertexShader(), program, Mesh.meshes.indexOf(mesh));
         addShader(mesh.material.getFragmentShader(), program, Mesh.meshes.indexOf(mesh));
         programs.add(mesh.index, program);
-
         glLinkProgram(programs.get(mesh.index));
         final int linked = glGetProgrami(programs.get(mesh.index), GL_LINK_STATUS);
         final String programLog = glGetProgramInfoLog(programs.get(mesh.index));
@@ -196,7 +178,7 @@ public class GLRenderer implements GraphicsRenderer {
         if (linked == 0)
             throw new AssertionError("Could not link program");
         glUseProgram(programs.get(mesh.index));
-
+        // Generate vertex arrays
         final int vao = glGenVertexArrays();
         vaos.add(mesh.index, vao);
     }
@@ -207,14 +189,6 @@ public class GLRenderer implements GraphicsRenderer {
         glUniform1i(texLocation, 0);
         final int inputPosition = glGetAttribLocation(programs.get(mesh.index), "position");
         final int inputTextureCoords = glGetAttribLocation(programs.get(mesh.index), "inTexCoords");
-        final int uboId = glGenBuffers();
-        ubo = uboId;
-
-        final int tra = glGenBuffers();
-        transWell = tra;
-
-        final int mat = glGenBuffers();
-        matId = mat;
 
         glUseProgram(0);
 
@@ -255,7 +229,11 @@ public class GLRenderer implements GraphicsRenderer {
 
     @Override
     public void setWireframe(final boolean enabled) {
-
+        if (enabled == true) {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        } else {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        }
     }
 
     @Override

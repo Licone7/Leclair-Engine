@@ -31,7 +31,7 @@ import Leclair.logger.Logger;
  */
 public class ALRenderer implements AudioRenderer {
 
-    // Capabilities Info
+    // Capabilities info
     static boolean effectsSupported = true;
     // OpenAL variables
     static long device;
