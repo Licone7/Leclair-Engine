@@ -206,7 +206,7 @@ public class GLRenderer implements GraphicsRenderer {
         final int texLocation = glGetUniformLocation(programs.get(mesh.index), "tex");
         glUniform1i(texLocation, 0);
         final int inputPosition = glGetAttribLocation(programs.get(mesh.index), "position");
-        final int inputTextureCoords = glGetAttribLocation(programs.get(mesh.index), "texCoords");
+        final int inputTextureCoords = glGetAttribLocation(programs.get(mesh.index), "inTexCoords");
         final int uboId = glGenBuffers();
         ubo = uboId;
 

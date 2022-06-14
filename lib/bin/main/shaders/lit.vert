@@ -1,13 +1,13 @@
 #version 330 core
 
-layout (location = 0) in vec4 position;
-layout (location = 1) in vec2 texCoords;
-layout (location = 2) out vec2 texCoordsVarying;
+in vec4 position;
+in vec2 inTexCoords;
+out vec2 outTexCoords;
 
 uniform mat4 viewProjectionMatrix; // Camera
 uniform mat4 transformationMatrix; // Scene
 
 void main() {
-  texCoordsVarying = texCoords;
+  outTexCoords = inTexCoords;
   gl_Position = viewProjectionMatrix * transformationMatrix * vec4(position);
 } 
