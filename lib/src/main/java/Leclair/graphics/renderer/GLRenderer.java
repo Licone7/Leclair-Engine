@@ -266,8 +266,6 @@ public class GLRenderer implements GraphicsRenderer {
                 strings.clear();
                 lengths.clear();
                 break;
-            case Shaders.COMPUTE_SHADER:
-                break;
             default:
                 throw new IllegalArgumentException("Invalid shader!");
         }
@@ -283,4 +281,5 @@ public class GLRenderer implements GraphicsRenderer {
         GL.setCapabilities(null);
         MemoryUtil.memFree(capabilities.getAddressBuffer());
     }
+
 }
