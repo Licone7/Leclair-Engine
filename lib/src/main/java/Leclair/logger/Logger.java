@@ -46,7 +46,7 @@ public class Logger {
      * @param type
      * @param throwable
      */
-    public void log(final String message, final byte type, final Throwable throwable) {
+    public void logWithThrowable(final String message, final byte type, final Throwable throwable) {
         switch (type) {
             case LogTypes.TYPE_INFO:
                 System.out.println("[INFO] " + message);
