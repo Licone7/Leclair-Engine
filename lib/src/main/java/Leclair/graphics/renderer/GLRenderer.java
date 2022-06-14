@@ -53,6 +53,9 @@ public class GLRenderer implements GraphicsRenderer {
     static int transWell;
     static int matId;
 
+    static int viewProjMatrixLocation;
+    static int transformationMatrixLocation;
+
     public GLRenderer(final ViewPort vp) {
         viewPort = vp;
     }
@@ -63,7 +66,7 @@ public class GLRenderer implements GraphicsRenderer {
             switch (Platform.get()) {
                 case WINDOWS:
                     hdc = User32.GetDC(WindowInfo.getNativeWindow());
-                    PIXELFORMATDESCRIPTOR ppfd = PIXELFORMATDESCRIPTOR.calloc(stack);
+                    final PIXELFORMATDESCRIPTOR ppfd = PIXELFORMATDESCRIPTOR.calloc(stack);
                     ppfd.nSize((short) PIXELFORMATDESCRIPTOR.SIZEOF);
                     ppfd.nVersion((short) 1);
                     ppfd.dwFlags(GDI32.PFD_DRAW_TO_WINDOW | GDI32.PFD_SUPPORT_OPENGL |
@@ -110,22 +113,12 @@ public class GLRenderer implements GraphicsRenderer {
             for (final Mesh mesh : Mesh.getMeshes()) {
                 if (mesh.getState() == RenderStates.STATE_RENDER) {
                     glUseProgram(programs.get(mesh.index));
-                    glBindBufferBase(GL_UNIFORM_BUFFER, 0, ubo);
-                    int uniformId = glGetUniformBlockIndex(programs.get(mesh.index), "camera");
-                    glUniformBlockBinding(programs.get(mesh.index), uniformId, ubo);
-                    FloatBuffer u = viewPort.getCamera().getProjectionMatrix().get(stack.mallocFloat(16));
-                    glBufferData(GL_UNIFORM_BUFFER, u, GL_DYNAMIC_DRAW);
-                    glBufferSubData(GL_UNIFORM_BUFFER, 64, u);
-                    glUnmapBuffer(GL_UNIFORM_BUFFER);
-                    glBindBuffer(GL_UNIFORM_BUFFER, 0);
-                    glBindBufferBase(GL_UNIFORM_BUFFER, 1, transWell);
-                    int uniformId2 = glGetUniformBlockIndex(programs.get(mesh.index), "scene");
-                    glUniformBlockBinding(programs.get(mesh.index), uniformId2, transWell);
-                    FloatBuffer u2 = mesh.transMat.get(stack.mallocFloat(16));
-                    glBufferData(GL_UNIFORM_BUFFER, u2, GL_DYNAMIC_DRAW);
-                    glBufferSubData(GL_UNIFORM_BUFFER, 64, u2);
-                    glUnmapBuffer(GL_UNIFORM_BUFFER);
-                    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+                    viewProjMatrixLocation = glGetUniformLocation(programs.get(mesh.index), "viewProjectionMatrix");
+                    glUniformMatrix4fv(viewProjMatrixLocation, false, viewPort.getCamera().getProjectionMatrix().get(stack.mallocFloat(16)));
+
+                    transformationMatrixLocation = glGetUniformLocation(programs.get(mesh.index), "transformationMatrix");
+                    glUniformMatrix4fv(transformationMatrixLocation, false, mesh.transMat.get(stack.mallocFloat(16)));
+
 
                     glBindVertexArray(vaos.get(mesh.index));
                     glEnableVertexAttribArray(0);
@@ -136,9 +129,9 @@ public class GLRenderer implements GraphicsRenderer {
                     glBindVertexArray(0);
 
                     glBindBufferBase(GL_UNIFORM_BUFFER, 2, matId);
-                    int uniformId3 = glGetUniformBlockIndex(programs.get(mesh.index), "material");
+                    final int uniformId3 = glGetUniformBlockIndex(programs.get(mesh.index), "material");
                     glUniformBlockBinding(programs.get(mesh.index), uniformId3, matId);
-                    FloatBuffer u3 = stack.mallocFloat(14);
+                    final FloatBuffer u3 = stack.mallocFloat(14);
                     u3.put(0, mesh.material.getAmbientColor().getR());
                     u3.put(1, mesh.material.getAmbientColor().getG());
                     u3.put(2, mesh.material.getAmbientColor().getB());
@@ -214,13 +207,13 @@ public class GLRenderer implements GraphicsRenderer {
         glUniform1i(texLocation, 0);
         final int inputPosition = glGetAttribLocation(programs.get(mesh.index), "position");
         final int inputTextureCoords = glGetAttribLocation(programs.get(mesh.index), "texCoords");
-        int uboId = glGenBuffers();
+        final int uboId = glGenBuffers();
         ubo = uboId;
 
-        int tra = glGenBuffers();
+        final int tra = glGenBuffers();
         transWell = tra;
 
-        int mat = glGenBuffers();
+        final int mat = glGenBuffers();
         matId = mat;
 
         glUseProgram(0);
