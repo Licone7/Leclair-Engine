@@ -106,7 +106,6 @@ public class GLRenderer implements GraphicsRenderer {
     @Override
     public void loop() {
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            FloatBuffer UtilityFB2 = stack.mallocFloat(16); // We don't need this
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             for (final Mesh mesh : Mesh.getMeshes()) {
                 if (mesh.getState() == RenderStates.STATE_RENDER) {
@@ -114,7 +113,7 @@ public class GLRenderer implements GraphicsRenderer {
                     glBindBufferBase(GL_UNIFORM_BUFFER, 0, ubo);
                     int uniformId = glGetUniformBlockIndex(programs.get(mesh.index), "camera");
                     glUniformBlockBinding(programs.get(mesh.index), uniformId, ubo);
-                    FloatBuffer u = viewPort.getCamera().getProjectionMatrix().get(UtilityFB2);
+                    FloatBuffer u = viewPort.getCamera().getProjectionMatrix().get(stack.mallocFloat(16));
                     glBufferData(GL_UNIFORM_BUFFER, u, GL_DYNAMIC_DRAW);
                     glBufferSubData(GL_UNIFORM_BUFFER, 64, u);
                     glUnmapBuffer(GL_UNIFORM_BUFFER);
@@ -122,7 +121,7 @@ public class GLRenderer implements GraphicsRenderer {
                     glBindBufferBase(GL_UNIFORM_BUFFER, 1, transWell);
                     int uniformId2 = glGetUniformBlockIndex(programs.get(mesh.index), "scene");
                     glUniformBlockBinding(programs.get(mesh.index), uniformId2, transWell);
-                    FloatBuffer u2 = mesh.transMat.get(UtilityFB2);
+                    FloatBuffer u2 = mesh.transMat.get(stack.mallocFloat(16));
                     glBufferData(GL_UNIFORM_BUFFER, u2, GL_DYNAMIC_DRAW);
                     glBufferSubData(GL_UNIFORM_BUFFER, 64, u2);
                     glUnmapBuffer(GL_UNIFORM_BUFFER);
