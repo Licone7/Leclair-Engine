@@ -1,5 +1,8 @@
 package Leclair.demos;
 
+import java.nio.FloatBuffer;
+
+import org.lwjgl.BufferUtils;
 import org.lwjgl.system.Configuration;
 
 import Leclair.application.ApplicationStructure;
@@ -11,10 +14,14 @@ import Leclair.audio.filter.Filters;
 import Leclair.audio.renderer.AudioRenderers;
 import Leclair.audio.sound.Sound;
 import Leclair.graphics.GraphicsInfo;
+import Leclair.graphics.image.Texture;
+import Leclair.graphics.material.Material;
+import Leclair.graphics.material.Materials;
 import Leclair.graphics.renderer.GraphicsRenderers;
 import Leclair.graphics.scene.Mesh;
 import Leclair.input.key.KeyHandler;
 import Leclair.input.key.Keys;
+import Leclair.math.Color;
 import Leclair.math.Colors;
 import Leclair.math.MathUtilities;
 import Leclair.math.Vector3;
@@ -49,6 +56,39 @@ public class Main extends ApplicationStructure {
     theme.play();
     viewPort.setBackgroundColor(Colors.RED);
     System.out.println(MathUtilities.generateRandom());
+
+
+    FloatBuffer fb = BufferUtils.createFloatBuffer(4 * 6);
+    fb.put(-3.0f).put(-2.0f).put(0f).put(1f);
+    fb.put(3.0f).put(-2.0f).put(0f).put(1f);
+    fb.put(3.0f).put(2.0f).put(0f).put(1f);
+    fb.put(3.0f).put(2.0f).put(0f).put(1f);
+    fb.put(-3.0f).put(2.0f).put(0f).put(1f);
+    fb.put(-3.0f).put(-2.0f).put(0f).put(1f);
+    fb.flip();
+    Color colors = new Color(1, 0, 0, 0);
+    Mesh mesh = new Mesh(fb, new Material(colors, colors, new Color(0, 1, 0, 0), 0, new Texture("textures/rust.png"),
+        Materials.LIT_MATERIAL), new Vector3(0, 0, 0), true);
+    mesh.render();
+
+    mesh3 = new Mesh(fb, new Material(colors, colors, new Color(0, 0, 1, 0), 0, new Texture("textures/bond.jpg"),
+        Materials.LIT_MATERIAL), new Vector3(0, 5, 0), true);
+
+    FloatBuffer fb2 = BufferUtils.createFloatBuffer(4 * 6);
+    fb2.put(-1.0f).put(-1.0f).put(1f).put(1f);
+    fb2.put(1.0f).put(-1.0f).put(1f).put(1f);
+    fb2.put(1.0f).put(1.0f).put(1f).put(1f);
+    fb2.put(1.0f).put(1.0f).put(1f).put(1f);
+    fb2.put(-1.0f).put(1.0f).put(1f).put(1f);
+    fb2.put(-1.0f).put(-1.0f).put(1f).put(1f);
+    fb2.flip();
+
+    Mesh mesh2 = new Mesh(fb2, new Material(colors, colors, new Color(0, 0, 0, 0), 0, new Texture("textures/bond.jpg"),
+        (byte) Materials.LIT_MATERIAL), new Vector3(-8, 0, 0), false);
+    mesh2.process();
+    mesh2.render();
+
+    
   }
 
   static void testSpeed() {
@@ -68,7 +108,8 @@ public class Main extends ApplicationStructure {
     } else if (KeyHandler.isKeyPressed(Keys.KEY_B)) {
       theme.play();
       viewPort.setBackgroundColor(255f, 255f, 0f, 1f);
-      theme.deleteEffect(effect);
+      mesh3.render();
+      //theme.deleteEffect(effect);
     } else if (KeyHandler.isKeyPressed(Keys.KEY_F)) {
       // theme.stop();
       theme.addFilter(new Filter(Filters.LOWPASS_FILTER));
