@@ -5,6 +5,8 @@ import static org.lwjgl.opengl.GL33C.*;
 import Leclair.graphics.scene.Mesh;
 import Leclair.graphics.scene.ViewPort;
 import Leclair.graphics.shader.Shader;
+import Leclair.logger.LogTypes;
+import Leclair.logger.Logger;
 import Leclair.math.Color;
 import Leclair.window.WindowInfo;
 import org.lwjgl.opengl.GL;
@@ -77,10 +79,10 @@ public class GLRenderer implements GraphicsRenderer {
         }
         final String api = "API: OpenGL " + glGetString(GL_VERSION);
         final String renderer = "Renderer: " + glGetString(GL_RENDERER);
-        System.out.println("Graphics Info:");
-        System.out.println(api);
-        System.out.println(renderer);
-        System.out.println("_____");
+        Logger.getLogger().log("Graphics Capabilities:", LogTypes.TYPE_INFO);
+        Logger.getLogger().log(api, LogTypes.TYPE_INFO);
+        Logger.getLogger().log(renderer, LogTypes.TYPE_INFO);
+        Logger.getLogger().log("_____", LogTypes.TYPE_INFO);
     }
 
     @Override

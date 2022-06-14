@@ -4,6 +4,8 @@ import Leclair.asset.AssetLoader;
 import Leclair.audio.AudioInfo;
 import Leclair.graphics.GraphicsInfo;
 import Leclair.graphics.scene.ViewPort;
+import Leclair.logger.LogTypes;
+import Leclair.logger.Logger;
 import Leclair.window.WindowInfo;
 import org.lwjgl.system.Configuration;
 
@@ -63,6 +65,7 @@ public abstract class ApplicationStructure {
         GraphicsInfo.cleanup();
         WindowInfo.cleanup();
         appCleanup();
+        Logger.getLogger().log("Engine Shutdown Complete!", LogTypes.TYPE_INFO);
         System.exit(0);
     }
 

@@ -79,6 +79,5 @@ public class Main extends ApplicationStructure {
 
   @Override
   public void appCleanup() {
-    System.out.println("Demo run complete!");
   }
 }

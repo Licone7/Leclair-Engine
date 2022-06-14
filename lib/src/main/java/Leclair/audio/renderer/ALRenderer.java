@@ -22,6 +22,8 @@ import Leclair.audio.effect.Effects;
 import Leclair.audio.filter.Filter;
 import Leclair.audio.filter.Filters;
 import Leclair.audio.sound.Sound;
+import Leclair.logger.LogTypes;
+import Leclair.logger.Logger;
 
 /**
  * @since v1
@@ -76,10 +78,10 @@ public class ALRenderer implements AudioRenderer {
     public void printCapabilities() {
         final String api = "API: OpenAL " + alGetString(AL_VERSION);
         final String renderer = "Renderer: " + alGetString(AL_RENDERER);
-        System.out.println("Audio Info:");
-        System.out.println(api);
-        System.out.println(renderer);
-        System.out.println("_____");
+        Logger.getLogger().log("Audio Capabilities:", LogTypes.TYPE_INFO);
+        Logger.getLogger().log(api, LogTypes.TYPE_INFO);
+        Logger.getLogger().log(renderer, LogTypes.TYPE_INFO);
+        Logger.getLogger().log("_____", LogTypes.TYPE_INFO);
     }
 
     @Override
