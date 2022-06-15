@@ -46,7 +46,7 @@ public class Logger {
      * @param type
      * @param throwable
      */
-    public void logWithThrowable(final String message, final byte type, final Throwable throwable) {
+    public void logWithThrowable(final String message, final byte type, final RuntimeException exception) {
         switch (type) {
             case LogTypes.TYPE_INFO:
                 System.out.println("[INFO] " + message);
@@ -56,11 +56,7 @@ public class Logger {
                 break;
             case LogTypes.TYPE_ERROR:
                 System.err.println("[ERROR] " + message);
-                try {
-                    throw throwable;
-                } catch (final Throwable e) {
-                    throw new RuntimeException(); // Shouldn't happen, but will default to a RuntimeException
-                }
+                throw exception;
         }
     }
 
