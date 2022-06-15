@@ -41,14 +41,14 @@ public class Material {
         this.texture = texture;
         switch (type) {
             case Materials.UNLIT_MATERIAL:
-            vertexShader = new Shader("shaders/lit.vert", Shaders.VERTEX_SHADER);
-            fragmentShader = new Shader("shaders/lit.frag", Shaders.FRAGMENT_SHADER);
+            vertexShader = new Shader("shaders/light.vert", Shaders.VERTEX_SHADER);
+            fragmentShader = new Shader("shaders/light.frag", Shaders.FRAGMENT_SHADER);
             // vertexShader.compile();
             // fragmentShader.compile();
                 break;
-            case Materials.LIT_MATERIAL:
-            vertexShader = new Shader("shaders/lit.vert", Shaders.VERTEX_SHADER);
-            fragmentShader = new Shader("shaders/lit.frag", Shaders.FRAGMENT_SHADER);
+            case Materials.LIT_MATERIAL: // TODO
+            vertexShader = new Shader("shaders/light.vert", Shaders.VERTEX_SHADER);
+            fragmentShader = new Shader("shaders/light.frag", Shaders.FRAGMENT_SHADER);
             // vertexShader.compile();
             // fragmentShader.compile();
                 break;
