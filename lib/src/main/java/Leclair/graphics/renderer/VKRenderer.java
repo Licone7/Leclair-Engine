@@ -34,7 +34,7 @@ import Leclair.graphics.scene.Mesh;
 import Leclair.graphics.scene.ViewPort;
 import Leclair.graphics.shader.Shader;
 import Leclair.math.Color;
-import Leclair.window.WindowInfo;
+import Leclair.window.Window;
 
 /**
  * @since v1
@@ -42,6 +42,9 @@ import Leclair.window.WindowInfo;
  */
 public class VKRenderer implements GraphicsRenderer {
 
+    // Engine Variables
+    static Window window;
+    static ViewPort viewPort;
     // VARIABLES INITIALIZED
     static boolean validate = false; // This should be true only for testing, otherwise it'll always be false
     static boolean multiDrawIndirectSupported = false;
@@ -71,7 +74,7 @@ public class VKRenderer implements GraphicsRenderer {
     static VkCommandBuffer[] commandBuffers;
     static long[] fences;
 
-    public VKRenderer(final ViewPort viewPort) {
+    public VKRenderer(final Window window, final ViewPort viewPort) {
 
     }
 
@@ -119,7 +122,7 @@ public class VKRenderer implements GraphicsRenderer {
                     pWin32SurfaceCreateInfoKHR.pNext(0);
                     pWin32SurfaceCreateInfoKHR.flags(0);
                     pWin32SurfaceCreateInfoKHR.hinstance(WindowsLibrary.HINSTANCE);
-                    pWin32SurfaceCreateInfoKHR.hwnd(WindowInfo.window().getWHandle());
+                    pWin32SurfaceCreateInfoKHR.hwnd(window.getNativeWindowHandle());
                     LongBuffer pSurface = stack.mallocLong(1);
                     if (KHRWin32Surface.vkCreateWin32SurfaceKHR(instance, pWin32SurfaceCreateInfoKHR, null,
                             pSurface) != VK_SUCCESS) {

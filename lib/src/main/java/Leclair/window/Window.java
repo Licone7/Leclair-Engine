@@ -12,7 +12,7 @@ public interface Window {
 
     public void show();
 
-    public long getWHandle();
+    public long getNativeWindowHandle();
 
     public void destroy();
 

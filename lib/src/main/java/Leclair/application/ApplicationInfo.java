@@ -10,48 +10,90 @@ import Leclair.graphics.renderer.GraphicsRenderers;
 public class ApplicationInfo {
 
     /**
-     * Handle to the engine's default settings
-     * 
+     * The audio API that will be used for rendering, defaults to OPENAL
      */
-    public static final byte RUN_BEST_PERFORMANCE = 100;
+    static byte audioAPI = AudioRenderers.OPENAL;
 
     /**
-     * Handle
+     * The graphics API that will be used for rendering, defaults to VULKAN
      */
-    public static final byte RUN_BALANCED_PERFORMANCE = 101;
+    static byte graphicsAPI = GraphicsRenderers.VULKAN;
 
     /**
-     * 
+     * The initial width of the application's window upon opening
      */
-    public static final byte RUN_BEST_GRAPHICS = 102;
+    static int initialWindowWidth = 640;
 
-    static byte graphicsApi = GraphicsRenderers.VULKAN;
+    /**
+     * The initial height of the application's window upon opening
+     */
+    static int initialWindowHeight = 480;
 
-    static byte audioApi = AudioRenderers.OPENAL;
-
-    static int width = 640;
-
-    static int height = 480;
-
+    /**
+     * The title of the application, used for the window title
+     */
     static String title = "My new game";
 
-    static boolean vsync = false;
-
+    /**
+     * Whether physics is enabled or not
+     */
     static boolean physicsEnabled = false;
 
     /**
-     * Initializes the application's information with the specified default settings
-     * 
-     * @param defaultInfo
+     * Commands the engine to use the specified audio API for rendering <br>
+     * <br>
+     * Can be either {@link #DISABLED} or {@link #OPENAL}, any other value will
+     * result in an IllegalArgumentException
      */
-    public static void useDefaults(final byte defaultInfo) {
-        switch (defaultInfo) {
-        case RUN_BALANCED_PERFORMANCE:
-            
-            break;
-        case RUN_BEST_GRAPHICS:
-
-            break;
-        }
+    public static void setAudioAPI(final byte api) {
+        audioAPI = api;
     }
+
+    /**
+     * Commands the engine to use the specified graphics API for rendering <br>
+     * <br>
+     * Can be either {@link #DISABLED} or {@link #VULKAN}, any other value will
+     * result
+     * in an IllegalArgumentException
+     */
+    public static void setGraphicsRenderer(final byte api) {
+        graphicsAPI = api;
+    }
+
+    public static void setInitialWindowWidth(final int width) {
+        initialWindowWidth = width;
+    }
+
+    public static void setInitialWindowHeight(final int height) {
+        initialWindowHeight = height;
+    }
+
+    public static void setTitle(final String t) { // Variable is "t" since "title" is the class level variable
+        title = t;
+    }
+
+    public static byte getAudioAPI() {
+        return audioAPI;
+    }
+
+    public static byte getgraphicsAPI() {
+        return graphicsAPI;
+    }
+
+    public static int getInitialWindowWidth() {
+        return initialWindowWidth;
+    }
+
+    public static int getInitialWindowHeight() {
+        return initialWindowHeight;
+    }
+
+    public static String getTitle() {
+        return title;
+    }
+
+    public static boolean isPhysicsEnabled() {
+        return physicsEnabled;
+    }
+
 }

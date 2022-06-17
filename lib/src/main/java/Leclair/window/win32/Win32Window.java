@@ -10,13 +10,13 @@ import org.lwjgl.system.windows.WNDCLASSEX;
 import org.lwjgl.system.windows.WindowProc;
 import org.lwjgl.system.windows.WindowsLibrary;
 
+import Leclair.application.ApplicationInfo;
 import Leclair.application.ApplicationStructure;
 import Leclair.input.key.KeyHandler;
 import Leclair.input.mouse.CursorHandler;
 import Leclair.input.mouse.MouseButtonHandler;
 import Leclair.input.mouse.MouseButtons;
 import Leclair.window.Window;
-import Leclair.window.WindowInfo;
 
 public class Win32Window implements Window {
 
@@ -74,10 +74,11 @@ public class Win32Window implements Window {
             ByteBuffer classNameBuffer = stack.UTF16(className);
             in.lpszClassName(classNameBuffer);
             User32.RegisterClassEx(in);
-            hwnd = User32.CreateWindowEx(User32.WS_EX_APPWINDOW, className, WindowInfo.getTitle(),
+            hwnd = User32.CreateWindowEx(User32.WS_EX_APPWINDOW, className, ApplicationInfo.getTitle(),
                     User32.WS_OVERLAPPEDWINDOW,
                     User32.CW_USEDEFAULT,
-                    User32.CW_USEDEFAULT, WindowInfo.getWidth(), WindowInfo.getHeight(), 0, 0,
+                    User32.CW_USEDEFAULT, ApplicationInfo.getInitialWindowWidth(),
+                    ApplicationInfo.getInitialWindowHeight(), 0, 0,
                     WindowsLibrary.HINSTANCE, windowProc.address());
             if (hwnd == 0) {
                 throw new IllegalStateException("Cannot create a window");
@@ -104,7 +105,7 @@ public class Win32Window implements Window {
     }
 
     @Override
-    public long getWHandle() {
+    public long getNativeWindowHandle() {
         return hwnd;
     }
 

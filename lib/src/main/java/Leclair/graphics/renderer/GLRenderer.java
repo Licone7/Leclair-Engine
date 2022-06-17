@@ -8,6 +8,7 @@ import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+import Leclair.application.ApplicationInfo;
 import Leclair.asset.AssetLoader;
 import Leclair.graphics.scene.Mesh;
 import Leclair.graphics.scene.RenderStates;
@@ -17,7 +18,7 @@ import Leclair.graphics.shader.Shaders;
 import Leclair.logger.LogTypes;
 import Leclair.logger.Logger;
 import Leclair.math.Color;
-import Leclair.window.WindowInfo;
+import Leclair.window.Window;
 
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.opengl.GL;
@@ -40,7 +41,8 @@ public class GLRenderer implements GraphicsRenderer {
     // Windows only variables
     public static long hdc;
     static long hglrc;
-    // Viewport
+    // Engine variables
+    static Window window;
     static ViewPort viewPort;
     // OpenGL variables
     static GLCapabilities capabilities;
@@ -54,7 +56,8 @@ public class GLRenderer implements GraphicsRenderer {
     static int viewProjMatrixLocation;
     static int transformationMatrixLocation;
 
-    public GLRenderer(final ViewPort vp) {
+    public GLRenderer(final Window hwnd, final ViewPort vp) {
+        window = hwnd;
         viewPort = vp;
         vaos = new ArrayList<>();
         programs = new ArrayList<>();
@@ -68,7 +71,7 @@ public class GLRenderer implements GraphicsRenderer {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             switch (Platform.get()) {
                 case WINDOWS:
-                    hdc = User32.GetDC(WindowInfo.getNativeWindow());
+                    hdc = User32.GetDC(window.getNativeWindowHandle());
                     final PIXELFORMATDESCRIPTOR ppfd = PIXELFORMATDESCRIPTOR.calloc(stack);
                     ppfd.nSize((short) PIXELFORMATDESCRIPTOR.SIZEOF);
                     ppfd.nVersion((short) 1);
@@ -134,7 +137,8 @@ public class GLRenderer implements GraphicsRenderer {
                     glBindVertexArray(0);
                 }
             }
-            glViewport(0, 0, WindowInfo.getWidth(), WindowInfo.getHeight());
+            // TODO: Use actual window dimensions
+            glViewport(0, 0, ApplicationInfo.getInitialWindowWidth(), ApplicationInfo.getInitialWindowHeight());
             switch (Platform.get()) {
                 case WINDOWS:
                     GDI32.SwapBuffers(hdc);

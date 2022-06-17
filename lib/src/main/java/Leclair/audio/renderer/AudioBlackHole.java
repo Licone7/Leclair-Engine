@@ -8,7 +8,7 @@ import Leclair.audio.sound.Sound;
  * @since v1
  * @author Kane Burnett
  */
-public class BlackHoleRenderer implements AudioRenderer {
+public class AudioBlackHole implements AudioRenderer {
 
     @Override
     public void init() {

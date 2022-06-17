@@ -1,6 +1,6 @@
 package Leclair.graphics.scene;
 
-import static Leclair.graphics.GraphicsInfo.getRenderer;
+import static Leclair.application.ApplicationStructure.graphicsRenderer;
 
 import Leclair.math.Color;
 import Leclair.math.Colors;
@@ -22,7 +22,7 @@ public class ViewPort {
     public void setBackgroundColor(final float r, final float g, final float b, final float a) {
         // this.color = new Color(r, g, b, a);
         this.color.set(r, g, b, a);
-        getRenderer().setBackgroundColor(this.color);
+        graphicsRenderer.setBackgroundColor(this.color);
     }
 
     public void setBackgroundColor(final Color value) {

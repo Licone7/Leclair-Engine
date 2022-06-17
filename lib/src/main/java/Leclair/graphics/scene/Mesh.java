@@ -1,6 +1,6 @@
 package Leclair.graphics.scene;
 
-import static Leclair.graphics.GraphicsInfo.getRenderer;
+import static Leclair.application.ApplicationStructure.graphicsRenderer;
 
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
@@ -47,22 +47,22 @@ public class Mesh {
     public void process() {
         meshes.add(this);
         this.index = meshes.indexOf(this);
-        getRenderer().processMesh(this);
+        graphicsRenderer.processMesh(this);
         setState(RenderStates.STATE_PROCESS);
     }
 
     public void render() {
-        getRenderer().renderMesh(this);
+        graphicsRenderer.renderMesh(this);
         setState(RenderStates.STATE_RENDER);
     }
 
     public void remove() {
-        getRenderer().removeMesh(this);
+        graphicsRenderer.removeMesh(this);
         setState(RenderStates.STATE_REMOVE);
     }
 
     public void delete() {
-        getRenderer().deleteMesh(this);
+        graphicsRenderer.deleteMesh(this);
         setState(RenderStates.STATE_DELETE);
     }
 

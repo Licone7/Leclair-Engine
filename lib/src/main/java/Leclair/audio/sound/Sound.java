@@ -1,6 +1,6 @@
 package Leclair.audio.sound;
 
-import static Leclair.audio.AudioInfo.getRenderer;
+import static Leclair.application.ApplicationStructure.audioRenderer;
 
 import java.nio.ShortBuffer;
 import java.util.List;
@@ -51,22 +51,22 @@ public class Sound {
         this.channels = (int) information.get(0);
         this.sampleRate = (int) information.get(1);
         this.pcm = (ShortBuffer) information.get(2);
-        getRenderer().processSound(this);
+        audioRenderer.processSound(this);
     }
 
     public void play() {
         setState(PlayStates.STATE_PLAYING);
-        getRenderer().playSound(this);
+        audioRenderer.playSound(this);
     }
 
     public void pause() {
         setState(PlayStates.STATE_PAUSED);
-        getRenderer().pauseSound(this);
+        audioRenderer.pauseSound(this);
     }
 
     public void stop() {
         setState(PlayStates.STATE_STOPPED);
-        getRenderer().stopSound(this);
+        audioRenderer.stopSound(this);
     }
 
     /**
@@ -77,7 +77,7 @@ public class Sound {
      */
     public void setPosition(Vector3 position) {
         this.position = position;
-        getRenderer().setPosition(this);
+        audioRenderer.setPosition(this);
     }
 
     public Vector3 getPosition() {
@@ -86,23 +86,23 @@ public class Sound {
 
     public void delete() {
         setState(PlayStates.STATE_DELETE);
-        getRenderer().deleteSound(this);
+        audioRenderer.deleteSound(this);
     }
 
     public void addEffect(Effect effect) {
-        getRenderer().addEffect(this, effect);
+        audioRenderer.addEffect(this, effect);
     }
 
     public void deleteEffect(Effect effect) {
-        getRenderer().deleteEffect(this, effect);
+        audioRenderer.deleteEffect(this, effect);
     }
 
     public void addFilter(Filter filter) {
-        getRenderer().addFilter(this, filter);
+        audioRenderer.addFilter(this, filter);
     }
 
     public void deleteFilter(Filter filter) {
-        getRenderer().deleteFilter(this, filter);
+        audioRenderer.deleteFilter(this, filter);
     }
 
     public void setState(byte state) {
@@ -112,4 +112,5 @@ public class Sound {
     public byte getState() {
         return this.state;
     }
+
 }

@@ -5,15 +5,14 @@ import java.nio.FloatBuffer;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.system.Configuration;
 
+import Leclair.application.ApplicationInfo;
 import Leclair.application.ApplicationStructure;
-import Leclair.audio.AudioInfo;
 import Leclair.audio.effect.Effect;
 import Leclair.audio.effect.Effects;
 import Leclair.audio.filter.Filter;
 import Leclair.audio.filter.Filters;
 import Leclair.audio.renderer.AudioRenderers;
 import Leclair.audio.sound.Sound;
-import Leclair.graphics.GraphicsInfo;
 import Leclair.graphics.image.Texture;
 import Leclair.graphics.material.Material;
 import Leclair.graphics.material.Materials;
@@ -25,7 +24,6 @@ import Leclair.math.Color;
 import Leclair.math.Colors;
 import Leclair.math.MathUtilities;
 import Leclair.math.Vector3;
-import Leclair.window.WindowInfo;
 
 /**
  * @since v1
@@ -40,13 +38,12 @@ public class Main extends ApplicationStructure {
   public static void main(String[] args) {
     Configuration.DEBUG_MEMORY_ALLOCATOR.set(true);
     testSpeed();
-    AudioInfo.setRenderer(AudioRenderers.OPENAL);
-    GraphicsInfo.setRenderer(GraphicsRenderers.OPENGL);
-    WindowInfo.setWidth(640);
-    WindowInfo.setHeight(480);
-    WindowInfo.setTitle("Leclair Engine Demo");
+    ApplicationInfo.setAudioAPI(AudioRenderers.OPENAL);
+    ApplicationInfo.setGraphicsRenderer(GraphicsRenderers.OPENGL);
+    ApplicationInfo.setInitialWindowWidth(640);
+    ApplicationInfo.setInitialWindowHeight(480);
+    ApplicationInfo.setTitle("Leclair Engine Demo");
     Main app = new Main();
-
     app.start();
   }
 

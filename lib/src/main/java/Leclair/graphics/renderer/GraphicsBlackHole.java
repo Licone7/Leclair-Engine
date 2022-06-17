@@ -8,7 +8,7 @@ import Leclair.math.Color;
  * @since v1
  * @author Kane Burnett
  */
-public class BlackHoleRenderer implements GraphicsRenderer {
+public class GraphicsBlackHole implements GraphicsRenderer {
 
     @Override
     public void init() {
