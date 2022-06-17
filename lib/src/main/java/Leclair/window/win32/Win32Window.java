@@ -62,8 +62,6 @@ public class Win32Window implements Window {
                         case User32.WM_MBUTTONUP:
                             MouseButtonHandler.MOUSE_BUTTON_PRESS = false;
                             break;
-                        // case User32.WM_MOUSEMOVE:
-                        // break;
                     }
                     return User32.DefWindowProc(hwnd, uMsg, wParam, lParam);
                 }
