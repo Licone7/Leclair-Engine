@@ -23,6 +23,7 @@ import org.lwjgl.PointerBuffer;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GLCapabilities;
 import org.lwjgl.opengl.WGL;
+import org.lwjgl.opengl.WGLEXTSwapControl;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.system.Platform;
@@ -83,6 +84,7 @@ public class GLRenderer implements GraphicsRenderer {
                     }
                     hglrc = WGL.wglCreateContext(hdc);
                     WGL.wglMakeCurrent(hdc, hglrc);
+                    WGLEXTSwapControl.wglSwapIntervalEXT(1);
                     break;
                 case MACOSX:
                     throw new IllegalStateException("OpenGL is deprecated on MacOS. Use the Vulkan renderer!");
