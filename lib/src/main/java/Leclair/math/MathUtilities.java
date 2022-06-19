@@ -71,12 +71,4 @@ public class MathUtilities {
         return radians * (180 / Constants.PI);
     }
 
-    // RANDOM NUMBERS
-
-    /**
-     * Generates a random number
-     */
-    public static float generateRandom() {
-        return System.nanoTime() / System.currentTimeMillis();
-    }
 }

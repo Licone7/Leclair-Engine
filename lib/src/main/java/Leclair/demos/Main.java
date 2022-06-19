@@ -52,8 +52,6 @@ public class Main extends ApplicationStructure {
     theme.process();
     theme.play();
     viewPort.setBackgroundColor(Colors.RED);
-    System.out.println(MathUtilities.generateRandom());
-
 
     FloatBuffer fb = BufferUtils.createFloatBuffer(4 * 6);
     fb.put(-3.0f).put(-2.0f).put(0f).put(1f);
