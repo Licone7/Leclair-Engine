@@ -22,7 +22,6 @@ import Leclair.input.key.KeyHandler;
 import Leclair.input.key.Keys;
 import Leclair.math.Color;
 import Leclair.math.Colors;
-import Leclair.math.MathUtilities;
 import Leclair.math.Vector3;
 
 /**
